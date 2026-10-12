@@ -19,5 +19,5 @@ export function editNumber(value: string, key: string): string {
     const token = match[2] ?? ''
     return prefix + (token.startsWith('-') ? token.slice(1) : `-${token}`)
   }
-  return value.length < 110 ? value + key : value
+  return value.length < 140 ? value + key : value
 }

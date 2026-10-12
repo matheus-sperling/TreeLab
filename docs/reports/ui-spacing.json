@@ -1,0 +1,2052 @@
+{
+  "date": "2026-10-12",
+  "environment": "Chromium com toque e viewport emulados; build de produção local",
+  "checks": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "vitest": {
+      "files": 11,
+      "tests": 69,
+      "status": "passed"
+    },
+    "build": "passed",
+    "playwright": {
+      "tests": 5,
+      "status": "passed"
+    }
+  },
+  "keyboard": {
+    "states": [
+      {
+        "width": 360,
+        "height": 740,
+        "theme": "dark",
+        "scale": 1,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 97,
+          "width": 360,
+          "height": 302,
+          "bottom": 399,
+          "right": 360
+        },
+        "dock": {
+          "x": 0,
+          "y": 399,
+          "width": 360,
+          "height": 341,
+          "bottom": 740,
+          "right": 360
+        },
+        "field": {
+          "x": 16,
+          "y": 408,
+          "width": 328,
+          "height": 50,
+          "bottom": 458,
+          "right": 344
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 16,
+            "y": 466,
+            "width": 76,
+            "height": 44,
+            "bottom": 510,
+            "right": 92
+          },
+          {
+            "label": "2",
+            "x": 100,
+            "y": 466,
+            "width": 76,
+            "height": 44,
+            "bottom": 510,
+            "right": 176
+          },
+          {
+            "label": "3",
+            "x": 184,
+            "y": 466,
+            "width": 76,
+            "height": 44,
+            "bottom": 510,
+            "right": 260
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 268,
+            "y": 466,
+            "width": 76,
+            "height": 44,
+            "bottom": 510,
+            "right": 344
+          },
+          {
+            "label": "4",
+            "x": 16,
+            "y": 518,
+            "width": 76,
+            "height": 44,
+            "bottom": 562,
+            "right": 92
+          },
+          {
+            "label": "5",
+            "x": 100,
+            "y": 518,
+            "width": 76,
+            "height": 44,
+            "bottom": 562,
+            "right": 176
+          },
+          {
+            "label": "6",
+            "x": 184,
+            "y": 518,
+            "width": 76,
+            "height": 44,
+            "bottom": 562,
+            "right": 260
+          },
+          {
+            "label": "Limpar valores",
+            "x": 268,
+            "y": 518,
+            "width": 76,
+            "height": 44,
+            "bottom": 562,
+            "right": 344
+          },
+          {
+            "label": "7",
+            "x": 16,
+            "y": 570,
+            "width": 76,
+            "height": 44,
+            "bottom": 614,
+            "right": 92
+          },
+          {
+            "label": "8",
+            "x": 100,
+            "y": 570,
+            "width": 76,
+            "height": 44,
+            "bottom": 614,
+            "right": 176
+          },
+          {
+            "label": "9",
+            "x": 184,
+            "y": 570,
+            "width": 76,
+            "height": 44,
+            "bottom": 614,
+            "right": 260
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 268,
+            "y": 570,
+            "width": 76,
+            "height": 44,
+            "bottom": 614,
+            "right": 344
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 16,
+            "y": 622,
+            "width": 76,
+            "height": 46,
+            "bottom": 668,
+            "right": 92
+          },
+          {
+            "label": "0",
+            "x": 100,
+            "y": 622,
+            "width": 76,
+            "height": 46,
+            "bottom": 668,
+            "right": 176
+          },
+          {
+            "label": "Separar valores",
+            "x": 184,
+            "y": 622,
+            "width": 76,
+            "height": 46,
+            "bottom": 668,
+            "right": 260
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 268,
+            "y": 622,
+            "width": 76,
+            "height": 46,
+            "bottom": 668,
+            "right": 344
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 16,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 120
+          },
+          {
+            "label": "Remover valores",
+            "x": 128,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 232
+          },
+          {
+            "label": "Inserir valores",
+            "x": 240,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 344
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 328,
+          "scroll": 328
+        }
+      },
+      {
+        "width": 393,
+        "height": 852,
+        "theme": "dark",
+        "scale": 1,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 108,
+          "width": 393,
+          "height": 357,
+          "bottom": 465,
+          "right": 393
+        },
+        "dock": {
+          "x": 0,
+          "y": 465,
+          "width": 393,
+          "height": 387,
+          "bottom": 852,
+          "right": 393
+        },
+        "field": {
+          "x": 16,
+          "y": 502,
+          "width": 361,
+          "height": 50,
+          "bottom": 552,
+          "right": 377
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 16,
+            "y": 560,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 608,
+            "right": 100.25
+          },
+          {
+            "label": "2",
+            "x": 108.25,
+            "y": 560,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 608,
+            "right": 192.5
+          },
+          {
+            "label": "3",
+            "x": 200.5,
+            "y": 560,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 608,
+            "right": 284.75
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 292.75,
+            "y": 560,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 608,
+            "right": 377
+          },
+          {
+            "label": "4",
+            "x": 16,
+            "y": 616,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 664,
+            "right": 100.25
+          },
+          {
+            "label": "5",
+            "x": 108.25,
+            "y": 616,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 664,
+            "right": 192.5
+          },
+          {
+            "label": "6",
+            "x": 200.5,
+            "y": 616,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 664,
+            "right": 284.75
+          },
+          {
+            "label": "Limpar valores",
+            "x": 292.75,
+            "y": 616,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 664,
+            "right": 377
+          },
+          {
+            "label": "7",
+            "x": 16,
+            "y": 672,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 720,
+            "right": 100.25
+          },
+          {
+            "label": "8",
+            "x": 108.25,
+            "y": 672,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 720,
+            "right": 192.5
+          },
+          {
+            "label": "9",
+            "x": 200.5,
+            "y": 672,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 720,
+            "right": 284.75
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 292.75,
+            "y": 672,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 720,
+            "right": 377
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 16,
+            "y": 728,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 776,
+            "right": 100.25
+          },
+          {
+            "label": "0",
+            "x": 108.25,
+            "y": 728,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 776,
+            "right": 192.5
+          },
+          {
+            "label": "Separar valores",
+            "x": 200.5,
+            "y": 728,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 776,
+            "right": 284.75
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 292.75,
+            "y": 728,
+            "width": 84.25,
+            "height": 48,
+            "bottom": 776,
+            "right": 377
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 16,
+            "y": 784,
+            "width": 115,
+            "height": 48,
+            "bottom": 832,
+            "right": 131
+          },
+          {
+            "label": "Remover valores",
+            "x": 139,
+            "y": 784,
+            "width": 115,
+            "height": 48,
+            "bottom": 832,
+            "right": 254
+          },
+          {
+            "label": "Inserir valores",
+            "x": 262,
+            "y": 784,
+            "width": 115,
+            "height": 48,
+            "bottom": 832,
+            "right": 377
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 361,
+          "scroll": 361
+        }
+      },
+      {
+        "width": 412,
+        "height": 915,
+        "theme": "dark",
+        "scale": 1,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 108,
+          "width": 412,
+          "height": 420,
+          "bottom": 528,
+          "right": 412
+        },
+        "dock": {
+          "x": 0,
+          "y": 528,
+          "width": 412,
+          "height": 387,
+          "bottom": 915,
+          "right": 412
+        },
+        "field": {
+          "x": 16,
+          "y": 565,
+          "width": 380,
+          "height": 50,
+          "bottom": 615,
+          "right": 396
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 16,
+            "y": 623,
+            "width": 89,
+            "height": 48,
+            "bottom": 671,
+            "right": 105
+          },
+          {
+            "label": "2",
+            "x": 113,
+            "y": 623,
+            "width": 89,
+            "height": 48,
+            "bottom": 671,
+            "right": 202
+          },
+          {
+            "label": "3",
+            "x": 210,
+            "y": 623,
+            "width": 89,
+            "height": 48,
+            "bottom": 671,
+            "right": 299
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 307,
+            "y": 623,
+            "width": 89,
+            "height": 48,
+            "bottom": 671,
+            "right": 396
+          },
+          {
+            "label": "4",
+            "x": 16,
+            "y": 679,
+            "width": 89,
+            "height": 48,
+            "bottom": 727,
+            "right": 105
+          },
+          {
+            "label": "5",
+            "x": 113,
+            "y": 679,
+            "width": 89,
+            "height": 48,
+            "bottom": 727,
+            "right": 202
+          },
+          {
+            "label": "6",
+            "x": 210,
+            "y": 679,
+            "width": 89,
+            "height": 48,
+            "bottom": 727,
+            "right": 299
+          },
+          {
+            "label": "Limpar valores",
+            "x": 307,
+            "y": 679,
+            "width": 89,
+            "height": 48,
+            "bottom": 727,
+            "right": 396
+          },
+          {
+            "label": "7",
+            "x": 16,
+            "y": 735,
+            "width": 89,
+            "height": 48,
+            "bottom": 783,
+            "right": 105
+          },
+          {
+            "label": "8",
+            "x": 113,
+            "y": 735,
+            "width": 89,
+            "height": 48,
+            "bottom": 783,
+            "right": 202
+          },
+          {
+            "label": "9",
+            "x": 210,
+            "y": 735,
+            "width": 89,
+            "height": 48,
+            "bottom": 783,
+            "right": 299
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 307,
+            "y": 735,
+            "width": 89,
+            "height": 48,
+            "bottom": 783,
+            "right": 396
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 16,
+            "y": 791,
+            "width": 89,
+            "height": 48,
+            "bottom": 839,
+            "right": 105
+          },
+          {
+            "label": "0",
+            "x": 113,
+            "y": 791,
+            "width": 89,
+            "height": 48,
+            "bottom": 839,
+            "right": 202
+          },
+          {
+            "label": "Separar valores",
+            "x": 210,
+            "y": 791,
+            "width": 89,
+            "height": 48,
+            "bottom": 839,
+            "right": 299
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 307,
+            "y": 791,
+            "width": 89,
+            "height": 48,
+            "bottom": 839,
+            "right": 396
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 16,
+            "y": 847,
+            "width": 121.328125,
+            "height": 48,
+            "bottom": 895,
+            "right": 137.328125
+          },
+          {
+            "label": "Remover valores",
+            "x": 145.328125,
+            "y": 847,
+            "width": 121.34375,
+            "height": 48,
+            "bottom": 895,
+            "right": 266.671875
+          },
+          {
+            "label": "Inserir valores",
+            "x": 274.671875,
+            "y": 847,
+            "width": 121.328125,
+            "height": 48,
+            "bottom": 895,
+            "right": 396
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 380,
+          "scroll": 380
+        }
+      },
+      {
+        "width": 430,
+        "height": 932,
+        "theme": "dark",
+        "scale": 1,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 108,
+          "width": 430,
+          "height": 437,
+          "bottom": 545,
+          "right": 430
+        },
+        "dock": {
+          "x": 0,
+          "y": 545,
+          "width": 430,
+          "height": 387,
+          "bottom": 932,
+          "right": 430
+        },
+        "field": {
+          "x": 16,
+          "y": 582,
+          "width": 398,
+          "height": 50,
+          "bottom": 632,
+          "right": 414
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 16,
+            "y": 640,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 688,
+            "right": 109.5
+          },
+          {
+            "label": "2",
+            "x": 117.5,
+            "y": 640,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 688,
+            "right": 211
+          },
+          {
+            "label": "3",
+            "x": 219,
+            "y": 640,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 688,
+            "right": 312.5
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 320.5,
+            "y": 640,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 688,
+            "right": 414
+          },
+          {
+            "label": "4",
+            "x": 16,
+            "y": 696,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 744,
+            "right": 109.5
+          },
+          {
+            "label": "5",
+            "x": 117.5,
+            "y": 696,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 744,
+            "right": 211
+          },
+          {
+            "label": "6",
+            "x": 219,
+            "y": 696,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 744,
+            "right": 312.5
+          },
+          {
+            "label": "Limpar valores",
+            "x": 320.5,
+            "y": 696,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 744,
+            "right": 414
+          },
+          {
+            "label": "7",
+            "x": 16,
+            "y": 752,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 800,
+            "right": 109.5
+          },
+          {
+            "label": "8",
+            "x": 117.5,
+            "y": 752,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 800,
+            "right": 211
+          },
+          {
+            "label": "9",
+            "x": 219,
+            "y": 752,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 800,
+            "right": 312.5
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 320.5,
+            "y": 752,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 800,
+            "right": 414
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 16,
+            "y": 808,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 856,
+            "right": 109.5
+          },
+          {
+            "label": "0",
+            "x": 117.5,
+            "y": 808,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 856,
+            "right": 211
+          },
+          {
+            "label": "Separar valores",
+            "x": 219,
+            "y": 808,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 856,
+            "right": 312.5
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 320.5,
+            "y": 808,
+            "width": 93.5,
+            "height": 48,
+            "bottom": 856,
+            "right": 414
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 16,
+            "y": 864,
+            "width": 127.328125,
+            "height": 48,
+            "bottom": 912,
+            "right": 143.328125
+          },
+          {
+            "label": "Remover valores",
+            "x": 151.328125,
+            "y": 864,
+            "width": 127.34375,
+            "height": 48,
+            "bottom": 912,
+            "right": 278.671875
+          },
+          {
+            "label": "Inserir valores",
+            "x": 286.671875,
+            "y": 864,
+            "width": 127.328125,
+            "height": 48,
+            "bottom": 912,
+            "right": 414
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 398,
+          "scroll": 398
+        }
+      },
+      {
+        "width": 915,
+        "height": 412,
+        "theme": "dark",
+        "scale": 1,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 56,
+          "width": 575,
+          "height": 356,
+          "bottom": 412,
+          "right": 575
+        },
+        "dock": {
+          "x": 575,
+          "y": 56,
+          "width": 340,
+          "height": 356,
+          "bottom": 412,
+          "right": 915
+        },
+        "field": {
+          "x": 592,
+          "y": 60,
+          "width": 307,
+          "height": 50,
+          "bottom": 110,
+          "right": 899
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 592,
+            "y": 118,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166,
+            "right": 662.75
+          },
+          {
+            "label": "2",
+            "x": 670.75,
+            "y": 118,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166,
+            "right": 741.5
+          },
+          {
+            "label": "3",
+            "x": 749.5,
+            "y": 118,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166,
+            "right": 820.25
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 828.25,
+            "y": 118,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166,
+            "right": 899
+          },
+          {
+            "label": "4",
+            "x": 592,
+            "y": 174,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222,
+            "right": 662.75
+          },
+          {
+            "label": "5",
+            "x": 670.75,
+            "y": 174,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222,
+            "right": 741.5
+          },
+          {
+            "label": "6",
+            "x": 749.5,
+            "y": 174,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222,
+            "right": 820.25
+          },
+          {
+            "label": "Limpar valores",
+            "x": 828.25,
+            "y": 174,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222,
+            "right": 899
+          },
+          {
+            "label": "7",
+            "x": 592,
+            "y": 230,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278,
+            "right": 662.75
+          },
+          {
+            "label": "8",
+            "x": 670.75,
+            "y": 230,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278,
+            "right": 741.5
+          },
+          {
+            "label": "9",
+            "x": 749.5,
+            "y": 230,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278,
+            "right": 820.25
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 828.25,
+            "y": 230,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278,
+            "right": 899
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 592,
+            "y": 286,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 334,
+            "right": 662.75
+          },
+          {
+            "label": "0",
+            "x": 670.75,
+            "y": 286,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 334,
+            "right": 741.5
+          },
+          {
+            "label": "Separar valores",
+            "x": 749.5,
+            "y": 286,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 334,
+            "right": 820.25
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 828.25,
+            "y": 286,
+            "width": 70.75,
+            "height": 48,
+            "bottom": 334,
+            "right": 899
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 592,
+            "y": 342,
+            "width": 97,
+            "height": 48,
+            "bottom": 390,
+            "right": 689
+          },
+          {
+            "label": "Remover valores",
+            "x": 697,
+            "y": 342,
+            "width": 97,
+            "height": 48,
+            "bottom": 390,
+            "right": 794
+          },
+          {
+            "label": "Inserir valores",
+            "x": 802,
+            "y": 342,
+            "width": 97,
+            "height": 48,
+            "bottom": 390,
+            "right": 899
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 307,
+          "scroll": 307
+        }
+      },
+      {
+        "width": 412,
+        "height": 915,
+        "theme": "light",
+        "scale": 1.25,
+        "leftHanded": false,
+        "canvas": {
+          "x": 0,
+          "y": 108,
+          "width": 412,
+          "height": 413.5,
+          "bottom": 521.5,
+          "right": 412
+        },
+        "dock": {
+          "x": 0,
+          "y": 521.5,
+          "width": 412,
+          "height": 393.5,
+          "bottom": 915,
+          "right": 412
+        },
+        "field": {
+          "x": 16,
+          "y": 558.5,
+          "width": 380,
+          "height": 50,
+          "bottom": 608.5,
+          "right": 396
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 16,
+            "y": 616.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 664.5,
+            "right": 105
+          },
+          {
+            "label": "2",
+            "x": 113,
+            "y": 616.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 664.5,
+            "right": 202
+          },
+          {
+            "label": "3",
+            "x": 210,
+            "y": 616.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 664.5,
+            "right": 299
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 307,
+            "y": 616.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 664.5,
+            "right": 396
+          },
+          {
+            "label": "4",
+            "x": 16,
+            "y": 672.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 720.5,
+            "right": 105
+          },
+          {
+            "label": "5",
+            "x": 113,
+            "y": 672.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 720.5,
+            "right": 202
+          },
+          {
+            "label": "6",
+            "x": 210,
+            "y": 672.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 720.5,
+            "right": 299
+          },
+          {
+            "label": "Limpar valores",
+            "x": 307,
+            "y": 672.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 720.5,
+            "right": 396
+          },
+          {
+            "label": "7",
+            "x": 16,
+            "y": 728.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 776.5,
+            "right": 105
+          },
+          {
+            "label": "8",
+            "x": 113,
+            "y": 728.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 776.5,
+            "right": 202
+          },
+          {
+            "label": "9",
+            "x": 210,
+            "y": 728.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 776.5,
+            "right": 299
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 307,
+            "y": 728.5,
+            "width": 89,
+            "height": 48,
+            "bottom": 776.5,
+            "right": 396
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 16,
+            "y": 784.5,
+            "width": 89,
+            "height": 54.5,
+            "bottom": 839,
+            "right": 105
+          },
+          {
+            "label": "0",
+            "x": 113,
+            "y": 784.5,
+            "width": 89,
+            "height": 54.5,
+            "bottom": 839,
+            "right": 202
+          },
+          {
+            "label": "Separar valores",
+            "x": 210,
+            "y": 784.5,
+            "width": 89,
+            "height": 54.5,
+            "bottom": 839,
+            "right": 299
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 307,
+            "y": 784.5,
+            "width": 89,
+            "height": 54.5,
+            "bottom": 839,
+            "right": 396
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 16,
+            "y": 847,
+            "width": 121.328125,
+            "height": 48,
+            "bottom": 895,
+            "right": 137.328125
+          },
+          {
+            "label": "Remover valores",
+            "x": 145.328125,
+            "y": 847,
+            "width": 121.34375,
+            "height": 48,
+            "bottom": 895,
+            "right": 266.671875
+          },
+          {
+            "label": "Inserir valores",
+            "x": 274.671875,
+            "y": 847,
+            "width": 121.328125,
+            "height": 48,
+            "bottom": 895,
+            "right": 396
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 380,
+          "scroll": 380
+        }
+      },
+      {
+        "width": 360,
+        "height": 740,
+        "theme": "light",
+        "scale": 1.25,
+        "leftHanded": true,
+        "canvas": {
+          "x": 0,
+          "y": 97,
+          "width": 360,
+          "height": 293.5,
+          "bottom": 390.5,
+          "right": 360
+        },
+        "dock": {
+          "x": 0,
+          "y": 390.5,
+          "width": 360,
+          "height": 349.5,
+          "bottom": 740,
+          "right": 360
+        },
+        "field": {
+          "x": 16,
+          "y": 399.5,
+          "width": 328,
+          "height": 50,
+          "bottom": 449.5,
+          "right": 344
+        },
+        "keys": [
+          {
+            "label": "1",
+            "x": 100,
+            "y": 457.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5,
+            "right": 176
+          },
+          {
+            "label": "2",
+            "x": 184,
+            "y": 457.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5,
+            "right": 260
+          },
+          {
+            "label": "3",
+            "x": 268,
+            "y": 457.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5,
+            "right": 344
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "x": 16,
+            "y": 457.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5,
+            "right": 92
+          },
+          {
+            "label": "4",
+            "x": 100,
+            "y": 509.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5,
+            "right": 176
+          },
+          {
+            "label": "5",
+            "x": 184,
+            "y": 509.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5,
+            "right": 260
+          },
+          {
+            "label": "6",
+            "x": 268,
+            "y": 509.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5,
+            "right": 344
+          },
+          {
+            "label": "Limpar valores",
+            "x": 16,
+            "y": 509.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5,
+            "right": 92
+          },
+          {
+            "label": "7",
+            "x": 100,
+            "y": 561.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5,
+            "right": 176
+          },
+          {
+            "label": "8",
+            "x": 184,
+            "y": 561.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5,
+            "right": 260
+          },
+          {
+            "label": "9",
+            "x": 268,
+            "y": 561.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5,
+            "right": 344
+          },
+          {
+            "label": "Valor aleatório livre",
+            "x": 16,
+            "y": 561.5,
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5,
+            "right": 92
+          },
+          {
+            "label": "Alternar sinal",
+            "x": 100,
+            "y": 613.5,
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668,
+            "right": 176
+          },
+          {
+            "label": "0",
+            "x": 184,
+            "y": 613.5,
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668,
+            "right": 260
+          },
+          {
+            "label": "Separar valores",
+            "x": 268,
+            "y": 613.5,
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668,
+            "right": 344
+          },
+          {
+            "label": "Recolher teclado",
+            "x": 16,
+            "y": 613.5,
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668,
+            "right": 92
+          }
+        ],
+        "actions": [
+          {
+            "label": "Buscar valores",
+            "x": 240,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 344
+          },
+          {
+            "label": "Remover valores",
+            "x": 128,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 232
+          },
+          {
+            "label": "Inserir valores",
+            "x": 16,
+            "y": 676,
+            "width": 104,
+            "height": 48,
+            "bottom": 724,
+            "right": 120
+          }
+        ],
+        "overflow": false,
+        "player": {
+          "client": 328,
+          "scroll": 328
+        }
+      }
+    ],
+    "errors": []
+  },
+  "captures": {
+    "states": [
+      {
+        "name": "ui-keyboard-412",
+        "width": 412,
+        "height": 915,
+        "overflow": false,
+        "canvas": {
+          "x": 0,
+          "y": 108,
+          "width": 412,
+          "height": 420,
+          "bottom": 528,
+          "right": 412,
+          "clientHeight": 420,
+          "scrollHeight": 420
+        },
+        "dock": {
+          "x": 0,
+          "y": 528,
+          "width": 412,
+          "height": 387,
+          "bottom": 915,
+          "right": 412,
+          "clientHeight": 386,
+          "scrollHeight": 386
+        },
+        "lastAction": {
+          "x": 274.671875,
+          "y": 847,
+          "width": 121.328125,
+          "height": 48,
+          "bottom": 895,
+          "right": 396,
+          "clientHeight": 46,
+          "scrollHeight": 46
+        },
+        "keys": [
+          {
+            "label": "1",
+            "width": 89,
+            "height": 48,
+            "bottom": 671
+          },
+          {
+            "label": "2",
+            "width": 89,
+            "height": 48,
+            "bottom": 671
+          },
+          {
+            "label": "3",
+            "width": 89,
+            "height": 48,
+            "bottom": 671
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "width": 89,
+            "height": 48,
+            "bottom": 671
+          },
+          {
+            "label": "4",
+            "width": 89,
+            "height": 48,
+            "bottom": 727
+          },
+          {
+            "label": "5",
+            "width": 89,
+            "height": 48,
+            "bottom": 727
+          },
+          {
+            "label": "6",
+            "width": 89,
+            "height": 48,
+            "bottom": 727
+          },
+          {
+            "label": "Limpar valores",
+            "width": 89,
+            "height": 48,
+            "bottom": 727
+          },
+          {
+            "label": "7",
+            "width": 89,
+            "height": 48,
+            "bottom": 783
+          },
+          {
+            "label": "8",
+            "width": 89,
+            "height": 48,
+            "bottom": 783
+          },
+          {
+            "label": "9",
+            "width": 89,
+            "height": 48,
+            "bottom": 783
+          },
+          {
+            "label": "Valor aleatório livre",
+            "width": 89,
+            "height": 48,
+            "bottom": 783
+          },
+          {
+            "label": "Alternar sinal",
+            "width": 89,
+            "height": 48,
+            "bottom": 839
+          },
+          {
+            "label": "0",
+            "width": 89,
+            "height": 48,
+            "bottom": 839
+          },
+          {
+            "label": "Separar valores",
+            "width": 89,
+            "height": 48,
+            "bottom": 839
+          },
+          {
+            "label": "Recolher teclado",
+            "width": 89,
+            "height": 48,
+            "bottom": 839
+          }
+        ],
+        "playerRestored": true,
+        "operationsRestored": true
+      },
+      {
+        "name": "ui-keyboard-360",
+        "width": 360,
+        "height": 740,
+        "overflow": false,
+        "canvas": {
+          "x": 0,
+          "y": 97,
+          "width": 360,
+          "height": 293.5,
+          "bottom": 390.5,
+          "right": 360,
+          "clientHeight": 294,
+          "scrollHeight": 294
+        },
+        "dock": {
+          "x": 0,
+          "y": 390.5,
+          "width": 360,
+          "height": 349.5,
+          "bottom": 740,
+          "right": 360,
+          "clientHeight": 349,
+          "scrollHeight": 349
+        },
+        "lastAction": {
+          "x": 16,
+          "y": 676,
+          "width": 104,
+          "height": 48,
+          "bottom": 724,
+          "right": 120,
+          "clientHeight": 46,
+          "scrollHeight": 46
+        },
+        "keys": [
+          {
+            "label": "1",
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5
+          },
+          {
+            "label": "2",
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5
+          },
+          {
+            "label": "3",
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "width": 76,
+            "height": 44,
+            "bottom": 501.5
+          },
+          {
+            "label": "4",
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5
+          },
+          {
+            "label": "5",
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5
+          },
+          {
+            "label": "6",
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5
+          },
+          {
+            "label": "Limpar valores",
+            "width": 76,
+            "height": 44,
+            "bottom": 553.5
+          },
+          {
+            "label": "7",
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5
+          },
+          {
+            "label": "8",
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5
+          },
+          {
+            "label": "9",
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5
+          },
+          {
+            "label": "Valor aleatório livre",
+            "width": 76,
+            "height": 44,
+            "bottom": 605.5
+          },
+          {
+            "label": "Alternar sinal",
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668
+          },
+          {
+            "label": "0",
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668
+          },
+          {
+            "label": "Separar valores",
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668
+          },
+          {
+            "label": "Recolher teclado",
+            "width": 76,
+            "height": 54.5,
+            "bottom": 668
+          }
+        ],
+        "playerRestored": true,
+        "operationsRestored": true
+      },
+      {
+        "name": "ui-keyboard-landscape",
+        "width": 915,
+        "height": 412,
+        "overflow": false,
+        "canvas": {
+          "x": 0,
+          "y": 56,
+          "width": 575,
+          "height": 356,
+          "bottom": 412,
+          "right": 575,
+          "clientHeight": 356,
+          "scrollHeight": 356
+        },
+        "dock": {
+          "x": 575,
+          "y": 56,
+          "width": 340,
+          "height": 356,
+          "bottom": 412,
+          "right": 915,
+          "clientHeight": 356,
+          "scrollHeight": 356
+        },
+        "lastAction": {
+          "x": 592,
+          "y": 344.5,
+          "width": 97,
+          "height": 48,
+          "bottom": 392.5,
+          "right": 689,
+          "clientHeight": 46,
+          "scrollHeight": 46
+        },
+        "keys": [
+          {
+            "label": "1",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166
+          },
+          {
+            "label": "2",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166
+          },
+          {
+            "label": "3",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166
+          },
+          {
+            "label": "Apagar; segure para limpar",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 166
+          },
+          {
+            "label": "4",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222
+          },
+          {
+            "label": "5",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222
+          },
+          {
+            "label": "6",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222
+          },
+          {
+            "label": "Limpar valores",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 222
+          },
+          {
+            "label": "7",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278
+          },
+          {
+            "label": "8",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278
+          },
+          {
+            "label": "9",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278
+          },
+          {
+            "label": "Valor aleatório livre",
+            "width": 70.75,
+            "height": 48,
+            "bottom": 278
+          },
+          {
+            "label": "Alternar sinal",
+            "width": 70.75,
+            "height": 50.5,
+            "bottom": 336.5
+          },
+          {
+            "label": "0",
+            "width": 70.75,
+            "height": 50.5,
+            "bottom": 336.5
+          },
+          {
+            "label": "Separar valores",
+            "width": 70.75,
+            "height": 50.5,
+            "bottom": 336.5
+          },
+          {
+            "label": "Recolher teclado",
+            "width": 70.75,
+            "height": 50.5,
+            "bottom": 336.5
+          }
+        ],
+        "playerRestored": true,
+        "operationsRestored": true
+      },
+      {
+        "name": "ui-home-125",
+        "width": 412,
+        "height": 915,
+        "overflow": false,
+        "canvas": null,
+        "dock": null,
+        "lastAction": null,
+        "keys": []
+      }
+    ],
+    "errors": []
+  },
+  "accessibility": {
+    "states": [
+      {
+        "theme": "dark",
+        "name": "/",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "/aprender/qual-arvore-escolher",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "/aprender/avl-fb-e-quatro-casos",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "/comparar",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "/glossario",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "lab-player",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "keyboard-empty",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "keyboard-filled",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "lab-menu",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "dark",
+        "name": "lab-details-code",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "/",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "/aprender/qual-arvore-escolher",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "/aprender/avl-fb-e-quatro-casos",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "/comparar",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "/glossario",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "lab-player",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "keyboard-empty",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "keyboard-filled",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "lab-menu",
+        "overflow": false,
+        "violations": []
+      },
+      {
+        "theme": "light",
+        "name": "lab-details-code",
+        "overflow": false,
+        "violations": []
+      }
+    ],
+    "errors": []
+  },
+  "limitations": [
+    "Sem aparelho POCO F7 físico, TalkBack ou medição física a 120 Hz.",
+    "Safe-area igual a zero nas medições emuladas."
+  ]
+}

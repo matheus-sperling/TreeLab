@@ -5,6 +5,7 @@ const route = useRoute(), progressStore = useProgressStore()
 const quick = computed(() => route.query.rapido === '1')
 const count = computed(() => quick.value ? 3 : 8)
 const started = ref(false), index = ref(0), selected = ref<number | null>(null), score = ref(0), finished = ref(false)
+const page = useTemplateRef<HTMLDivElement>('page')
 const seed = ref(20261012)
 const questions = computed(() => createTrainingSession(seed.value, count.value, quizBank))
 const current = computed(() => questions.value[index.value]!)
@@ -16,7 +17,17 @@ onMounted(() => {
   const querySeed = Number(route.query.semente)
   if (Number.isInteger(querySeed) && querySeed > 0) seed.value = querySeed
 })
-function start() { started.value = true; finished.value = false; index.value = 0; score.value = 0; selected.value = null }
+async function revealQuestion() {
+  await nextTick()
+  const heading = page.value?.querySelector<HTMLHeadingElement>('.training-question h2')
+  const progress = page.value?.querySelector<HTMLElement>('.session-progress')
+  if (!heading) return
+  const target = progress ?? heading
+  target.scrollIntoView({ block: 'start', behavior: 'instant' })
+  heading.tabIndex = -1
+  heading.focus({ preventScroll: true })
+}
+function start() { started.value = true; finished.value = false; index.value = 0; score.value = 0; selected.value = null; void revealQuestion() }
 function answer(value: number) {
   if (selected.value !== null) return
   selected.value = value
@@ -26,13 +37,13 @@ function answer(value: number) {
 }
 function next() {
   if (index.value === questions.value.length - 1) finished.value = true
-  else { index.value++; selected.value = null }
+  else { index.value++; selected.value = null; void revealQuestion() }
 }
 function repeat() { seed.value++; start() }
 useSeoMeta({ title: 'Treinar — TreeLab', description: 'Pratique altura, rotações, invariantes e custo com questões calculadas pelo motor do TreeLab.' })
 </script>
 <template>
-  <div class="page-shell practice-page">
+  <div ref="page" class="page-shell practice-page">
     <header class="page-header"><span class="eyebrow">APRENDER FAZENDO</span><h1>{{ quick ? 'Desafio rápido.' : 'Coloque à prova.' }}</h1><p class="muted">{{ quick ? 'Três questões. Uma pausa para aprender.' : 'Leia a árvore, faça sua escolha e entenda cada resposta.' }}</p></header>
     <template v-if="!started">
       <div class="practice-stats"><div><strong class="mono">{{ progressStore.progress.streak }}</strong><span class="muted">dias em sequência</span></div><div><strong class="mono">{{ accuracy }}%</strong><span class="muted">de acertos</span></div><div><strong class="mono">{{ progressStore.progress.answers }}</strong><span class="muted">respostas</span></div></div>
@@ -62,7 +73,7 @@ useSeoMeta({ title: 'Treinar — TreeLab', description: 'Pratique altura, rotaç
 .review-topics a { display:flex; align-items:center; gap:12px; min-height:56px; border-bottom:1px solid var(--border); font-size:.85rem; }
 .review-topics a>span:first-child { flex:1; }
 .review-topics a>.mono { font-size:.7rem; }
-.session-progress { display:flex; justify-content:space-between; gap:12px; font-size:.72rem; margin-bottom:8px; }
+.session-progress { display:flex; justify-content:space-between; gap:12px; font-size:.72rem; margin-bottom:8px; scroll-margin-top:16px; }
 .training-question { margin-top:24px; }
 .next-question { margin-top:24px; min-height:56px; }
 .next-question p { text-align:center; font-size:.8rem; padding-top:16px; }

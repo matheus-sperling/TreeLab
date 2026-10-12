@@ -46,6 +46,17 @@ describe('number pad interaction', () => {
     expect(wrapper.emitted('close')).toHaveLength(1)
     wrapper.unmount(); random.mockRestore()
   })
+  it('keeps the list when suggesting a new distinct value and supports explicit clearing', async () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0)
+    const wrapper = mount(NumberPad, { props: { modelValue: '1, 4', existing: [2, 3], haptics: false }, global: { stubs } })
+    await wrapper.find('[aria-label="Valor aleatório livre"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['1, 4, 5'])
+    await wrapper.find('[aria-label="Limpar valores"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([''])
+    await wrapper.setProps({ modelValue: Array.from({ length: 20 }, (_, index) => index).join(',') })
+    expect(wrapper.find('[aria-label="Valor aleatório livre"]').attributes('disabled')).toBeDefined()
+    wrapper.unmount(); random.mockRestore()
+  })
 })
 
 function playerFixture() {

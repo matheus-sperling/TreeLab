@@ -41,7 +41,7 @@ pnpm test:e2e
 
 Os quatro primeiros são os checks obrigatórios da CI. Playwright usa Chromium do sistema quando disponível; em outro ambiente execute `pnpm exec playwright install chromium`, ou informe `CHROMIUM_PATH`.
 
-Vitest valida 200 sequências de 80 operações por tipo, todos os snapshots intermediários, casos dirigidos e espelhados, limites de rotações, ids imutáveis, mensagens/código, codec, layout, conteúdo, geradores e controles. Testes de componentes usam Vue Test Utils. E2E cobre as cinco dimensões suportadas, lote, troca de tipo, seek e entrada inválida. Resultados de navegador e limitações estão em [docs/VERIFICATION.md](docs/VERIFICATION.md).
+Vitest valida 200 sequências de 80 operações por tipo, todos os snapshots intermediários, casos dirigidos e espelhados, limites de rotações, ids imutáveis, mensagens/código, codec, layout, conteúdo, geradores e controles. Testes de componentes usam Vue Test Utils. E2E cobre as cinco dimensões suportadas, lote, troca de tipo, seek e entrada inválida. Resultados de navegador e limitações estão em [docs/VERIFICATION.md](docs/VERIFICATION.md). A revisão de espaçamentos, teclado 4×4 e foco está em [docs/UI-SPACING.md](docs/UI-SPACING.md).
 
 ## Estrutura
 

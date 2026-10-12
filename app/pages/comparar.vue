@@ -72,12 +72,14 @@ useSeoMeta({ title: 'Comparar — TreeLab', description: 'Uma sequência, três 
 .comparison-timeline { margin:24px 0; padding:16px 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
 .timeline-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:.72rem; }
 .comparison-scrubber { display:flex; gap:8px; align-items:center; margin-top:4px; }
+.comparison-scrubber :deep(.slider-thumb) { width:48px; height:48px; }
 .compare-operation-chips { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding:8px 0 0; }
 .compare-operation-chips button { border:1px solid var(--border); border-radius:999px; min-width:48px; min-height:48px; padding:8px; font-family:'JetBrains Mono',monospace; font-size:.72rem; background:var(--surface-2); color:var(--text); white-space:nowrap; }
 .compare-operation-chips button.active { border-color:var(--accent); color:var(--accent); }
 .compare-operation-chips button.future { color:var(--muted); }
 .comparison-cards { display:grid; gap:16px; }
 .comparison-card { display:block; padding:16px; border:1px solid var(--border); border-radius:12px; background:var(--surface-1); }
+.comparison-card :deep(.mini-tree) { margin-block:8px; }
 .comparison-card-heading { display:flex; align-items:center; gap:12px; }
 .comparison-card-heading>div { flex:1; }
 .comparison-card-heading h2 { font-size:1rem; }

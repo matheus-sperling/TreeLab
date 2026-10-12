@@ -8,7 +8,7 @@ const lab = useLabStore()
 const value = computed({ get: () => lab.cursor, set: (value: number) => props.player.seek(value) })
 </script>
 <template>
-  <section class="player" :class="{ compact }" aria-label="Controle da reprodução">
+  <section class="player" :class="{ compact }" :aria-label="compact ? 'Reprodução nos detalhes do passo' : 'Controle da reprodução'">
     <UiSlider v-if="!compact" v-model="value" :min="lab.range[0] ?? 0" :max="lab.range[1] ?? 0" label="Passo da operação atual" />
     <div class="player-buttons">
       <UiIconButton v-if="!compact" icon="skip-back" label="Início da operação; duas vezes para a anterior" :disabled="!lab.operations.length" @click="player.previous" />
@@ -22,4 +22,9 @@ const value = computed({ get: () => lab.cursor, set: (value: number) => props.pl
 </template>
 <style scoped>
 .player { width: 100%; position: relative; padding-top: 20px; }.player :deep(.ui-slider) { position: absolute; top: -12px; height: 44px; }.player-buttons { position: relative; }.player.compact { padding-top: 0; }.player-buttons { display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 56px; }.play-button { height: 56px; width: 56px; flex-shrink: 0; display: grid; place-items: center; border-radius: 18px; background: var(--accent); color: var(--bg); }.play-button :deep(.iconify) { width: 24px; height: 24px; }.play-button:disabled { opacity: .45; }.speed-button { min-width: 48px; min-height: 48px; font: 13px 'JetBrains Mono', monospace; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; }.compact .player-buttons { justify-content: center; }@media (max-width: 379px) { .player-buttons { gap: 8px; }.player-buttons :deep(.icon-button) { min-width: 44px; width: 44px; }.speed-button { min-width: 44px; } }
+.player :deep(.slider-thumb) { width:48px; height:48px; }
+@container lab-controls (max-width:340px) {
+  .player { padding-top:52px; }.player :deep(.ui-slider) { width:calc(100% - 68px); top:4px; height:44px; }
+  .speed-button { position:absolute; right:0; top:-52px; }
+}
 </style>
