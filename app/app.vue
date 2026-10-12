@@ -6,5 +6,6 @@ const { settings } = useSettingsStore()
   <MotionConfig :reduced-motion="settings.reducedMotion ? 'always' : 'user'">
     <NuxtLayout><NuxtPage /></NuxtLayout>
     <UiToast />
+    <ClientOnly><UiPwaStatus /></ClientOnly>
   </MotionConfig>
 </template>

@@ -1,0 +1,297 @@
+{
+  "base": "http://localhost:3001",
+  "states": [
+    {
+      "name": "dark-lab-avl",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 17
+        }
+      ]
+    },
+    {
+      "name": "dark-invalid",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 17
+        }
+      ],
+      "inputColor": {
+        "border": "rgb(107, 115, 132)",
+        "color": "rgb(255, 138, 61)",
+        "message": "Use inteiros de −999 a 999."
+      }
+    },
+    {
+      "name": "dark-lab-rb",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 15
+        }
+      ]
+    },
+    {
+      "name": "dark-height-experiment",
+      "title": "O, Ω e Θ: meça o que cresce · TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 18
+        }
+      ]
+    },
+    {
+      "name": "dark-training-active",
+      "title": "Treinar — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 5
+        }
+      ]
+    },
+    {
+      "name": "training-node-parent-6",
+      "title": "Treinar — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 5
+        }
+      ]
+    },
+    {
+      "name": "light-lab-avl",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 17
+        }
+      ]
+    },
+    {
+      "name": "light-invalid",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 17
+        }
+      ],
+      "inputColor": {
+        "border": "rgb(116, 127, 145)",
+        "color": "rgb(170, 74, 0)",
+        "message": "Use inteiros de −999 a 999."
+      }
+    },
+    {
+      "name": "light-lab-rb",
+      "title": "Laboratório — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 15
+        }
+      ]
+    },
+    {
+      "name": "light-height-experiment",
+      "title": "O, Ω e Θ: meça o que cresce · TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 18
+        }
+      ]
+    },
+    {
+      "name": "light-training-active",
+      "title": "Treinar — TreeLab",
+      "overflow": false,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "skeleton": {
+    "theme": "light",
+    "bg": "rgb(246, 247, 250)",
+    "height": 915,
+    "surface": "rgb(255, 255, 255)"
+  },
+  "trainingSession": {
+    "questions": [
+      {
+        "index": 1,
+        "prompt": "Depois de inserir 40, qual será o FB da raiz da AVL?"
+      },
+      {
+        "index": 2,
+        "prompt": "Ao inserir 1, qual é o primeiro caso do conserto Rubro-Negro?"
+      },
+      {
+        "index": 3,
+        "prompt": "Depois de inserir 50, qual será a altura desta árvore?"
+      },
+      {
+        "index": 4,
+        "prompt": "Qual grandeza controla o custo dos caminhos de busca, inserção e remoção na ABB?"
+      },
+      {
+        "index": 5,
+        "prompt": "Qual rotação resolve o desequilíbrio ao inserir 10 nesta AVL?"
+      },
+      {
+        "index": 6,
+        "prompt": "Toque no nó que será pai de 30 ao inseri-lo nesta ABB.",
+        "nodeRects": [
+          {
+            "label": "Nó 80",
+            "rect": {
+              "x": 190.15093994140625,
+              "y": 173.008544921875,
+              "width": 47.54718017578125,
+              "height": 47.54718017578125,
+              "top": 173.008544921875,
+              "right": 237.6981201171875,
+              "bottom": 220.55572509765625,
+              "left": 190.15093994140625
+            }
+          },
+          {
+            "label": "Nó 100",
+            "rect": {
+              "x": 215.90565490722656,
+              "y": 240.36703491210938,
+              "width": 47.54716491699219,
+              "height": 47.54718017578125,
+              "top": 240.36703491210938,
+              "right": 263.45281982421875,
+              "bottom": 287.9142150878906,
+              "left": 215.90565490722656
+            }
+          },
+          {
+            "label": "Nó 40",
+            "rect": {
+              "x": 164.39622497558594,
+              "y": 240.36703491210938,
+              "width": 47.54716491699219,
+              "height": 47.54718017578125,
+              "top": 240.36703491210938,
+              "right": 211.94338989257812,
+              "bottom": 287.9142150878906,
+              "left": 164.39622497558594
+            }
+          },
+          {
+            "label": "Nó 60",
+            "rect": {
+              "x": 190.15093994140625,
+              "y": 307.72552490234375,
+              "width": 47.54718017578125,
+              "height": 47.54718017578125,
+              "top": 307.72552490234375,
+              "right": 237.6981201171875,
+              "bottom": 355.272705078125,
+              "left": 190.15093994140625
+            }
+          },
+          {
+            "label": "Nó 20",
+            "rect": {
+              "x": 138.64151000976562,
+              "y": 307.72552490234375,
+              "width": 47.54716491699219,
+              "height": 47.54718017578125,
+              "top": 307.72552490234375,
+              "right": 186.1886749267578,
+              "bottom": 355.272705078125,
+              "left": 138.64151000976562
+            }
+          }
+        ]
+      },
+      {
+        "index": 7,
+        "prompt": "Esta ABB é válida? Qual regra falha?"
+      },
+      {
+        "index": 8,
+        "prompt": "O que acontece ao inserir uma chave já presente no TreeLab?"
+      }
+    ],
+    "result": "SESSÃO CONCLUÍDA\n2/8\nCada tentativa ensina.\n\nReveja as explicações no laboratório e tente outra sessão. Seu progresso já está salvo.\n\nNova sessão\nRevisar as lições",
+    "storage": "{\"completedLessons\":[],\"answers\":8,\"correct\":2,\"streak\":1,\"lastDate\":\"2026-10-12\",\"errors\":{\"avl\":1,\"rb\":1,\"complexity\":1,\"bst\":3}}"
+  },
+  "textScale": [
+    {
+      "route": "/aprender/avl-fb-e-quatro-casos",
+      "scale": "1.25",
+      "overflow": false
+    },
+    {
+      "route": "/cola",
+      "scale": "1.25",
+      "overflow": false
+    },
+    {
+      "route": "/glossario",
+      "scale": "1.25",
+      "overflow": false
+    },
+    {
+      "route": "/aprender/qual-arvore-escolher",
+      "scale": "1.25",
+      "overflow": false
+    },
+    {
+      "route": "/aprender/complexidade-na-pratica",
+      "scale": "1.25",
+      "overflow": false
+    }
+  ]
+}

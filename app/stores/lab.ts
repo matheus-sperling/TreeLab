@@ -32,7 +32,8 @@ export const useLabStore = defineStore('lab', () => {
   }), { comparisons: 0, rotations: 0, recolorings: 0, heightUpdates: 0, visits: 0 }))
   function seek(index: number, instant = true) {
     seeking.value = instant
-    cursor.value = Math.max(0, Math.min(index, result.value.steps.length - 1))
+    const target = Number.isFinite(index) ? Math.trunc(index) : 0
+    cursor.value = Math.max(0, Math.min(target, result.value.steps.length - 1))
   }
   function append(ops: Op[]) {
     const first = operations.value.length

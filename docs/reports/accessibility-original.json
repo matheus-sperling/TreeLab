@@ -1,0 +1,725 @@
+{
+  "base": "http://localhost:3001",
+  "out": [
+    {
+      "theme": "dark",
+      "route": "/",
+      "title": "TreeLab — entenda as árvores",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 32
+    },
+    {
+      "theme": "dark",
+      "route": "/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7",
+      "title": "Laboratório — TreeLab",
+      "isExpectedLab": true,
+      "violations": [
+        {
+          "id": "page-has-heading-one",
+          "impact": "moderate",
+          "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
+          "help": "Page should contain a level-one heading",
+          "nodes": [
+            {
+              "target": [
+                "html"
+              ],
+              "html": "<html lang=\"pt-BR\" data-theme=\"dark\" style=\"--text-scale: 1; --lab-dock-height: 248px;\">",
+              "failureSummary": "Fix all of the following:\n  Page must have a level-one heading"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 17
+        }
+      ],
+      "passes": 34
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender",
+      "title": "Aprender · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 33
+    },
+    {
+      "theme": "dark",
+      "route": "/cola",
+      "title": "Cola de árvores · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 8
+        }
+      ],
+      "passes": 43
+    },
+    {
+      "theme": "dark",
+      "route": "/comparar",
+      "title": "Comparar — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 51
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/treinar",
+      "title": "Treinar — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 34
+    },
+    {
+      "theme": "dark",
+      "route": "/glossario",
+      "title": "Glossário · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 37
+    },
+    {
+      "theme": "dark",
+      "route": "/ajustes",
+      "title": "Ajustes — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 36
+    },
+    {
+      "theme": "dark",
+      "route": "/mais",
+      "title": "Mais — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 30
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/nos-raiz-e-subarvores",
+      "title": "Nós, raiz e subárvores · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 5
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/altura-e-profundidade",
+      "title": "Altura não é profundidade · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 4
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/quatro-percursos",
+      "title": "Quatro maneiras de percorrer · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/abb-busca-e-insercao",
+      "title": "ABB: uma regra para decidir · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 5
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/abb-remocao",
+      "title": "Remoção: três casos, uma ordem · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/abb-consultas-e-degeneracao",
+      "title": "Extremos, vizinhos e a pior forma · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/rotacoes-preservam-a-ordem",
+      "title": "Rotacionar sem perder a ordem · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/avl-fb-e-quatro-casos",
+      "title": "AVL: leia o fator de balanceamento · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 6
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/avl-insercao",
+      "title": "AVL: inserir e subir · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/avl-remocao-e-altura",
+      "title": "AVL: remover pode causar uma cascata · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 4
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/rn-propriedades-e-altura-negra",
+      "title": "RN: cinco regras de cor · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/rn-insercao",
+      "title": "RN: tio vermelho, triângulo ou linha · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/rn-remocao-preto-extra",
+      "title": "RN: o preto extra · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/rn-remocao-casos-finais",
+      "title": "RN: prepare e elimine o preto extra · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/qual-arvore-escolher",
+      "title": "Qual árvore escolher? · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 43
+    },
+    {
+      "theme": "dark",
+      "route": "/aprender/complexidade-na-pratica",
+      "title": "O, Ω e Θ: meça o que cresce · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "nodeCount": 3
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 18
+        }
+      ],
+      "passes": 40
+    },
+    {
+      "theme": "light",
+      "route": "/",
+      "title": "TreeLab — entenda as árvores",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 32
+    },
+    {
+      "theme": "light",
+      "route": "/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7",
+      "title": "Laboratório — TreeLab",
+      "isExpectedLab": true,
+      "violations": [
+        {
+          "id": "page-has-heading-one",
+          "impact": "moderate",
+          "description": "Ensure that the page, or at least one of its frames contains a level-one heading",
+          "help": "Page should contain a level-one heading",
+          "nodes": [
+            {
+              "target": [
+                "html"
+              ],
+              "html": "<html lang=\"pt-BR\" data-theme=\"light\" style=\"--text-scale: 1; --lab-dock-height: 248px;\">",
+              "failureSummary": "Fix all of the following:\n  Page must have a level-one heading"
+            }
+          ]
+        }
+      ],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 17
+        }
+      ],
+      "passes": 34
+    },
+    {
+      "theme": "light",
+      "route": "/aprender",
+      "title": "Aprender · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 33
+    },
+    {
+      "theme": "light",
+      "route": "/cola",
+      "title": "Cola de árvores · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 8
+        }
+      ],
+      "passes": 43
+    },
+    {
+      "theme": "light",
+      "route": "/comparar",
+      "title": "Comparar — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 51
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/treinar",
+      "title": "Treinar — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 34
+    },
+    {
+      "theme": "light",
+      "route": "/glossario",
+      "title": "Glossário · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 37
+    },
+    {
+      "theme": "light",
+      "route": "/ajustes",
+      "title": "Ajustes — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 36
+    },
+    {
+      "theme": "light",
+      "route": "/mais",
+      "title": "Mais — TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [],
+      "passes": 30
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/nos-raiz-e-subarvores",
+      "title": "Nós, raiz e subárvores · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 5
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/altura-e-profundidade",
+      "title": "Altura não é profundidade · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 4
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/quatro-percursos",
+      "title": "Quatro maneiras de percorrer · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/abb-busca-e-insercao",
+      "title": "ABB: uma regra para decidir · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 5
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/abb-remocao",
+      "title": "Remoção: três casos, uma ordem · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/abb-consultas-e-degeneracao",
+      "title": "Extremos, vizinhos e a pior forma · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/rotacoes-preservam-a-ordem",
+      "title": "Rotacionar sem perder a ordem · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/avl-fb-e-quatro-casos",
+      "title": "AVL: leia o fator de balanceamento · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 6
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/avl-insercao",
+      "title": "AVL: inserir e subir · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/avl-remocao-e-altura",
+      "title": "AVL: remover pode causar uma cascata · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 4
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/rn-propriedades-e-altura-negra",
+      "title": "RN: cinco regras de cor · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/rn-insercao",
+      "title": "RN: tio vermelho, triângulo ou linha · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/rn-remocao-preto-extra",
+      "title": "RN: o preto extra · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 39
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/rn-remocao-casos-finais",
+      "title": "RN: prepare e elimine o preto extra · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 3
+        }
+      ],
+      "passes": 38
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/qual-arvore-escolher",
+      "title": "Qual árvore escolher? · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 7
+        }
+      ],
+      "passes": 43
+    },
+    {
+      "theme": "light",
+      "route": "/aprender/complexidade-na-pratica",
+      "title": "O, Ω e Θ: meça o que cresce · TreeLab",
+      "isExpectedLab": true,
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-prohibited-attr",
+          "impact": "serious",
+          "nodeCount": 3
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodeCount": 18
+        }
+      ],
+      "passes": 40
+    }
+  ]
+}

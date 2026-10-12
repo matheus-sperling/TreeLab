@@ -1,0 +1,502 @@
+{
+  "events": [
+    {
+      "id": 9235,
+      "name": "pointerdown",
+      "duration": 88,
+      "delay": 2.300000000745058,
+      "processing": 3
+    },
+    {
+      "id": 9235,
+      "name": "pointerup",
+      "duration": 88,
+      "delay": 8.900000002235174,
+      "processing": 0.09999999776482582
+    },
+    {
+      "id": 9235,
+      "name": "click",
+      "duration": 88,
+      "delay": 9,
+      "processing": 53.30000000074506
+    },
+    {
+      "id": 9242,
+      "name": "keydown",
+      "duration": 32,
+      "delay": 1.1000000014901161,
+      "processing": 17.5
+    },
+    {
+      "id": 9242,
+      "name": "keyup",
+      "duration": 32,
+      "delay": 13.800000000745058,
+      "processing": 0
+    },
+    {
+      "id": 9249,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.5999999977648258,
+      "processing": 12
+    },
+    {
+      "id": 9249,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 3.199999999254942,
+      "processing": 1.6000000014901161
+    },
+    {
+      "id": 9256,
+      "name": "keydown",
+      "duration": 32,
+      "delay": 2.399999998509884,
+      "processing": 10.199999999254942
+    },
+    {
+      "id": 9256,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 0.5,
+      "processing": 0
+    },
+    {
+      "id": 9263,
+      "name": "keydown",
+      "duration": 32,
+      "delay": 3.399999998509884,
+      "processing": 14.200000002980232
+    },
+    {
+      "id": 9263,
+      "name": "keyup",
+      "duration": 24,
+      "delay": 5.300000000745058,
+      "processing": 0
+    },
+    {
+      "id": 9270,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 0.5,
+      "processing": 11.399999998509884
+    },
+    {
+      "id": 9270,
+      "name": "keyup",
+      "duration": 24,
+      "delay": 5.300000000745058,
+      "processing": 0
+    },
+    {
+      "id": 9277,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.6000000014901161,
+      "processing": 10.599999997764826
+    },
+    {
+      "id": 9277,
+      "name": "keyup",
+      "duration": 24,
+      "delay": 5,
+      "processing": 0
+    },
+    {
+      "id": 9284,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.9000000022351742,
+      "processing": 10
+    },
+    {
+      "id": 9284,
+      "name": "keyup",
+      "duration": 24,
+      "delay": 5.800000000745058,
+      "processing": 0
+    },
+    {
+      "id": 9291,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 1.3999999985098839,
+      "processing": 13.5
+    },
+    {
+      "id": 9298,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 0.4000000022351742,
+      "processing": 15
+    },
+    {
+      "id": 9305,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 2.699999999254942,
+      "processing": 8.199999999254942
+    },
+    {
+      "id": 9312,
+      "name": "keydown",
+      "duration": 32,
+      "delay": 6,
+      "processing": 17.699999999254942
+    },
+    {
+      "id": 9319,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.3999999985098839,
+      "processing": 11
+    },
+    {
+      "id": 9326,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 3.599999997764826,
+      "processing": 9.900000002235174
+    },
+    {
+      "id": 9333,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.6999999992549419,
+      "processing": 11
+    },
+    {
+      "id": 9340,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.30000000074505806,
+      "processing": 9.100000001490116
+    },
+    {
+      "id": 9354,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 1.2000000029802322,
+      "processing": 8.099999997764826
+    },
+    {
+      "id": 9354,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 0.6000000014901161,
+      "processing": 0
+    },
+    {
+      "id": 9361,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.30000000074505806,
+      "processing": 8.899999998509884
+    },
+    {
+      "id": 9368,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.19999999925494194,
+      "processing": 10.100000001490116
+    },
+    {
+      "id": 9375,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 1.9000000022351742,
+      "processing": 6.699999999254942
+    },
+    {
+      "id": 9389,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 1.4000000022351742,
+      "processing": 6.699999999254942
+    },
+    {
+      "id": 9403,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 0.7000000029802322,
+      "processing": 7.5
+    },
+    {
+      "id": 9424,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 1.8999999985098839,
+      "processing": 8.400000002235174
+    },
+    {
+      "id": 9424,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 1.699999999254942,
+      "processing": 0
+    },
+    {
+      "id": 9431,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.8000000007450581,
+      "processing": 6.5
+    },
+    {
+      "id": 9438,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.19999999925494194,
+      "processing": 10.800000000745058
+    },
+    {
+      "id": 9445,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.5,
+      "processing": 10.899999998509884
+    },
+    {
+      "id": 9452,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 6.899999998509884,
+      "processing": 12.600000001490116
+    },
+    {
+      "id": 9459,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 3.5,
+      "processing": 8.600000001490116
+    },
+    {
+      "id": 9459,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 0.19999999925494194,
+      "processing": 0
+    },
+    {
+      "id": 9466,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.5,
+      "processing": 8.899999998509884
+    },
+    {
+      "id": 9473,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 1,
+      "processing": 6
+    },
+    {
+      "id": 9480,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 3.699999999254942,
+      "processing": 7.100000001490116
+    },
+    {
+      "id": 9480,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 1.199999999254942,
+      "processing": 0
+    },
+    {
+      "id": 9494,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 3.5,
+      "processing": 7.399999998509884
+    },
+    {
+      "id": 9501,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 2.600000001490116,
+      "processing": 6.599999997764826
+    },
+    {
+      "id": 9515,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 2,
+      "processing": 6.5
+    },
+    {
+      "id": 9515,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 1.8999999985098839,
+      "processing": 0
+    },
+    {
+      "id": 9529,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 2.5,
+      "processing": 6.100000001490116
+    },
+    {
+      "id": 9536,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 2,
+      "processing": 5.099999997764826
+    },
+    {
+      "id": 9536,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 2.599999997764826,
+      "processing": 0
+    },
+    {
+      "id": 9550,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 2.300000000745058,
+      "processing": 4.5
+    },
+    {
+      "id": 9550,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 2.199999999254942,
+      "processing": 0
+    },
+    {
+      "id": 9564,
+      "name": "keydown",
+      "duration": 24,
+      "delay": 2.5,
+      "processing": 6.5
+    },
+    {
+      "id": 9578,
+      "name": "keydown",
+      "duration": 16,
+      "delay": 0.6999999992549419,
+      "processing": 6.400000002235174
+    },
+    {
+      "id": 9578,
+      "name": "keyup",
+      "duration": 16,
+      "delay": 0.5,
+      "processing": 0
+    },
+    {
+      "id": 9592,
+      "name": "pointerdown",
+      "duration": 144,
+      "delay": 1.4000000022351742,
+      "processing": 2.199999999254942
+    },
+    {
+      "id": 9592,
+      "name": "pointerup",
+      "duration": 144,
+      "delay": 6.100000001490116,
+      "processing": 0.7999999970197678
+    },
+    {
+      "id": 9592,
+      "name": "click",
+      "duration": 144,
+      "delay": 6.899999998509884,
+      "processing": 102.70000000298023
+    },
+    {
+      "id": 9599,
+      "name": "pointerdown",
+      "duration": 208,
+      "delay": 1.300000000745058,
+      "processing": 1.199999999254942
+    },
+    {
+      "id": 9599,
+      "name": "pointerup",
+      "duration": 208,
+      "delay": 2.599999997764826,
+      "processing": 0.10000000149011612
+    },
+    {
+      "id": 9599,
+      "name": "click",
+      "duration": 208,
+      "delay": 3.5,
+      "processing": 168.19999999925494
+    },
+    {
+      "id": 9606,
+      "name": "pointerdown",
+      "duration": 160,
+      "delay": 1.2000000029802322,
+      "processing": 0.09999999776482582
+    },
+    {
+      "id": 9606,
+      "name": "pointerup",
+      "duration": 160,
+      "delay": 2.400000002235174,
+      "processing": 0
+    },
+    {
+      "id": 9606,
+      "name": "click",
+      "duration": 160,
+      "delay": 2.400000002235174,
+      "processing": 130.39999999850988
+    },
+    {
+      "id": 9613,
+      "name": "pointerdown",
+      "duration": 160,
+      "delay": 2.099999997764826,
+      "processing": 0.30000000074505806
+    },
+    {
+      "id": 9613,
+      "name": "pointerup",
+      "duration": 160,
+      "delay": 3.300000000745058,
+      "processing": 0
+    },
+    {
+      "id": 9613,
+      "name": "click",
+      "duration": 160,
+      "delay": 3.300000000745058,
+      "processing": 135.80000000074506
+    },
+    {
+      "id": 9620,
+      "name": "pointerdown",
+      "duration": 128,
+      "delay": 1.699999999254942,
+      "processing": 1.300000000745058
+    },
+    {
+      "id": 9620,
+      "name": "pointerup",
+      "duration": 128,
+      "delay": 5.100000001490116,
+      "processing": 0.09999999776482582
+    },
+    {
+      "id": 9620,
+      "name": "click",
+      "duration": 128,
+      "delay": 5.300000000745058,
+      "processing": 103.19999999925494
+    }
+  ],
+  "maxDuration": 208
+}

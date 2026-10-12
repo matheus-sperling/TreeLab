@@ -36,14 +36,14 @@ export function usePlayer() {
   }
   function release() { if (repeatTimer) clearTimeout(repeatTimer) }
   function keydown(event: KeyboardEvent) {
-    if ((event.target as HTMLElement)?.matches('input,textarea')) return
+    if (event.target instanceof Element && event.target.closest('input,textarea,button,a,select,[contenteditable="true"],[role="slider"],[role="switch"],[role="tab"],[role="dialog"]')) return
     if (event.key === ' ') { event.preventDefault(); core.play() }
     else if (event.key === 'ArrowLeft') { event.preventDefault(); core.move(-1) }
     else if (event.key === 'ArrowRight') { event.preventDefault(); core.move(1) }
     else if (event.key === '[') cycleSpeed(-1)
     else if (event.key === ']') cycleSpeed()
   }
-  function visibility() { core.visibility(document.hidden) }
+  function visibility() { core.visibility(document.hidden); if (document.hidden) release() }
   onMounted(() => { document.addEventListener('visibilitychange', visibility); window.addEventListener('keydown', keydown) })
   onBeforeUnmount(() => { core.pause(); release(); document.removeEventListener('visibilitychange', visibility); window.removeEventListener('keydown', keydown) })
   return { ...core, playing, speed, state, summarized, pauseKeyMoments, cycleSpeed, append, hold, release, seek: (index: number) => { batchEnd.value = null; core.seek(index) }, move: (delta: number) => { batchEnd.value = null; core.move(delta) }, previous: () => { batchEnd.value = null; core.previous() }, next: () => { core.next(); batchEnd.value = null } }

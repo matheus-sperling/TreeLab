@@ -22,6 +22,8 @@ export type LessonBlock =
   | { type: 'complexity'; title: string; entries: readonly ComplexityEntry[] }
   | { type: 'miniTree'; treeType: ContentTreeType; ops: ContentOp[]; caption: string }
   | { type: 'quickCheck'; questions: readonly QuickCheck[] }
+  | { type: 'comparison'; title: string; rows: readonly { label: string; values: readonly [string, string, string] }[]; note: string }
+  | { type: 'heightExperiment' }
 export interface Lesson {
   slug: string
   moduleId: string
@@ -387,6 +389,13 @@ export const lessons: Lesson[] = [
     blocks: [
       h('garantias', 'Compare garantias, não uma única imagem'),
       p('**ABB:** altura até n − 1, sem balanceamento. **AVL:** altura até aproximadamente 1,44 · log₂ n. **RN:** altura até 2 · log₂(n+1). Uma entrada pequena pode esconder essas diferenças.'),
+      { type: 'comparison', title: 'Três estruturas, lado a lado', rows: [
+        { label: 'Altura máxima', values: ['n − 1', '~1,44 · log₂ n', '2 · log₂(n+1)'] },
+        { label: 'Metadado por nó', values: ['Nenhum', 'Altura / FB', '1 bit de cor'] },
+        { label: 'Busca: pior caso', values: ['O(n)', 'O(log n)', 'O(log n)'] },
+        { label: 'Inserção: rotações', values: ['Nenhuma', 'Até 1 simples ou 1 dupla', 'Até 2'] },
+        { label: 'Remoção: rotações', values: ['Nenhuma', 'Até O(log n)', 'Até 3'] },
+      ], note: 'Uma rotação dupla tem dois movimentos. Os limites de altura são assintóticos; a fórmula completa da AVL está na lição sobre remoção e altura.' },
       mini('avl', insert(1, 2, 3, 4, 5, 6, 7), 'Abra esta sequência em Comparar e observe as três alturas.'),
       h('tres-perguntas', 'Um guia em três perguntas'),
       p('**Quer aprender a regra de ordem ou aceitar dados aleatórios sem garantia?** Comece com ABB.'),
@@ -420,6 +429,7 @@ export const lessons: Lesson[] = [
       h('experimento', 'Faça um experimento reproduzível'),
       mini('bst', insert(1, 2, 3, 4, 5, 6, 7), 'Compare a entrada ordenada e a entrada aleatória usando a mesma quantidade de nós.'),
       p('Em Comparar, use 1 a 31 em ordem e confira **h = n − 1** na ABB. Depois use a entrada aleatória com semente. A semente permite repetir o experimento com as mesmas chaves e a mesma ordem.'),
+      { type: 'heightExperiment' },
       key('Comparações, rotações e recolorações são contadores concretos. O(log n) explica como o limite cresce ao aumentar n.'),
       h('espaco', 'Tempo e espaço são medidas diferentes'),
       p('Todas as três árvores guardam O(n) nós. Um percurso em profundidade usa pilha auxiliar O(h); o percurso em nível usa fila O(largura). Uma rotação isolada usa trabalho O(1).'),

@@ -20,7 +20,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   const width = ref(412)
   const height = ref(350)
   const following = ref(true)
-  const safeBottom = ref(0)
+  const safeBottom = ref(80)
   const safeTop = 64
   const controls: ReturnType<typeof animate>[] = []
   const pointers = new Map<number, { x: number; y: number }>()
@@ -28,6 +28,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   let moved = false
   let initialDistance = 0
   let initialScale = 1
+  let pinched = false
   let anchor = { x: 0, y: 0 }
   let previous = { x: 0, y: 0, t: 0 }
   let velocity = { x: 0, y: 0 }
@@ -43,29 +44,29 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   function fit(root?: Position, instant = false) {
     following.value = true
     if (root) fittedRoot = root
-    const next = fitCamera(bounds.value, width.value, Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
+    const next = fitCamera(bounds.value, Math.max(100, width.value - 80), Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
     moveTo({ ...next, y: next.y + safeTop }, instant)
   }
   function fitBounds(nextBounds: CameraBounds, root?: Position) {
     following.value = false
-    const next = fitCamera(nextBounds, width.value, Math.max(100, height.value - safeBottom.value - safeTop), root)
+    const next = fitCamera(nextBounds, Math.max(100, width.value - 80), Math.max(100, height.value - safeBottom.value - safeTop), root)
     moveTo({ ...next, y: next.y + safeTop })
   }
   function focus(point: Position, instant = false) {
-    moveTo({ x: width.value / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
+    moveTo({ x: (width.value - 80) / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
   }
-  function follow(point: Position) {
-    if (!following.value || pointers.size) return
+  function follow(point: Position, force = false) {
+    if ((!following.value && !force) || pointers.size) return
     const px = point.x * scale.get() + x.get()
     const py = point.y * scale.get() + y.get()
-    const right = width.value - 56
+    const right = width.value - 80 - 56
     const bottom = height.value - safeBottom.value - 56
     const dx = px < 56 ? 56 - px : px > right ? right - px : 0
     const top = safeTop + 24
     const dy = py < top ? top - py : py > bottom ? bottom - py : 0
     if (dx || dy) moveTo({ x: x.get() + dx, y: y.get() + dy })
   }
-  function zoom(factor: number, center = { x: width.value / 2, y: (height.value - safeBottom.value) / 2 }) {
+  function zoom(factor: number, center = { x: (width.value - 80) / 2, y: (height.value - safeBottom.value) / 2 }) {
     following.value = false
     const next = clampScale(scale.get() * factor)
     const ratio = next / scale.get()
@@ -77,12 +78,14 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   }
   function down(event: PointerEvent) {
     if (event.button !== 0 || (event.target as Element).closest('[data-node]')) return
+    if (!pointers.size) { pinched = false; velocity = { x: 0, y: 0 } }
     stop(); moved = false
     element.value?.setPointerCapture(event.pointerId)
     const p = point(event)
     pointers.set(event.pointerId, p)
     previous = { ...p, t: performance.now() }
     if (pointers.size === 2) {
+      pinched = true; velocity = { x: 0, y: 0 }
       const [a, b] = [...pointers.values()]
       if (!a || !b) return
       initialDistance = Math.hypot(a.x - b.x, a.y - b.y)
@@ -121,8 +124,8 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     else {
       const s = scale.get()
       const margin = 70
-      const nextX = Math.max(margin - bounds.value.maxX * s, Math.min(width.value - margin - bounds.value.minX * s, x.get() + velocity.x * 80))
-      const nextY = Math.max(margin - bounds.value.maxY * s, Math.min(height.value - margin - bounds.value.minY * s, y.get() + velocity.y * 80))
+      const nextX = Math.max(margin - bounds.value.maxX * s, Math.min(width.value - 80 - margin - bounds.value.minX * s, x.get() + (pinched ? 0 : velocity.x * 80)))
+      const nextY = Math.max(margin - bounds.value.maxY * s, Math.min(height.value - safeBottom.value - margin - bounds.value.minY * s, y.get() + (pinched ? 0 : velocity.y * 80)))
       moveTo({ x: nextX, y: nextY })
     }
   }

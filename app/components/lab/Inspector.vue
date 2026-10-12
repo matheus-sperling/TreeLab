@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TreeNode } from '../../engine/types'
+import { blackHeight as getBlackHeight } from '../../engine'
 import { useLabStore } from '../../stores/lab'
 const props = defineProps<{ id: number }>()
 const emit = defineEmits<{ action: [action: 'd' | 's', key: number]; focus: [id: number]; close: [] }>()
@@ -9,7 +10,7 @@ const path = computed(() => { const keys: number[] = []; let id: number | null =
 const ordered = computed(() => Object.values(lab.tree.nodes).map(node => node.key).sort((a, b) => a - b))
 const rank = computed(() => ordered.value.indexOf(node.value?.key ?? 0))
 const balance = computed(() => !node.value ? 0 : (node.value.l === null ? -1 : lab.tree.nodes[node.value.l]?.h ?? -1) - (node.value.r === null ? -1 : lab.tree.nodes[node.value.r]?.h ?? -1))
-const blackHeight = computed(() => { let id = props.id as number | null; let bh = 1; while (id !== null) { id = lab.tree.nodes[id]?.l ?? null; if (id !== null && lab.tree.nodes[id]?.c === 'B') bh++ } return bh })
+const blackHeight = computed(() => getBlackHeight(lab.tree, props.id))
 function key(id: number | null) { return id === null ? '—' : lab.tree.nodes[id]?.key ?? '—' }
 function size(id: number | null): number { if (id === null) return 0; const current: TreeNode | undefined = lab.tree.nodes[id]; return current ? 1 + size(current.l) + size(current.r) : 0 }
 </script>

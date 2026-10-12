@@ -1,0 +1,195 @@
+{
+  "base": "http://localhost:3001",
+  "initial": {
+    "metrics": {
+      "lcp": 776,
+      "cls": 0.0002944192369208611,
+      "longTasks": [
+        79,
+        143
+      ],
+      "events": []
+    },
+    "preloaded": [
+      "http://localhost:3001/_nuxt/jB4iWWfm.js",
+      "http://localhost:3001/_nuxt/BcehP1N6.js",
+      "http://localhost:3001/_nuxt/DK3Fl9T5.js",
+      "http://localhost:3001/_nuxt/DC3Tigql.js",
+      "http://localhost:3001/_nuxt/auFhPiRF.js",
+      "http://localhost:3001/_nuxt/LXqt-42Y.js",
+      "http://localhost:3001/_nuxt/cedQfvJj.js",
+      "http://localhost:3001/_nuxt/B2JzGpzt.js",
+      "http://localhost:3001/_nuxt/CRZlKHSQ.js",
+      "http://localhost:3001/_nuxt/DB9WB1gA.js"
+    ],
+    "overflow": false,
+    "sw": true,
+    "registrations": [],
+    "jsGzipBytes": 159868,
+    "fetchedJs": [
+      {
+        "url": "http://localhost:3001/_nuxt/DK3Fl9T5.js",
+        "raw": 158,
+        "gzip": 154
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/auFhPiRF.js",
+        "raw": 5938,
+        "gzip": 2795
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/cedQfvJj.js",
+        "raw": 2001,
+        "gzip": 1068
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/jB4iWWfm.js",
+        "raw": 87057,
+        "gzip": 32044
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/BcehP1N6.js",
+        "raw": 129242,
+        "gzip": 43288
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/DC3Tigql.js",
+        "raw": 86127,
+        "gzip": 33191
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/B2JzGpzt.js",
+        "raw": 13302,
+        "gzip": 5609
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/LXqt-42Y.js",
+        "raw": 124078,
+        "gzip": 39566
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/CRZlKHSQ.js",
+        "raw": 3700,
+        "gzip": 1786
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/DB9WB1gA.js",
+        "raw": 567,
+        "gzip": 367
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/Etttv4ez.js",
+        "raw": 223,
+        "gzip": 191
+      },
+      {
+        "url": "http://localhost:3001/_nuxt/Bd17z0YL.js",
+        "raw": 5653,
+        "gzip": 2199
+      }
+    ],
+    "external": [],
+    "errors": []
+  },
+  "sw": {
+    "registered": true,
+    "controller": true,
+    "caches": [
+      "workbox-precache-v2-http://localhost:3001/"
+    ],
+    "states": [
+      {
+        "scope": "http://localhost:3001/",
+        "active": "activated"
+      }
+    ]
+  },
+  "onlineAfterSW": [
+    {
+      "route": "/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7",
+      "title": "Laboratório — TreeLab",
+      "h1": "",
+      "tree": "Árvore AVL. 7 nós. Altura 2. Raiz 4. In-ordem: 1, 2, 3, 4, 5, 6, 7.",
+      "overflow": false
+    },
+    {
+      "route": "/comparar?q=i1.i2.i3",
+      "title": "Comparar — TreeLab",
+      "h1": "Três caminhos.\nUm experimento.",
+      "tree": null,
+      "overflow": false
+    },
+    {
+      "route": "/treinar?rapido=1&semente=42",
+      "title": "Treinar — TreeLab",
+      "h1": "Desafio rápido.",
+      "tree": null,
+      "overflow": false
+    },
+    {
+      "route": "/aprender?modulo=avl",
+      "title": "Aprender · TreeLab",
+      "h1": "Entenda a árvore.\nDepois, cada passo.",
+      "tree": null,
+      "overflow": false
+    }
+  ],
+  "offline": [
+    {
+      "route": "/",
+      "title": "TreeLab — entenda as árvores",
+      "h1": "Veja a lógica.\nEntenda a árvore.",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/aprender/avl-fb-e-quatro-casos",
+      "title": "AVL: leia o fator de balanceamento · TreeLab",
+      "h1": "AVL: leia o fator de balanceamento",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/glossario",
+      "title": "Glossário · TreeLab",
+      "h1": "O que significa?",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7",
+      "title": "Laboratório — TreeLab",
+      "h1": "",
+      "tree": "Árvore AVL. 7 nós. Altura 2. Raiz 4. In-ordem: 1, 2, 3, 4, 5, 6, 7.",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/comparar?q=i1.i2.i3",
+      "title": "Comparar — TreeLab",
+      "h1": "Três caminhos.\nUm experimento.",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/treinar?rapido=1&semente=42",
+      "title": "Treinar — TreeLab",
+      "h1": "Desafio rápido.",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "route": "/aprender?modulo=avl",
+      "title": "Aprender · TreeLab",
+      "h1": "Entenda a árvore.\nDepois, cada passo.",
+      "tree": null,
+      "overflow": false,
+      "errors": []
+    }
+  ]
+}

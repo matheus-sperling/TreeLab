@@ -1,1 +1,1 @@
-<template><main class="immersive-shell"><slot /></main></template>
+<template><div class="immersive-shell"><slot /></div></template>

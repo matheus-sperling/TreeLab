@@ -8,7 +8,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string]; close: [] }>()
 const { tap } = useHaptics()
 const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', ',', 'backspace', 'random', 'close']
 const labels: Record<string, string> = { '-': 'Alternar sinal', ',': 'Separar valores', backspace: 'Apagar; segure para limpar', random: 'Valor aleatório livre', close: 'Recolher teclado' }
-const icons: Record<string, string> = { backspace: 'delete', random: 'dices', close: 'chevron-down' }
+const icons: Record<string, string> = { '-': 'minus', backspace: 'delete', random: 'dices', close: 'chevron-down' }
 let hold: ReturnType<typeof setTimeout> | undefined
 let cleared = false
 function press(key: string) {
@@ -31,7 +31,7 @@ onBeforeUnmount(end)
 </script>
 
 <template>
-  <div class="number-pad" aria-label="Teclado numérico">
+  <div class="number-pad" role="group" aria-label="Teclado numérico">
     <motion.button v-for="key in keys" :key="key" type="button" :aria-label="labels[key] ?? key" :while-tap="{ scale: .96 }" @pointerdown="start(key)" @pointerup="end" @pointercancel="end" @pointerleave="end" @click="press(key)">
       <Icon v-if="icons[key]" :name="`lucide:${icons[key]}`" aria-hidden="true" />
       <span v-else>{{ key === '-' ? '−' : key }}</span>

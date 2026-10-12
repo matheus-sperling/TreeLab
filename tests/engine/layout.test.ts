@@ -41,4 +41,35 @@ describe('layout tidy', () => {
     expect(layoutTree(tree, { showNils: true }).nils.map(n => n.id)).toEqual(['nil:1:L', 'nil:1:R'])
     expect(layoutTree(tree, { extraBlack: { id: null, parent: 1, side: 'R' } }).nils[0]!.id).toBe('nil:1:R')
   })
+  it('reserva contornos para NILs sem sobreposição e mantém o espelho', () => {
+    for (const type of ['bst', 'avl', 'rb'] as const) {
+      for (let seed = 1; seed <= 40; seed++) {
+        const ops = Array.from({ length: 31 }, (_, i) => ({ t: 'i' as const, k: ((i * 37 + seed * 29) % 97) - 48 }))
+        const tree = runSequence(type, ops).final
+        const layout = layoutTree(tree, { showNils: true })
+        const rows = new Map<number, number[]>()
+        for (const position of [...Object.values(layout.positions), ...layout.nils]) rows.set(position.y, [...rows.get(position.y) ?? [], position.x])
+        for (const row of rows.values()) {
+          row.sort((a, b) => a - b)
+          for (let i = 1; i < row.length; i++) expect(row[i]! - row[i - 1]!).toBeGreaterThanOrEqual(SIBLING_GAP)
+        }
+        const mirror: Snapshot = { rootId: tree.rootId, nodes: Object.fromEntries(Object.entries(tree.nodes).map(([id, n]) => [id, { ...n, l: n.r, r: n.l }])) }
+        const mirrored = layoutTree(mirror, { showNils: true })
+        for (const nil of layout.nils) {
+          const position = layout.positions[nil.parent]!
+          expect(nil.x - position.x).toBe(nil.side === 'L' ? -26 : 26)
+          const reflected = mirrored.nils.find(n => n.parent === nil.parent && n.side !== nil.side)!
+          expect(reflected.x).toBeCloseTo(-nil.x)
+          expect(reflected.y).toBe(nil.y)
+          expect(reflected.id).toBe(`nil:${nil.parent}:${nil.side === 'L' ? 'R' : 'L'}`)
+        }
+        for (const nil of layout.nils) {
+          const extra = layoutTree(tree, { extraBlack: { id: null, parent: nil.parent, side: nil.side } })
+          const virtual = extra.nils[0]!
+          expect(extra.nils).toHaveLength(1)
+          for (const position of Object.values(extra.positions).filter(p => p.y === virtual.y)) expect(Math.abs(position.x - virtual.x)).toBeGreaterThanOrEqual(SIBLING_GAP)
+        }
+      }
+    }
+  }, 30_000)
 })

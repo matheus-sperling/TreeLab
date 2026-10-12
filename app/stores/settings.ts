@@ -14,7 +14,7 @@ export const useSettingsStore = defineStore('settings', () => {
     if (ready.value) return
     try { const saved: Partial<Settings> = JSON.parse(localStorage.getItem('treelab:settings') || '{}'); Object.assign(settings, saved) } catch { /* Configurações antigas inválidas voltam ao padrão. */ }
     ready.value = true; apply()
-    watch(settings, () => { localStorage.setItem('treelab:settings', JSON.stringify(settings)); apply() }, { deep: true })
+    watch(settings, () => { try { localStorage.setItem('treelab:settings', JSON.stringify(settings)) } catch { /* As preferências continuam válidas durante esta sessão. */ } apply() }, { deep: true })
     matchMedia('(prefers-color-scheme: light)').addEventListener('change', apply)
   }
   function reset() { Object.assign(settings, defaultSettings) }

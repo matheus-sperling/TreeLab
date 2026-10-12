@@ -4,7 +4,7 @@ const fresh = (): Progress => ({ completedLessons: [], answers: 0, correct: 0, s
 export const useProgressStore = defineStore('progress', () => {
   const progress = reactive<Progress>(fresh())
   const ready = ref(false)
-  function save() { localStorage.setItem('treelab:progress', JSON.stringify(progress)) }
+  function save() { try { localStorage.setItem('treelab:progress', JSON.stringify(progress)) } catch { /* O estudo continua quando o navegador não permite persistência. */ } }
   function load() { if (ready.value) return; try { Object.assign(progress, JSON.parse(localStorage.getItem('treelab:progress') || '{}')) } catch { /* Dados corrompidos não impedem estudo. */ } ready.value = true }
   function complete(slug: string) { if (!progress.completedLessons.includes(slug)) { progress.completedLessons.push(slug); save() } }
   function answer(correct: boolean, topic: string) {

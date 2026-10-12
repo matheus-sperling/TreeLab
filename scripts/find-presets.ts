@@ -13,11 +13,15 @@ function* permutations(keys: number[]): Generator<number[]> {
 function collect(ops: Op[], type: 'avl' | 'rb'): void {
   for (const step of engine.runSequence(type, ops).steps) {
     const name = step.meta?.caseName
-    if (name && targets.has(name) && !found.has(name)) found.set(name, ops)
+    if (name && targets.has(name)) {
+      const candidate = ops.slice(0, step.op + 1), previous = found.get(name)
+      const insertions = (sequence: Op[]) => sequence.filter(op => op.t === 'i').length
+      if (!previous || insertions(candidate) < insertions(previous) || insertions(candidate) === insertions(previous) && candidate.length < previous.length) found.set(name, candidate)
+    }
   }
 }
 try {
-  // Busca por número crescente de nós. Dois deletes bastam para os casos mínimos RN.
+  // Busca por número crescente de nós; até dois deletes cobrem os casos RN nesta família.
   for (let n = 3; n <= 6 && found.size < targets.size; n++) {
     const keys = Array.from({ length: n }, (_, i) => i + 1)
     for (const order of permutations(keys)) {
@@ -27,7 +31,6 @@ try {
         collect([...inserts, { t: 'd', k: first }], 'rb')
         for (const second of keys) if (first !== second) collect([...inserts, { t: 'd', k: first }, { t: 'd', k: second }], 'rb')
       }
-      if (found.size === targets.size) break
     }
   }
   for (const [name, ops] of found) process.stdout.write(`${name}\t${engine.encodeOps(ops)}\n`)

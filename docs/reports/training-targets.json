@@ -1,0 +1,177 @@
+{
+  "results": [
+    {
+      "viewport": {
+        "width": 360,
+        "height": 740
+      },
+      "bounds": [
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 80"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 100"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 40"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 60"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 20"
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 393,
+        "height": 852
+      },
+      "bounds": [
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 80"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 100"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 40"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 60"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 20"
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 412,
+        "height": 915
+      },
+      "bounds": [
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 80"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 100"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 40"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 60"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 20"
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "bounds": [
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 80"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 100"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 40"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 60"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 20"
+        }
+      ],
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 915,
+        "height": 412
+      },
+      "bounds": [
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 80"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 100"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 40"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 60"
+        },
+        {
+          "width": 50,
+          "height": 50,
+          "label": "Nó 20"
+        }
+      ],
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "violations": [],
+  "feedback": 1
+}

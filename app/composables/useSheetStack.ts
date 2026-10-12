@@ -2,7 +2,7 @@ export function useSheetStack() {
   const current = ref<string | null>(null)
   let pushed = false
   function open(name: string) {
-    if (!current.value) { history.pushState({ treeLabSheet: true }, '', `${location.pathname}${location.search}#sheet`); pushed = true }
+    if (!current.value) { history.pushState({ ...history.state, treeLabSheet: true }, '', `${location.pathname}${location.search}#sheet`); pushed = true }
     current.value = name
   }
   function close() {

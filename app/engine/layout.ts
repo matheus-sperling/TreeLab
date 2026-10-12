@@ -6,11 +6,19 @@ interface LayoutOptions { showNils?: boolean; extraBlack?: StepMeta['extraBlack'
 
 /** Tidy por contornos; filhos únicos conservam seu lado relativo ao pai. */
 export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutResult {
+  function hasNil(parent: NodeId, side: 'L' | 'R'): boolean {
+    return Boolean(options.showNils || (options.extraBlack?.id === null && options.extraBlack.parent === parent && options.extraBlack.side === side))
+  }
+  function branch(child: NodeId | null, parent: NodeId, side: 'L' | 'R'): Subtree {
+    if (child !== null) return solve(child)
+    // O NIL ocupa um nível no contorno, assim como um nó, antes de separar irmãos.
+    return hasNil(parent, side) ? { positions: {}, left: [0], right: [0] } : { positions: {}, left: [], right: [] }
+  }
   function solve(id: NodeId | null): Subtree {
     if (id === null) return { positions: {}, left: [], right: [] }
-    const node = tree.nodes[id]!, a = solve(node.l), b = solve(node.r)
+    const node = tree.nodes[id]!, a = branch(node.l, id, 'L'), b = branch(node.r, id, 'R')
     let offset = SIBLING_GAP / 2
-    if (node.l !== null && node.r !== null) {
+    if (a.left.length && b.left.length) {
       for (let depth = 0; depth < Math.min(a.right.length, b.left.length); depth++) offset = Math.max(offset, (SIBLING_GAP + a.right[depth]! - b.left[depth]!) / 2)
     }
     const positions: Record<number, Position> = { [id]: { x: 0, y: 0 } }, left = [0], right = [0]
@@ -30,7 +38,7 @@ export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutR
     const id = Number(rawId), position = positions[id]!
     for (const side of ['L', 'R'] as const) {
       const child = side === 'L' ? node.l : node.r
-      if (child === null && (options.showNils || (options.extraBlack?.id === null && options.extraBlack.parent === id && options.extraBlack.side === side))) nils.push({ id: `nil:${id}:${side}`, parent: id, side, x: position.x + (side === 'L' ? -1 : 1) * SIBLING_GAP / 2, y: position.y + LEVEL_GAP })
+      if (child === null && hasNil(id, side)) nils.push({ id: `nil:${id}:${side}`, parent: id, side, x: position.x + (side === 'L' ? -1 : 1) * SIBLING_GAP / 2, y: position.y + LEVEL_GAP })
     }
   }
   const all = [...Object.values(positions), ...nils]

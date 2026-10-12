@@ -1,0 +1,67 @@
+{
+  "criterion": "HTML original: script[src] + link[rel=modulepreload], URLs únicas, sem prefetch",
+  "chunks": [
+    {
+      "url": "/_nuxt/DO6R24Ml.js",
+      "status": 200,
+      "raw": 87057,
+      "gzip": 32040
+    },
+    {
+      "url": "/_nuxt/BcehP1N6.js",
+      "status": 200,
+      "raw": 129242,
+      "gzip": 43288
+    },
+    {
+      "url": "/_nuxt/DK3Fl9T5.js",
+      "status": 200,
+      "raw": 158,
+      "gzip": 154
+    },
+    {
+      "url": "/_nuxt/DC3Tigql.js",
+      "status": 200,
+      "raw": 86127,
+      "gzip": 33191
+    },
+    {
+      "url": "/_nuxt/auFhPiRF.js",
+      "status": 200,
+      "raw": 5938,
+      "gzip": 2795
+    },
+    {
+      "url": "/_nuxt/LXqt-42Y.js",
+      "status": 200,
+      "raw": 124078,
+      "gzip": 39566
+    },
+    {
+      "url": "/_nuxt/cedQfvJj.js",
+      "status": 200,
+      "raw": 2001,
+      "gzip": 1068
+    },
+    {
+      "url": "/_nuxt/B2JzGpzt.js",
+      "status": 200,
+      "raw": 13302,
+      "gzip": 5609
+    },
+    {
+      "url": "/_nuxt/CRZlKHSQ.js",
+      "status": 200,
+      "raw": 3700,
+      "gzip": 1786
+    },
+    {
+      "url": "/_nuxt/DB9WB1gA.js",
+      "status": 200,
+      "raw": 567,
+      "gzip": 367
+    }
+  ],
+  "gzipBytes": 159864,
+  "gzipKiB": 156.1171875
+}
