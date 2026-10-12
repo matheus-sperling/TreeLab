@@ -46,17 +46,26 @@ function balance(id: number) { const node = props.tree.nodes[id]!; return (node.
 function highlighted(from: number, to: number) { return props.step?.edges.some(edge => edge.from === from && edge.to === to) || selectedPath.value.includes(from) && selectedPath.value.includes(to) }
 function fit() { camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId]) }
 function focus(id: number, safeBottom = 0) { const point = layout.value.positions[id]; camera.safeBottom.value = safeBottom; if (point) camera.focus(point) }
+function focusSubtree(id: number, safeBottom = 0) {
+  const ids: number[] = []
+  const visit = (current: number | null) => { if (current === null) return; const node = props.tree.nodes[current]; if (!node) return; ids.push(current); visit(node.l); visit(node.r) }
+  visit(id)
+  const points = ids.map(current => layout.value.positions[current]).filter(point => point !== undefined)
+  if (!points.length) return
+  camera.safeBottom.value = safeBottom
+  camera.fitBounds({ minX: Math.min(...points.map(point => point.x)) - 20, maxX: Math.max(...points.map(point => point.x)) + 20, minY: Math.min(...points.map(point => point.y)) - 20, maxY: Math.max(...points.map(point => point.y)) + 20 }, layout.value.positions[id])
+}
 function clearFocus() { camera.safeBottom.value = 0 }
 function empty(event: MouseEvent) { if (!(event.target as Element).closest('[data-node]') && !camera.moved()) emit('empty') }
 onBeforeUnmount(() => { for (const group of controls.values()) for (const control of group) control.stop() })
-defineExpose({ fit, focus, clearFocus })
+defineExpose({ fit, focus, focusSubtree, clearFocus })
 </script>
 
 <template>
   <section ref="container" class="tree-canvas" @pointerdown="camera.down" @pointermove="camera.drag" @pointerup="camera.up" @pointercancel="camera.up" @wheel="camera.wheel">
     <svg class="tree-svg" role="img" :aria-label="a11yLabel" @click="empty">
       <g v-if="showLevels" class="level-guides"><g v-for="level in Math.max(0, height + 1)" :key="level"><line x1="0" :y1="camera.y.get() + (level - 1) * 68 * camera.scale.get()" :x2="camera.width.value" :y2="camera.y.get() + (level - 1) * 68 * camera.scale.get()" stroke="var(--border)" stroke-dasharray="3 5" /><text x="12" :y="camera.y.get() + (level - 1) * 68 * camera.scale.get() - 6" fill="var(--muted)" font-size="10">nível {{ level - 1 }}</text></g></g>
-      <motion.g :style="{ transform: camera.transform, transformOrigin: '0px 0px' }">
+      <motion.g :style="{ transform: camera.transform, originX: 0, originY: 0, transformOrigin: '0px 0px', transformBox: 'view-box' }">
         <LabRotationGuide v-if="step?.kind === 'rotate-pre' && step.meta?.rotation && positions[step.meta.rotation.pivot] && positions[step.meta.rotation.child]" :pivot="positions[step.meta.rotation.pivot]!" :child="positions[step.meta.rotation.child]!" :direction="step.meta.rotation.dir" :reduced="reduced" />
         <motion.g v-if="step?.kind === 'rotate-pre' && step.meta?.rotation?.movedSubtree && positions[step.meta.rotation.movedSubtree]" :style="{ x: positions[step.meta.rotation.movedSubtree]!.x, y: positions[step.meta.rotation.movedSubtree]!.y }"><rect x="-28" y="-28" width="56" height="56" rx="12" fill="none" stroke="var(--rotation)" stroke-width="1.5" stroke-dasharray="4 4" /><text y="-34" text-anchor="middle" fill="var(--rotation)" font-size="9">troca de pai</text></motion.g>
         <AnimatePresence :initial="false"><LabTreeEdge v-for="edge in edges" :key="`${edge.from}:${edge.to}`" :from="positions[edge.from]!" :to="positions[edge.to]!" :highlighted="highlighted(edge.from, edge.to)" :rotation="step?.kind === 'rotate-pre'" :diagnosis="step?.kind === 'imbalance' || step?.kind === 'case'" :draw="step?.kind === 'compare' && highlighted(edge.from, edge.to)" :seeking="seeking" :reduced="reduced" :speed="speed" /></AnimatePresence>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { usePlayer } from '../../composables/usePlayer'
+import { computed } from 'vue'
 import { useLabStore } from '../../stores/lab'
 import { motion } from 'motion-v'
 const props = defineProps<{ player: ReturnType<typeof usePlayer>; compact?: boolean }>()

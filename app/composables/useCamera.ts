@@ -21,6 +21,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   const height = ref(350)
   const following = ref(true)
   const safeBottom = ref(0)
+  const safeTop = 64
   const controls: ReturnType<typeof animate>[] = []
   const pointers = new Map<number, { x: number; y: number }>()
   let lastTap = 0
@@ -31,6 +32,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   let previous = { x: 0, y: 0, t: 0 }
   let velocity = { x: 0, y: 0 }
   let observer: ResizeObserver | undefined
+  let fittedRoot: Position | undefined
   function stop() { for (const control of controls.splice(0)) control.stop() }
   function moveTo(next: { x: number; y: number; scale?: number }, instant = false) {
     stop()
@@ -40,10 +42,17 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   }
   function fit(root?: Position, instant = false) {
     following.value = true
-    moveTo(fitCamera(bounds.value, width.value, Math.max(100, height.value - safeBottom.value), root), instant)
+    if (root) fittedRoot = root
+    const next = fitCamera(bounds.value, width.value, Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
+    moveTo({ ...next, y: next.y + safeTop }, instant)
+  }
+  function fitBounds(nextBounds: CameraBounds, root?: Position) {
+    following.value = false
+    const next = fitCamera(nextBounds, width.value, Math.max(100, height.value - safeBottom.value - safeTop), root)
+    moveTo({ ...next, y: next.y + safeTop })
   }
   function focus(point: Position, instant = false) {
-    moveTo({ x: width.value / 2 - point.x * scale.get(), y: (height.value - safeBottom.value) / 2 - point.y * scale.get() }, instant)
+    moveTo({ x: width.value / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
   }
   function follow(point: Position) {
     if (!following.value || pointers.size) return
@@ -52,7 +61,8 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     const right = width.value - 56
     const bottom = height.value - safeBottom.value - 56
     const dx = px < 56 ? 56 - px : px > right ? right - px : 0
-    const dy = py < 56 ? 56 - py : py > bottom ? bottom - py : 0
+    const top = safeTop + 24
+    const dy = py < top ? top - py : py > bottom ? bottom - py : 0
     if (dx || dy) moveTo({ x: x.get() + dx, y: y.get() + dy })
   }
   function zoom(factor: number, center = { x: width.value / 2, y: (height.value - safeBottom.value) / 2 }) {
@@ -122,5 +132,5 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     if (element.value) observer.observe(element.value)
   })
   onBeforeUnmount(() => { observer?.disconnect(); stop() })
-  return { x, y, scale, transform, width, height, following, safeBottom, fit, focus, follow, zoom, down, drag, up, wheel, moved: () => moved }
+  return { x, y, scale, transform, width, height, following, safeBottom, fit, fitBounds, focus, follow, zoom, down, drag, up, wheel, moved: () => moved }
 }
