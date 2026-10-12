@@ -1,0 +1,373 @@
+export type ConceptTopic = 'foundations' | 'bst' | 'avl' | 'rb' | 'comparison' | 'complexity'
+
+export interface ConceptQuestion {
+  id: string
+  prompt: string
+  options: readonly string[]
+  answer: number
+  explanation: string
+  topic: ConceptTopic
+}
+
+export const quizBank: ConceptQuestion[] = [
+  {
+    id: 'height-convention', topic: 'foundations',
+    prompt: 'Como o TreeLab mede a altura de um nó?',
+    options: ['Pelo número de filhos diretos.', 'Pelo número de arestas até a folha mais distante.', 'Pelo número de nós até a raiz.', 'Pelo total de nós da árvore.'],
+    answer: 1, explanation: 'A altura conta arestas no caminho mais longo até uma folha. Uma folha tem altura 0.',
+  },
+  {
+    id: 'empty-height', topic: 'foundations',
+    prompt: 'Qual é a convenção de altura para uma árvore vazia?',
+    options: ['0.', '1.', '−1.', 'A altura não tem definição.'],
+    answer: 2, explanation: 'O TreeLab usa altura −1 para árvore vazia e filho nulo; por isso uma folha tem altura 0.',
+  },
+  {
+    id: 'root-depth', topic: 'foundations',
+    prompt: 'Qual afirmação sobre a profundidade está correta?',
+    options: ['A raiz tem profundidade zero.', 'A raiz tem profundidade igual à altura da árvore.', 'Toda folha tem profundidade zero.', 'Profundidade e altura sempre coincidem.'],
+    answer: 0, explanation: 'Profundidade conta arestas da raiz até o nó. O caminho da raiz até ela mesma tem zero arestas.',
+  },
+  {
+    id: 'leaf-height', topic: 'foundations',
+    prompt: 'Qual é a altura de uma folha no TreeLab?',
+    options: ['−1.', 'Depende de sua profundidade.', '1.', '0.'],
+    answer: 3, explanation: 'Uma folha não tem filhos internos. O caminho dela até uma folha — ela mesma — tem zero arestas.',
+  },
+  {
+    id: 'inorder-rule', topic: 'foundations',
+    prompt: 'Qual é a ordem de visita do percurso in-ordem?',
+    options: ['Nó, esquerda, direita.', 'Esquerda, nó, direita.', 'Esquerda, direita, nó.', 'Todos os nós de cada nível.'],
+    answer: 1, explanation: 'In-ordem visita a esquerda, o nó e a direita. Em uma ABB, essa ordem produz chaves crescentes.',
+  },
+  {
+    id: 'preorder-rule', topic: 'foundations',
+    prompt: 'Qual é a ordem de visita do percurso pré-ordem?',
+    options: ['Esquerda, nó, direita.', 'Direita, esquerda, nó.', 'Nó, esquerda, direita.', 'Esquerda, direita, nó.'],
+    answer: 2, explanation: 'Pré-ordem visita primeiro o nó e depois suas subárvores esquerda e direita.',
+  },
+  {
+    id: 'postorder-rule', topic: 'foundations',
+    prompt: 'Qual é a ordem de visita do percurso pós-ordem?',
+    options: ['Esquerda, direita, nó.', 'Nó, esquerda, direita.', 'Esquerda, nó, direita.', 'Nó, direita, esquerda.'],
+    answer: 0, explanation: 'Pós-ordem visita as duas subárvores antes de visitar o nó.',
+  },
+  {
+    id: 'level-queue', topic: 'foundations',
+    prompt: 'Qual estrutura auxiliar corresponde ao percurso em nível?',
+    options: ['Uma árvore Rubro-Negra.', 'Uma pilha O(n²).', 'Nenhuma estrutura auxiliar.', 'Uma fila O(largura).'],
+    answer: 3, explanation: 'O percurso em nível usa uma fila. Seu espaço depende da largura máxima da árvore.',
+  },
+  {
+    id: 'distinct-keys', topic: 'bst',
+    prompt: 'O que acontece ao inserir uma chave já presente no TreeLab?',
+    options: ['Ela substitui a raiz.', 'A operação não altera a árvore.', 'Uma segunda cópia entra à direita.', 'A chave antiga é removida.'],
+    answer: 1, explanation: 'As chaves são distintas. Uma duplicata gera uma explicação e preserva a árvore.',
+  },
+  {
+    id: 'bst-global-rule', topic: 'bst',
+    prompt: 'Qual regra deve valer em cada nó de uma ABB?',
+    options: ['Todos os filhos têm a mesma altura.', 'Só o filho esquerdo direto precisa ser menor.', 'Todas as chaves à esquerda são menores e todas à direita são maiores.', 'Toda folha deve ter a mesma profundidade.'],
+    answer: 2, explanation: 'A regra vale para toda a subárvore de cada lado, e não apenas para os filhos diretos.',
+  },
+  {
+    id: 'bst-sorted-traversal', topic: 'bst',
+    prompt: 'Qual percurso produz ordem crescente em uma ABB válida?',
+    options: ['In-ordem.', 'Pré-ordem.', 'Pós-ordem.', 'Em nível.'],
+    answer: 0, explanation: 'A propriedade esquerda < nó < direita faz o percurso in-ordem produzir chaves crescentes.',
+  },
+  {
+    id: 'bst-insert-leaf', topic: 'bst',
+    prompt: 'Como nasce um nó em uma inserção ABB válida?',
+    options: ['Com dois filhos.', 'Sempre como a nova raiz.', 'Como pai do nó mais próximo.', 'Como uma folha.'],
+    answer: 3, explanation: 'A busca encontra um filho vazio e a inserção cria uma folha nesse lugar.',
+  },
+  {
+    id: 'bst-remove-one-child', topic: 'bst',
+    prompt: 'Como a ABB remove um nó com exatamente um filho?',
+    options: ['Apaga também toda a subárvore.', 'O filho toma o lugar do nó removido.', 'Procura obrigatoriamente o sucessor.', 'Converte o filho em raiz global.'],
+    answer: 1, explanation: 'O transplante coloca o único filho no lugar do removido e ajusta os vínculos de pai.',
+  },
+  {
+    id: 'bst-remove-two-children', topic: 'bst',
+    prompt: 'Qual convenção o TreeLab usa para remover um nó com dois filhos?',
+    options: ['Trocar apenas os números dos nós.', 'Mover qualquer folha da esquerda.', 'Mover o sucessor in-ordem por transplante.', 'Recriar a árvore inteira.'],
+    answer: 2, explanation: 'O sucessor é o mínimo da subárvore direita. Ele é movido por transplante e mantém seu id.',
+  },
+  {
+    id: 'successor-location', topic: 'bst',
+    prompt: 'Se um nó tem subárvore direita, onde está seu sucessor?',
+    options: ['No mínimo dessa subárvore direita.', 'No máximo da subárvore esquerda.', 'Sempre no filho direito direto.', 'Sempre na raiz da árvore.'],
+    answer: 0, explanation: 'O sucessor é a próxima chave maior; na subárvore direita, ela é encontrada seguindo os filhos esquerdos.',
+  },
+  {
+    id: 'successor-nondirect', topic: 'bst',
+    prompt: 'Na remoção, se o sucessor não é filho direto do removido, o que acontece antes de movê-lo?',
+    options: ['Sua subárvore direita é descartada.', 'Ele ganha o filho esquerdo original como pai.', 'Sua chave muda para a chave da raiz.', 'Ele é substituído por seu filho direito no lugar original.'],
+    answer: 3, explanation: 'Primeiro o filho direito do sucessor ocupa seu lugar original; depois o sucessor assume o lugar do removido.',
+  },
+  {
+    id: 'minimum-search', topic: 'bst',
+    prompt: 'Como encontrar o mínimo de uma ABB não vazia?',
+    options: ['Seguindo apenas filhos direitos.', 'Seguindo filhos esquerdos até não haver outro.', 'Escolhendo a folha mais profunda.', 'Executando uma rotação.'],
+    answer: 1, explanation: 'Cada descida à esquerda leva a uma chave menor. O último nó desse caminho é o mínimo.',
+  },
+  {
+    id: 'ordered-input', topic: 'bst',
+    prompt: 'O que uma entrada ordenada pode causar em uma ABB sem balanceamento?',
+    options: ['Altura garantida O(log n).', 'Todas as folhas no mesmo nível.', 'Uma lista com altura n−1.', 'Uma rotação automática após cada inserção.'],
+    answer: 2, explanation: 'A ABB não garante equilíbrio. Inserções em ordem podem criar uma única cadeia de nós.',
+  },
+  {
+    id: 'absent-operation', topic: 'bst',
+    prompt: 'O que ocorre ao buscar ou remover uma chave inexistente?',
+    options: ['A descida termina com explicação e a árvore não muda.', 'A raiz é removida.', 'A chave é inserida automaticamente.', 'O último nó visitado muda de chave.'],
+    answer: 0, explanation: 'Operações sem resultado preservam a árvore e mostram que a chave não está presente.',
+  },
+  {
+    id: 'balance-factor-definition', topic: 'avl',
+    prompt: 'Qual fórmula define o fator de balanceamento?',
+    options: ['Altura direita − altura esquerda.', 'Profundidade esquerda + profundidade direita.', 'Altura total − número de filhos.', 'Altura esquerda − altura direita.'],
+    answer: 3, explanation: 'FB(x) = altura(esq) − altura(dir). Um valor positivo indica que a esquerda é mais alta.',
+  },
+  {
+    id: 'avl-invariant', topic: 'avl',
+    prompt: 'Qual é o invariante de balanceamento da AVL?',
+    options: ['Toda folha fica no mesmo nível.', '|FB| ≤ 1 em todo nó.', 'Só a raiz precisa ter FB = 0.', 'O filho esquerdo sempre é mais alto.'],
+    answer: 1, explanation: 'A diferença entre as alturas dos dois lados deve estar entre −1 e +1 em cada nó.',
+  },
+  {
+    id: 'avl-ll', topic: 'avl',
+    prompt: 'FB(z) = +2 e FB do filho esquerdo ≥ 0. Qual conserto corresponde?',
+    options: ['RL: direita no filho, esquerda em z.', 'RR: esquerda em z.', 'LL: direita em z.', 'LR: esquerda em z.'],
+    answer: 2, explanation: 'O caso LL usa uma rotação à direita em z. Na remoção, o FB do filho também pode ser zero.',
+  },
+  {
+    id: 'avl-rr', topic: 'avl',
+    prompt: 'FB(z) = −2 e FB do filho direito ≤ 0. Qual conserto corresponde?',
+    options: ['RR: esquerda em z.', 'LL: direita em z.', 'LR: direita no filho, esquerda em z.', 'RL: esquerda em z apenas.'],
+    answer: 0, explanation: 'O caso RR usa uma rotação à esquerda em z, promovendo seu filho direito.',
+  },
+  {
+    id: 'avl-lr', topic: 'avl',
+    prompt: 'Qual sequência de rotações resolve o caso LR?',
+    options: ['Direita em z, depois esquerda na raiz.', 'Esquerda em z, depois direita no filho.', 'Duas rotações à direita em z.', 'Esquerda no filho esquerdo, depois direita em z.'],
+    answer: 3, explanation: 'LR combina esquerda no filho y e direita no ancestral desbalanceado z.',
+  },
+  {
+    id: 'avl-rl', topic: 'avl',
+    prompt: 'Qual sequência de rotações resolve o caso RL?',
+    options: ['Esquerda no filho esquerdo, depois direita em z.', 'Direita no filho direito, depois esquerda em z.', 'Duas rotações à esquerda.', 'Apenas direita em z.'],
+    answer: 1, explanation: 'RL combina direita no filho y e esquerda no ancestral desbalanceado z.',
+  },
+  {
+    id: 'avl-child-zero', topic: 'avl',
+    prompt: 'Quando FB(y) = 0 pode aparecer no diagnóstico de um conserto AVL?',
+    options: ['Só durante uma busca.', 'Em toda inserção desbalanceada.', 'Na remoção.', 'Nunca.'],
+    answer: 2, explanation: 'No diagnóstico de um ancestral desbalanceado, o filho mais alto com FB zero é um caso da remoção.',
+  },
+  {
+    id: 'avl-insert-stop', topic: 'avl',
+    prompt: 'Por que a inserção AVL pode parar após consertar o primeiro ancestral desbalanceado?',
+    options: ['A altura da subárvore volta ao valor anterior à inserção.', 'Todas as chaves ficam na raiz.', 'A árvore passa a ser completa.', 'Os ancestrais deixam de existir.'],
+    answer: 0, explanation: 'Um conserto simples ou duplo restaura a altura anterior da subárvore; não é preciso consertar ancestrais acima.',
+  },
+  {
+    id: 'avl-delete-cascade', topic: 'avl',
+    prompt: 'Qual comportamento pode ocorrer na remoção AVL?',
+    options: ['Nunca há rotação.', 'No máximo uma recoloração.', 'A altura sempre aumenta.', 'O rebalanceamento pode continuar por vários ancestrais.'],
+    answer: 3, explanation: 'A altura pode diminuir depois de um conserto; a subida pode alcançar outros ancestrais e causar O(log n) rotações.',
+  },
+  {
+    id: 'avl-delete-zero-stop', topic: 'avl',
+    prompt: 'Na remoção AVL, o que ocorre ao consertar z com uma rotação simples e FB(y) = 0?',
+    options: ['É obrigatório rotacionar a raiz novamente.', 'A altura não diminui e a subida pode parar.', 'Uma rotação dupla sempre é necessária.', 'A árvore vira uma Rubro-Negra.'],
+    answer: 1, explanation: 'Com FB(y) zero, a rotação simples corrige o equilíbrio sem diminuir a altura da subárvore.',
+  },
+  {
+    id: 'rotation-order', topic: 'avl',
+    prompt: 'Qual propriedade uma rotação preserva?',
+    options: ['A profundidade de todos os nós.', 'A raiz original de toda subárvore.', 'A ordem in-ordem das chaves.', 'A altura de cada nó.'],
+    answer: 2, explanation: 'A rotação altera vínculos e posições, mas preserva a ordem in-ordem e, portanto, a propriedade de busca.',
+  },
+  {
+    id: 'rotation-cost', topic: 'complexity',
+    prompt: 'Qual é o custo de uma rotação simples?',
+    options: ['O(1).', 'Θ(n).', 'O(n²).', 'O(log n) obrigatoriamente.'],
+    answer: 0, explanation: 'Uma rotação muda uma quantidade constante de vínculos, independentemente do total de nós.',
+  },
+  {
+    id: 'rb-root-and-nil', topic: 'rb',
+    prompt: 'Qual regra de cor vale em toda Rubro-Negra concluída?',
+    options: ['A raiz é vermelha e os NIL são pretos.', 'Todo nó interno é preto.', 'Todo NIL é vermelho.', 'A raiz e todos os NIL são pretos.'],
+    answer: 3, explanation: 'As propriedades Rubro-Negras exigem raiz preta e folhas NIL pretas.',
+  },
+  {
+    id: 'rb-red-child', topic: 'rb',
+    prompt: 'Se um nó Rubro-Negro é vermelho, qual regra vale para seus filhos?',
+    options: ['Os dois precisam ser vermelhos.', 'Os filhos são pretos.', 'Só o filho direito precisa ser preto.', 'Eles devem ter a mesma chave.'],
+    answer: 1, explanation: 'Não pode haver dois vermelhos consecutivos no caminho. NIL também conta como preto.',
+  },
+  {
+    id: 'rb-black-height-definition', topic: 'rb',
+    prompt: 'Como o TreeLab conta a altura negra de um nó?',
+    options: ['Conta todos os nós internos do caminho.', 'Conta o próprio nó e ignora o NIL.', 'Conta pretos no caminho até o NIL, incluindo o NIL e excluindo o próprio nó.', 'Conta só os nós vermelhos.'],
+    answer: 2, explanation: 'Essa é a convenção CLRS usada no TreeLab: exclui o nó de partida e inclui o NIL preto de chegada.',
+  },
+  {
+    id: 'rb-black-height-invariant', topic: 'rb',
+    prompt: 'O que deve coincidir em todos os caminhos de um nó Rubro-Negro até seus NIL descendentes?',
+    options: ['A quantidade de nós pretos.', 'A quantidade de nós vermelhos.', 'A quantidade total de arestas.', 'A sequência exata de chaves.'],
+    answer: 0, explanation: 'Todos esses caminhos têm a mesma altura negra; seu comprimento total pode variar.',
+  },
+  {
+    id: 'rb-insert-color', topic: 'rb',
+    prompt: 'Com qual cor um nó é inicialmente inserido na Rubro-Negra?',
+    options: ['Com a cor do pai.', 'Sempre preto.', 'Sem cor até a próxima operação.', 'Vermelho.'],
+    answer: 3, explanation: 'A inserção cria um nó vermelho e executa o conserto quando necessário. Ao fim, a raiz fica preta.',
+  },
+  {
+    id: 'rb-uncle-red', topic: 'rb',
+    prompt: 'No caso 1 da inserção Rubro-Negra, com tio vermelho, qual é o conserto?',
+    options: ['Rotacionar duas vezes sem mudar cores.', 'Pai e tio ficam pretos, avô fica vermelho e a análise sobe.', 'Apagar o tio.', 'Pintar pai e tio de vermelho.'],
+    answer: 1, explanation: 'O caso 1 recolore pai, tio e avô. z passa a ser o avô para verificar conflitos mais acima.',
+  },
+  {
+    id: 'rb-triangle-line', topic: 'rb',
+    prompt: 'O que a rotação do caso 2 da inserção Rubro-Negra faz?',
+    options: ['Apaga o preto extra.', 'Transforma a árvore em uma lista.', 'Transforma a configuração interna de triângulo no caso de linha.', 'Dispensa todas as regras de cor.'],
+    answer: 2, explanation: 'Com tio preto e z interno, uma rotação no pai prepara o caso 3, de configuração externa.',
+  },
+  {
+    id: 'rb-line-fix', topic: 'rb',
+    prompt: 'Qual ação corresponde ao caso 3 da inserção Rubro-Negra?',
+    options: ['Pintar pai de preto, avô de vermelho e rotacionar o avô.', 'Pintar o tio de vermelho e remover a raiz.', 'Apenas procurar o mínimo.', 'Mover o sucessor por transplante.'],
+    answer: 0, explanation: 'No caso de linha com tio preto, a recoloração e a rotação do avô resolvem o conflito local.',
+  },
+  {
+    id: 'rb-insert-rotation-bound', topic: 'rb',
+    prompt: 'Qual é o limite de rotações na inserção Rubro-Negra?',
+    options: ['Exatamente três em toda inserção.', 'O(n) rotações.', 'Nenhuma rotação é permitida.', 'Até duas rotações.'],
+    answer: 3, explanation: 'O conserto usa até duas rotações. As recolorações podem subir e custar O(log n).',
+  },
+  {
+    id: 'rb-delete-original-color', topic: 'rb',
+    prompt: 'Qual cor determina se a remoção Rubro-Negra precisa tratar preto extra?',
+    options: ['Sempre a cor original da raiz.', 'A cor original de y, o nó retirado de sua posição.', 'A cor do maior nó da árvore.', 'A cor final do irmão.'],
+    answer: 1, explanation: 'y é o removido quando há até um filho, ou seu sucessor. Se a cor original de y é preta, o conserto trata o preto extra.',
+  },
+  {
+    id: 'rb-extra-black-nil', topic: 'rb',
+    prompt: 'O nó x que carrega o preto extra pode ser NIL?',
+    options: ['Não, precisa ter dois filhos.', 'Não, precisa ser vermelho.', 'Sim; o motor guarda seu pai explicitamente.', 'Sim, mas a árvore perde a ordem de busca.'],
+    answer: 2, explanation: 'x pode ser null. xParent mantém o contexto para localizar seu irmão sem uma sentinela global mutável.',
+  },
+  {
+    id: 'rb-delete-case-one', topic: 'rb',
+    prompt: 'Qual situação caracteriza o caso 1 da remoção Rubro-Negra?',
+    options: ['O irmão w é vermelho.', 'O irmão w é preto e seus dois filhos são pretos.', 'O filho distante de w é vermelho.', 'x já é a raiz.'],
+    answer: 0, explanation: 'O caso 1 recolore irmão e pai e rotaciona o pai, produzindo um novo irmão preto para os casos seguintes.',
+  },
+  {
+    id: 'rb-delete-case-two', topic: 'rb',
+    prompt: 'Com irmão preto e ambos os filhos dele pretos, o que faz o caso 2?',
+    options: ['Pinta os filhos de vermelho e termina sempre.', 'Insere uma nova chave.', 'Apaga o pai.', 'Pinta o irmão de vermelho e faz o preto extra subir ao pai.'],
+    answer: 3, explanation: 'x passa a ser o pai. Se esse x for vermelho, ele fica preto e o conserto termina.',
+  },
+  {
+    id: 'rb-delete-case-three', topic: 'rb',
+    prompt: 'Qual configuração caracteriza o caso 3 da remoção Rubro-Negra?',
+    options: ['Irmão vermelho e pai preto.', 'Irmão preto, filho próximo vermelho e filho distante preto.', 'Irmão preto com os dois filhos pretos.', 'x é vermelho e já está resolvido.'],
+    answer: 1, explanation: 'O caso 3 recolore e rotaciona o irmão para produzir a configuração do caso 4.',
+  },
+  {
+    id: 'rb-delete-case-four', topic: 'rb',
+    prompt: 'Qual configuração permite o caso 4 da remoção Rubro-Negra?',
+    options: ['Irmão vermelho sem filhos.', 'Todos os nós são vermelhos.', 'Irmão preto com filho distante vermelho.', 'A árvore está vazia antes da operação.'],
+    answer: 2, explanation: 'O irmão recebe a cor do pai; pai e filho distante ficam pretos. A rotação do pai resolve o preto extra.',
+  },
+  {
+    id: 'rb-delete-rotation-bound', topic: 'rb',
+    prompt: 'Qual é o limite de rotações na remoção Rubro-Negra?',
+    options: ['Até três.', 'Até duas em qualquer situação.', 'Exatamente uma.', 'O(n) rotações.'],
+    answer: 0, explanation: 'O conserto da remoção Rubro-Negra usa no máximo três rotações e O(log n) recolorações.',
+  },
+  {
+    id: 'height-guarantees', topic: 'comparison',
+    prompt: 'Qual comparação de garantias de altura está correta?',
+    options: ['As três garantem altura n−1.', 'ABB é sempre mais baixa que AVL.', 'Rubro-Negra sempre tem altura igual à AVL.', 'ABB pode ter n−1; AVL e Rubro-Negra garantem altura O(log n).'],
+    answer: 3, explanation: 'A ABB não impõe equilíbrio. AVL e Rubro-Negra mantêm regras que limitam a altura de forma logarítmica.',
+  },
+  {
+    id: 'avl-read-guide', topic: 'comparison',
+    prompt: 'Segundo o guia do TreeLab, qual estrutura favorece muita leitura e pouca escrita?',
+    options: ['ABB sem garantias, sempre.', 'AVL.', 'Uma ABB degenerada.', 'Nenhuma árvore de busca.'],
+    answer: 1, explanation: 'A AVL costuma ser mais rasa para busca. O guia a indica quando leituras dominam e atualizações são menos frequentes.',
+  },
+  {
+    id: 'rb-mixed-guide', topic: 'comparison',
+    prompt: 'Qual estrutura o guia indica para leituras e escritas misturadas?',
+    options: ['Somente ABB degenerada.', 'Uma lista sem ordenação.', 'Rubro-Negra.', 'AVL sem registrar alturas.'],
+    answer: 2, explanation: 'A Rubro-Negra combina garantia de altura com poucos ajustes por rotação nas atualizações.',
+  },
+  {
+    id: 'node-extra-memory', topic: 'comparison',
+    prompt: 'Qual comparação de memória extra por nó está correta?',
+    options: ['ABB: 0; AVL: altura/FB; Rubro-Negra: 1 bit de cor.', 'ABB: 1 bit; AVL: 0; Rubro-Negra: altura.', 'Todas precisam de uma tabela de chaves extra.', 'AVL e Rubro-Negra não registram informação adicional.'],
+    answer: 0, explanation: 'A comparação considera os metadados de balanceamento: nenhum na ABB, altura/FB na AVL e cor na Rubro-Negra.',
+  },
+  {
+    id: 'implementation-difficulty', topic: 'comparison',
+    prompt: 'Qual ordem de dificuldade de implementação o TreeLab apresenta?',
+    options: ['Rubro-Negra < AVL < ABB.', 'AVL < ABB < Rubro-Negra.', 'As três são sempre idênticas.', 'ABB < AVL < Rubro-Negra.'],
+    answer: 3, explanation: 'ABB é a base; AVL acrescenta alturas; Rubro-Negra acrescenta regras de cor. A remoção RN é a parte mais difícil.',
+  },
+  {
+    id: 'bst-path-cost', topic: 'complexity',
+    prompt: 'Qual grandeza controla o custo dos caminhos de busca, inserção e remoção na ABB?',
+    options: ['Só o grau da raiz.', 'A altura h, com custo Θ(h).', 'Sempre n², independentemente da forma.', 'Só a cor dos nós.'],
+    answer: 1, explanation: 'Essas operações seguem caminhos na árvore. A altura pode ser logarítmica ou chegar a n−1.',
+  },
+  {
+    id: 'bst-cost-cases', topic: 'complexity',
+    prompt: 'Qual é o comparativo de custo da ABB apresentado no TreeLab?',
+    options: ['Melhor O(n), médio O(n²), pior O(1).', 'Todos os casos O(log n).', 'Melhor O(1), médio O(log n) com entrada aleatória, pior O(n).', 'Todos os casos Θ(n²).'],
+    answer: 2, explanation: 'A ABB pode resolver na raiz, costuma ter caminhos logarítmicos com inserções aleatórias e pode degenerar em lista.',
+  },
+  {
+    id: 'balanced-worst-cost', topic: 'complexity',
+    prompt: 'Qual garantia de pior caso AVL e Rubro-Negra oferecem para busca, inserção e remoção?',
+    options: ['O(log n).', 'O(1) para todas as operações.', 'O(n²).', 'Nenhuma garantia.'],
+    answer: 0, explanation: 'As duas mantêm altura logarítmica. Isso limita os caminhos e o trabalho de atualização a O(log n).',
+  },
+  {
+    id: 'traversal-time', topic: 'complexity',
+    prompt: 'Quanto tempo leva um percurso que visita todos os n nós?',
+    options: ['O(1), se a árvore é balanceada.', 'O(log n), sempre.', 'O(n²), sempre.', 'Θ(n).'],
+    answer: 3, explanation: 'Cada nó deve ser visitado. Balancear a árvore reduz sua altura, mas não elimina essas visitas.',
+  },
+  {
+    id: 'tree-space', topic: 'complexity',
+    prompt: 'Qual é o espaço da própria árvore nas três estruturas?',
+    options: ['O(log n).', 'O(n).', 'O(1).', 'O(n²).'],
+    answer: 1, explanation: 'ABB, AVL e Rubro-Negra armazenam um nó por chave; os metadados de balanceamento são constantes por nó.',
+  },
+  {
+    id: 'rb-height-bound', topic: 'complexity',
+    prompt: 'Qual limite de altura corresponde à Rubro-Negra?',
+    options: ['h = n−1 obrigatoriamente.', 'h ≤ log₂(n) / 2.', 'h ≤ 2·log₂(n+1).', 'h ≤ n².'],
+    answer: 2, explanation: 'As propriedades de cor e altura negra dão o limite h ≤ 2·log₂(n+1).',
+  },
+  {
+    id: 'avl-fibonacci-recurrence', topic: 'avl',
+    prompt: 'Qual recorrência define o mínimo de nós N(h) em uma AVL de altura h?',
+    options: ['N(h) = N(h−1) + N(h−2) + 1.', 'N(h) = h².', 'N(h) = N(h−1) − 1.', 'N(h) = 2h, para toda altura.'],
+    answer: 0, explanation: 'Com N(−1)=0 e N(0)=1, essa recorrência se relaciona a Fibonacci e limita a altura da AVL.',
+  },
+  {
+    id: 'rb-path-ratio', topic: 'rb',
+    prompt: 'Qual consequência das propriedades Rubro-Negras está correta?',
+    options: ['Todos os caminhos têm o mesmo comprimento.', 'O caminho mais curto é sempre zero.', 'O caminho mais longo pode ser arbitrariamente maior.', 'O caminho mais longo tem no máximo duas vezes o comprimento do mais curto.'],
+    answer: 3, explanation: 'A altura negra igual e a proibição de vermelhos consecutivos limitam a razão entre os comprimentos dos caminhos.',
+  },
+]
