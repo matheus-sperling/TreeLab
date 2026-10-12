@@ -2,7 +2,9 @@ export type TreeType = 'bst' | 'avl' | 'rb'
 export type NodeId = number
 export type Color = 'R' | 'B'
 export interface TreeNode { key: number; l: NodeId | null; r: NodeId | null; p: NodeId | null; h: number; c?: Color }
-export interface Snapshot { rootId: NodeId | null; nodes: Record<number, TreeNode> }
+export interface Snapshot { readonly rootId: NodeId | null; readonly nodes: Readonly<Record<number, Readonly<TreeNode>>> }
+/** Estado de trabalho privado do motor; nunca é retornado pela API pública. */
+export interface MutableSnapshot { rootId: NodeId | null; nodes: Record<number, TreeNode> }
 export type TraversalOrder = 'in' | 'pre' | 'post' | 'level'
 export type Op = { t: 'i'; k: number } | { t: 'd'; k: number } | { t: 's'; k: number } | { t: 'walk'; order: TraversalOrder } | { t: 'min' } | { t: 'max' } | { t: 'succ'; k: number } | { t: 'pred'; k: number }
 export type StepKind = 'start' | 'compare' | 'descend' | 'attach' | 'found' | 'not-found' | 'duplicate' | 'mark-delete' | 'find-successor' | 'transplant' | 'remove' | 'update' | 'imbalance' | 'case' | 'rotate-pre' | 'rotate' | 'recolor' | 'extra-black' | 'visit' | 'done'

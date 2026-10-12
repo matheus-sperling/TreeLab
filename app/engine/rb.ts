@@ -9,9 +9,10 @@ function rotation(ctx: EngineContext, pivot: NodeId, dir: 'left' | 'right', case
 }
 
 function insertionCase(ctx: EngineContext, caseName: CaseName, id: NodeId, parent: NodeId, grandparent: NodeId): void {
+  const line = caseName.startsWith('RB-I1') ? 2 : caseName.startsWith('RB-I2') ? 4 : 6
   ctx.emit('case', 'case', { caseName, key: ctx.tree.nodes[id]!.key }, {
     [id]: 'current', [parent]: 'violation', [grandparent]: 'pivot',
-  }, { caseName }, 'rb-insert', 4)
+  }, { caseName }, 'rb-insert-fix', line)
 }
 
 export function rbInsert(ctx: EngineContext, key: number): void {
@@ -43,9 +44,9 @@ export function rbInsert(ctx: EngineContext, key: number): void {
     const uncle = mirror ? ctx.tree.nodes[g]!.l : ctx.tree.nodes[g]!.r
     if (color(ctx.tree, uncle) === 'R') {
       insertionCase(ctx, mirror ? 'RB-I1-mirror' : 'RB-I1', id, p, g)
-      ctx.setColor(p, 'B')
-      ctx.setColor(uncle, 'B')
-      ctx.setColor(g, 'R')
+      ctx.setColor(p, 'B', 'rb-insert-fix', 3)
+      ctx.setColor(uncle, 'B', 'rb-insert-fix', 3)
+      ctx.setColor(g, 'R', 'rb-insert-fix', 3)
       id = g
       continue
     }
@@ -59,11 +60,11 @@ export function rbInsert(ctx: EngineContext, key: number): void {
     }
     const caseName = mirror ? 'RB-I3-mirror' : 'RB-I3'
     insertionCase(ctx, caseName, id, p, g)
-    ctx.setColor(p, 'B')
-    ctx.setColor(g, 'R')
+    ctx.setColor(p, 'B', 'rb-insert-fix', 6)
+    ctx.setColor(g, 'R', 'rb-insert-fix', 6)
     rotation(ctx, g, mirror ? 'left' : 'right', caseName, internal ? 2 : 1, internal ? 2 : 1)
   }
-  ctx.setColor(ctx.tree.rootId, 'B')
+  ctx.setColor(ctx.tree.rootId, 'B', 'rb-insert-fix', 7)
 }
 
 function extraBlack(ctx: EngineContext, id: NodeId | null, parent: NodeId | null): StepMeta {
@@ -71,10 +72,11 @@ function extraBlack(ctx: EngineContext, id: NodeId | null, parent: NodeId | null
 }
 
 function deletionCase(ctx: EngineContext, caseName: CaseName, parent: NodeId, sibling: NodeId | null, id: NodeId | null): void {
+  const line = Number(caseName.slice(4, 5)) * 2
   ctx.emit('case', 'case', { caseName, key: ctx.tree.nodes[parent]!.key }, {
     [parent]: 'pivot', ...(sibling === null ? {} : { [sibling]: 'current' as const }),
     ...(id === null ? {} : { [id]: 'extra-black' as const }),
-  }, { caseName, ...extraBlack(ctx, id, parent) }, 'rb-delete', 5)
+  }, { caseName, ...extraBlack(ctx, id, parent) }, 'rb-delete-fix', line)
 }
 
 function fixDeletion(ctx: EngineContext, initialId: NodeId | null, initialParent: NodeId | null): void {
@@ -86,8 +88,8 @@ function fixDeletion(ctx: EngineContext, initialId: NodeId | null, initialParent
     if (color(ctx.tree, sibling) === 'R') {
       const caseName = mirror ? 'RB-D1-mirror' : 'RB-D1'
       deletionCase(ctx, caseName, parent, sibling, id)
-      ctx.setColor(sibling, 'B')
-      ctx.setColor(parent, 'R')
+      ctx.setColor(sibling, 'B', 'rb-delete-fix', 3)
+      ctx.setColor(parent, 'R', 'rb-delete-fix', 3)
       rotation(ctx, parent, mirror ? 'right' : 'left', caseName)
       sibling = mirror ? ctx.tree.nodes[parent]!.l : ctx.tree.nodes[parent]!.r
     }
@@ -95,32 +97,32 @@ function fixDeletion(ctx: EngineContext, initialId: NodeId | null, initialParent
     let far = sibling === null ? null : mirror ? ctx.tree.nodes[sibling]!.l : ctx.tree.nodes[sibling]!.r
     if (color(ctx.tree, near) === 'B' && color(ctx.tree, far) === 'B') {
       deletionCase(ctx, mirror ? 'RB-D2-mirror' : 'RB-D2', parent, sibling, id)
-      ctx.setColor(sibling, 'R')
+      ctx.setColor(sibling, 'R', 'rb-delete-fix', 5)
       id = parent
       parent = ctx.tree.nodes[id]!.p
-      ctx.emit('extra-black', 'extra-black', { key: ctx.tree.nodes[id]!.key }, { [id]: 'extra-black' }, extraBlack(ctx, id, parent), 'rb-delete', 6)
+      ctx.emit('extra-black', 'extra-black', { key: ctx.tree.nodes[id]!.key }, { [id]: 'extra-black' }, extraBlack(ctx, id, parent), 'rb-delete-fix', 5)
       continue
     }
     const needsNearRotation = color(ctx.tree, far) === 'B'
     if (needsNearRotation) {
       const caseName = mirror ? 'RB-D3-mirror' : 'RB-D3'
       deletionCase(ctx, caseName, parent, sibling, id)
-      ctx.setColor(near, 'B')
-      ctx.setColor(sibling, 'R')
+      ctx.setColor(near, 'B', 'rb-delete-fix', 7)
+      ctx.setColor(sibling, 'R', 'rb-delete-fix', 7)
       rotation(ctx, sibling!, mirror ? 'left' : 'right', caseName, 1, 2)
       sibling = mirror ? ctx.tree.nodes[parent]!.l : ctx.tree.nodes[parent]!.r
       far = sibling === null ? null : mirror ? ctx.tree.nodes[sibling]!.l : ctx.tree.nodes[sibling]!.r
     }
     const caseName = mirror ? 'RB-D4-mirror' : 'RB-D4'
     deletionCase(ctx, caseName, parent, sibling, id)
-    ctx.setColor(sibling, color(ctx.tree, parent))
-    ctx.setColor(parent, 'B')
-    ctx.setColor(far, 'B')
+    ctx.setColor(sibling, color(ctx.tree, parent), 'rb-delete-fix', 9)
+    ctx.setColor(parent, 'B', 'rb-delete-fix', 9)
+    ctx.setColor(far, 'B', 'rb-delete-fix', 9)
     rotation(ctx, parent, mirror ? 'right' : 'left', caseName, needsNearRotation ? 2 : 1, needsNearRotation ? 2 : 1)
     id = ctx.tree.rootId
     parent = null
   }
-  ctx.setColor(id, 'B')
+  ctx.setColor(id, 'B', 'rb-delete-fix', 10)
 }
 
 export function rbDelete(ctx: EngineContext, key: number): void {
@@ -175,7 +177,7 @@ export function rbDelete(ctx: EngineContext, key: number): void {
   }
   delete ctx.tree.nodes[removed]
   ctx.emit('transplant', 'transplant', { key, replacement: moved === removed ? replacement === null ? null : ctx.tree.nodes[replacement]!.key : ctx.tree.nodes[moved]!.key }, moved === removed ? {} : { [moved]: 'successor' }, undefined, 'rb-delete', 4)
-  if (moved !== removed) ctx.setColor(moved, target.c!)
+  if (moved !== removed) ctx.setColor(moved, target.c!, 'rb-delete', 4)
   ctx.emit('remove', 'remove', { key }, {}, undefined, 'rb-delete', 4)
   if (originalColor === 'B') {
     ctx.emit('extra-black', 'extra-black', { key: replacement === null ? null : ctx.tree.nodes[replacement]!.key }, replacement === null ? {} : { [replacement]: 'extra-black' }, extraBlack(ctx, replacement, replacementParent), 'rb-delete', 5)

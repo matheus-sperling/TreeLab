@@ -1,11 +1,17 @@
-import type { Color, NodeId, Snapshot } from './types'
+import type { Color, MutableSnapshot, NodeId, Snapshot } from './types'
 
-export const emptyTree = (): Snapshot => ({ rootId: null, nodes: {} })
-export const cloneTree = (tree: Snapshot): Snapshot => ({ rootId: tree.rootId, nodes: Object.fromEntries(Object.entries(tree.nodes).map(([id, node]) => [id, { ...node }])) })
+export const emptyTree = (): MutableSnapshot => ({ rootId: null, nodes: {} })
+export const cloneTree = (tree: Snapshot): MutableSnapshot => ({ rootId: tree.rootId, nodes: Object.fromEntries(Object.entries(tree.nodes).map(([id, node]) => [id, { ...node }])) })
+export function immutableSnapshot(tree: Snapshot): Snapshot {
+  const snapshot = cloneTree(tree)
+  for (const node of Object.values(snapshot.nodes)) Object.freeze(node)
+  Object.freeze(snapshot.nodes)
+  return Object.freeze(snapshot)
+}
 export const height = (tree: Snapshot, id: NodeId | null): number => id === null ? -1 : tree.nodes[id]!.h
 export const color = (tree: Snapshot, id: NodeId | null): Color => id === null ? 'B' : tree.nodes[id]!.c ?? 'B'
 export const balance = (tree: Snapshot, id: NodeId): number => height(tree, tree.nodes[id]!.l) - height(tree, tree.nodes[id]!.r)
-export function recomputeHeights(tree: Snapshot): void {
+export function recomputeHeights(tree: MutableSnapshot): void {
   function walk(id: NodeId | null): number {
     if (id === null) return -1
     const node = tree.nodes[id]!
@@ -14,7 +20,7 @@ export function recomputeHeights(tree: Snapshot): void {
   }
   walk(tree.rootId)
 }
-export function transplant(tree: Snapshot, removed: NodeId, replacement: NodeId | null): void {
+export function transplant(tree: MutableSnapshot, removed: NodeId, replacement: NodeId | null): void {
   const node = tree.nodes[removed]!
   if (node.p === null) tree.rootId = replacement
   else if (tree.nodes[node.p]!.l === removed) tree.nodes[node.p]!.l = replacement

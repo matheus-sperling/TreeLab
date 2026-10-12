@@ -8,8 +8,9 @@ export const getCaseLabel = (name: string): string => `${caseLabels[name.replace
 type Message = (params: MessageParams) => string
 const direction = (p: MessageParams): string => p.dir === 'left' || p.side === 'l' ? 'esquerda' : 'direita'
 const queryLabels: Record<string, string> = { min: 'Mínimo', max: 'Máximo', succ: 'Sucessor', pred: 'Predecessor' }
+const actions: Record<string, string> = { i: 'inserir', d: 'remover', s: 'buscar', walk: 'percorrer a árvore', min: 'consultar o mínimo', max: 'consultar o máximo', succ: 'consultar o sucessor de', pred: 'consultar o predecessor de' }
 export const messages: Record<string, Message> = {
-  start: p => `Vamos ${p.action} ${p.key ?? ''}.`.replace(' .', '.'),
+  start: p => `Vamos ${actions[String(p.action)]} ${p.key ?? ''}.`.replace(' .', '.'),
   compare: p => `Compare ${p.key} com ${p.at}.`,
   descend: p => `${p.key} segue para a ${direction(p)} de ${p.at}.`,
   attach: p => `${p.key} entra como uma nova folha${p.parent === null ? ' na raiz' : ''}.`,

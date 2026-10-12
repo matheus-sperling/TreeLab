@@ -1,32 +1,36 @@
-import { cloneTree, emptyTree, recomputeHeights } from './tree'
-import type { Color, Cost, MessageParams, NodeId, Role, Snapshot, Step, StepKind, StepMeta, TreeType } from './types'
+import { emptyTree, immutableSnapshot, recomputeHeights } from './tree'
+import type { Color, Cost, MessageParams, MutableSnapshot, NodeId, Role, Step, StepKind, StepMeta, TreeType } from './types'
 
 export const emptyCost = (): Cost => ({ comparisons: 0, rotations: 0, recolorings: 0, heightUpdates: 0, visits: 0 })
 export class EngineContext {
-  tree: Snapshot = emptyTree()
+  tree: MutableSnapshot = emptyTree()
   steps: Step[] = []
   cost: Cost = emptyCost()
   op = 0
   nextId = 1
+  private extraBlack: StepMeta['extraBlack']
   constructor(public type: TreeType) {}
   emit(kind: StepKind, key: string, params: MessageParams = {}, hl: Record<number, Role> = {}, meta?: StepMeta, algo = `${this.type}-operation`, line = 1): void {
     recomputeHeights(this.tree)
+    if (kind === 'start' || kind === 'done') this.extraBlack = undefined
+    else if (meta?.extraBlack) this.extraBlack = { ...meta.extraBlack }
+    const stepMeta = meta || this.extraBlack ? { ...meta, ...(this.extraBlack ? { extraBlack: { ...this.extraBlack } } : {}) } : undefined
     const edges = Object.entries(hl).flatMap(([id, role]) => {
       const node = this.tree.nodes[Number(id)]
       return node?.p !== null && node?.p !== undefined && hl[node.p] ? [{ from: node.p, to: Number(id), role }] : []
     })
-    this.steps.push({ i: this.steps.length, op: this.op, kind, tree: cloneTree(this.tree), hl: { ...hl }, edges, msg: { key, params }, code: { algo, line }, ...(meta ? { meta } : {}) })
+    this.steps.push({ i: this.steps.length, op: this.op, kind, tree: immutableSnapshot(this.tree), hl: { ...hl }, edges, msg: { key, params }, code: { algo, line }, ...(stepMeta ? { meta: stepMeta } : {}) })
   }
   create(key: number, c?: Color): NodeId {
     const id = this.nextId++
     this.tree.nodes[id] = { key, l: null, r: null, p: null, h: 0, ...(c ? { c } : {}) }
     return id
   }
-  setColor(id: NodeId | null, c: Color): void {
+  setColor(id: NodeId | null, c: Color, algo = 'rb-recolor', line = 1): void {
     if (id === null || this.tree.nodes[id]!.c === c) return
     this.tree.nodes[id]!.c = c
     this.cost.recolorings++
-    this.emit('recolor', 'recolor', { key: this.tree.nodes[id]!.key, color: c }, { [id]: 'current' }, undefined, 'rb-fix', 5)
+    this.emit('recolor', 'recolor', { key: this.tree.nodes[id]!.key, color: c }, { [id]: 'current' }, undefined, algo, line)
   }
   rotate(pivot: NodeId, dir: 'left' | 'right', meta: StepMeta = {}): void {
     const node = this.tree.nodes[pivot]!

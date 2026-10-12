@@ -55,7 +55,9 @@ describe('contratos do motor', () => {
     const first = runSequence('avl', ops), second = runSequence('avl', ops)
     expect(first).toEqual(second)
     expect(JSON.stringify(ops)).toBe(before)
-    first.final.nodes[first.final.rootId!]!.key = 999
+    expect(Object.isFrozen(first.final)).toBe(true)
+    expect(Object.isFrozen(first.final.nodes[first.final.rootId!]!)).toBe(true)
+    expect(() => Object.assign(first.final.nodes[first.final.rootId!]!, { key: 999 })).toThrow()
     expect(first.steps.at(-1)!.tree).toEqual(second.final)
   })
   it('explica duplicata, inexistência, chave inválida e limite sem alterar árvore', () => {
