@@ -31,6 +31,7 @@ let contentObserver: ResizeObserver | undefined
 let panelObserver: ResizeObserver | undefined
 let drag: { pointer: number; y: number; height: number; moved: boolean } | undefined
 let lastOcclusion: { bottom: number; right: number } | undefined
+let openingByResize = false
 
 function measureOcclusion() {
   if (!panel.value) return
@@ -48,6 +49,7 @@ function saveHeight() {
   try { localStorage.setItem('treelab:dock-height', String(preferredHeight.value)) } catch { /* Resizing stays available without storage. */ }
 }
 function setHeight(next: number) {
+  if (collapsed.value) openingByResize = true
   collapsed.value = false
   if (props.keyboard) keyboardHeight.value = clamp(next)
   else preferredHeight.value = clamp(next)
@@ -90,6 +92,20 @@ function measureContent() {
   naturalHeight.value = 45 + content.value.offsetHeight + bottom
 }
 watch(() => props.keyboard, () => { keyboardHeight.value = null })
+watch([collapsed, () => props.keyboard], ([closed, keyboard], [wasClosed, wasKeyboard]) => {
+  const manualOpening = !closed && wasClosed && openingByResize
+  if (!closed && wasClosed) openingByResize = false
+  if (closed || keyboard || manualOpening || (!wasClosed && !wasKeyboard)) return
+  // The expand control restores all content; reopening with the resize handle
+  // retains the height explicitly chosen by that gesture.
+  preferredHeight.value = null
+  try { localStorage.removeItem('treelab:dock-height') } catch { /* The panel can still reopen fully. */ }
+  nextTick(() => {
+    if (collapsed.value || props.keyboard) return
+    measureContent()
+    scrollArea.value?.scrollTo({ top: 0 })
+  })
+}, { flush: 'sync' })
 watch(sidePanel, async () => { await nextTick(); measureOcclusion() }, { flush: 'post' })
 watch([() => props.keyboard, maximumHeight, naturalHeight], async () => {
   if (!props.keyboard) return

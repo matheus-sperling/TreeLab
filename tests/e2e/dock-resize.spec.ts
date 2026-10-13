@@ -54,7 +54,6 @@ for (const viewport of [{ width: 412, height: 915 }, { width: 393, height: 680 }
     const handle = page.getByRole('separator', { name: 'Ajustar altura do painel de operações' })
     await handle.focus(); await handle.press('ArrowUp')
     await expect.poll(async () => (await dock.boundingBox())!.height).toBeCloseTo(resized.height + 24, 0)
-    const preferred = (await dock.boundingBox())!.height
     const input = page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })
     await input.click()
     await expect.poll(() => input.evaluate(element => {
@@ -64,7 +63,10 @@ for (const viewport of [{ width: 412, height: 915 }, { width: 393, height: 680 }
     await expectReachable(page, 'Valor aleatório livre')
     await expectReachable(page, 'Inserir valores')
     await page.getByRole('button', { name: 'Recolher teclado', exact: true }).last().click()
-    await expect.poll(async () => (await dock.boundingBox())!.height).toBeCloseTo(preferred, 0)
+    await expect.poll(() => page.locator('.dock-scroll').evaluate(element => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1)
+    await expect.poll(() => page.locator('.dock-scroll').evaluate(element => element.scrollTop)).toBe(0)
+    await expectReachable(page, 'Reproduzir')
+    await expectReachable(page, 'Inserir valores')
   })
 }
 
