@@ -1,4 +1,5 @@
 import { animate, useMotionValue, useMotionTemplate } from 'motion-v'
+import { TREE_EASE } from '../components/lab/motion'
 import type { Position } from '../engine/types'
 
 export interface CameraBounds { minX: number; minY: number; maxX: number; maxY: number }
@@ -35,12 +36,15 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   let velocity = { x: 0, y: 0 }
   let observer: ResizeObserver | undefined
   let fittedRoot: Position | undefined
-  function stop() { for (const control of controls.splice(0)) control.stop() }
+  let measured = false
+  let destination: { x: number; y: number; scale?: number } | undefined
+  function stop() { for (const control of controls.splice(0)) control.stop(); destination = undefined }
   function moveTo(next: { x: number; y: number; scale?: number }, instant = false) {
-    stop()
+    if (!instant && !reduced.value && destination?.x === next.x && destination.y === next.y && destination.scale === next.scale) return
+    stop(); destination = { ...next }
     if (instant || reduced.value) { x.set(next.x); y.set(next.y); if (next.scale !== undefined) scale.set(next.scale); return }
-    controls.push(animate(x, next.x, { type: 'spring', duration: .35, bounce: .08 }), animate(y, next.y, { type: 'spring', duration: .35, bounce: .08 }))
-    if (next.scale !== undefined) controls.push(animate(scale, next.scale, { type: 'spring', duration: .35, bounce: .08 }))
+    controls.push(animate(x, next.x, { type: 'tween', duration: .55, ease: TREE_EASE }), animate(y, next.y, { type: 'tween', duration: .55, ease: TREE_EASE }))
+    if (next.scale !== undefined) controls.push(animate(scale, next.scale, { type: 'tween', duration: .55, ease: TREE_EASE }))
   }
   function fit(root?: Position, instant = false) {
     following.value = true
@@ -132,7 +136,14 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   }
   function wheel(event: WheelEvent) { event.preventDefault(); zoom(event.deltaY > 0 ? .9 : 1.1, { x: event.offsetX, y: event.offsetY }) }
   onMounted(() => {
-    observer = new ResizeObserver(([entry]) => { if (entry) { width.value = entry.contentRect.width; height.value = entry.contentRect.height; if (following.value) fit(undefined, true) } })
+    observer = new ResizeObserver(([entry]) => {
+      if (!entry) return
+      const next = entry.contentRect
+      if (measured && Math.abs(width.value - next.width) < .5 && Math.abs(height.value - next.height) < .5) return
+      width.value = next.width; height.value = next.height
+      if (following.value) fit(undefined, !measured)
+      measured = true
+    })
     if (element.value) observer.observe(element.value)
   })
   onBeforeUnmount(() => { observer?.disconnect(); stop() })

@@ -1,5 +1,6 @@
 import { useLabStore } from '../stores/lab'
 import { getMessage } from '../engine'
+import { movementBudget } from '../components/lab/motion'
 import { createPlayback, stepDwell } from '../components/lab/playerCore'
 export { stepDwell } from '../components/lab/playerCore'
 export const playerSpeeds = [.5, 1, 1.5, 2, 4]
@@ -17,7 +18,7 @@ export function usePlayer() {
     cursor: () => lab.cursor, length: () => lab.result.steps.length, range: () => lab.range as [number, number],
     ranges: () => lab.result.opRanges, operation: () => lab.operationIndex,
     kind: index => lab.result.steps[index]?.kind ?? '', seek: (index, instant) => lab.seek(index, instant),
-    dwell: () => stepDwell(lab.step ? getMessage(lab.step.msg).length : 0, speed.value, lab.step?.kind === 'rotate' ? 700 : 450),
+    dwell: () => stepDwell(lab.step ? getMessage(lab.step.msg).length : 0, speed.value, movementBudget(lab.step?.kind)),
     summary: () => summarized.value || batchEnd.value !== null && lab.operationIndex <= batchEnd.value,
     pauseOnKey: () => pauseKeyMoments.value, changed: value => { playing.value = value; if (!value && lab.cursor === lab.result.steps.length - 1) batchEnd.value = null }, batchEnd: () => batchEnd.value,
   })
