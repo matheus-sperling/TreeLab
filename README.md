@@ -5,10 +5,10 @@ Estude ABB, AVL e Rubro-Negra com controle de cada comparação, transplante, ro
 ## O que está disponível
 
 - Laboratório: três motores, sequência editável, player, câmera com pan/pinça, teclado próprio, inspetor, código e custos, presets, consultas, percursos e links compartilháveis.
-- Aprender: 16 lições em M0–M6, exemplos com player, tabela comparativa, experimento altura × n, testes rápidos e progresso local.
+- Conceitos acessíveis no laboratório: ordem, altura, rotações e cores, com experimentos abertos desde o início. Lições antigas permanecem disponíveis por seus links.
 - Comparar: mesma sequência nas três estruturas, linha do tempo por operação e experimentos de altura.
-- Treinar: sessões de 8 questões ou desafio de 3. Respostas estruturais calculadas pelo motor e 60 questões conceituais curadas.
-- Cola, glossário com 65 termos e ajustes de tema, movimento, texto, teclado e visualização.
+- Sequência editável: alterar números e tipos, reordenar, excluir e limpar tudo com Desfazer. O treino foi retirado da navegação; a rota antiga abre o laboratório.
+- Menu persistente de exemplos, exploração e opções; sementes atualizam imediatamente. Ajustes de tema, movimento, texto, teclado e visualização.
 - PWA com fontes, ícones, conteúdo e chunks locais; nenhum login ou variável de ambiente.
 
 ## Rodar

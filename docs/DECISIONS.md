@@ -6,7 +6,7 @@
 - TypeScript 7.0.2: `vue-tsc` 3.3.13 falha em `lib/tsc` e typescript-eslint declara incompatibilidade. Fixamos 6.0.3 (última 6.x estável consultada); strict permanece ligado.
 - PWA: a dependência efetivamente resolvida é `vite-plugin-pwa` 1.3.0, cujos peers incluem Vite 8. Mantivemos Nuxt 4.6.1/Vite 8.3.4; não foi necessário o fallback 4.4.x.
 - Rotação AVL: os contadores medem primitivas; uma dupla custa 2. O limite de uma inserção é um evento de rebalanceamento simples ou duplo, conforme o domínio.
-- Snapshots: congelados em runtime e readonly em TypeScript. O layout tidy por contornos passou nos testes de separação, lado, determinismo e espelho.
+- Snapshots: congelados em runtime e readonly em TypeScript. O layout usa arestas a 45° e contornos contínuos por faixa vertical, incluindo nós, arestas e anotações. Comprimentos variam para separar subárvores sem alargar o ângulo. Alturas e níveis reservam espaço somente quando habilitados. Testes cobrem separação, cruzamentos, lado, determinismo e espelho.
 - Celulares menores: entrada inválida recolhe o teclado para mostrar a correção sem cortar o canvas. A câmera reserva 64 px no topo e 80 px à direita/base para métricas e controles com alvos de 48 px.
 - Gestos e acessibilidade: botões frequentes têm alvos de 48 px; player e teclas de 44 px abaixo de 380 px seguem as exceções explícitas do briefing. Links dentro de parágrafos conservam o fluxo de leitura.
 - Animação do dock: Motion usa FLIP por transform para acompanhar a mudança de tamanho; não interpolamos height/width. Seek e movimento reduzido conservam a ordem dos passos.

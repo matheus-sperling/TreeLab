@@ -1,0 +1,61 @@
+import { expect, test } from '@playwright/test'
+
+test('editar número, tipo e ordem preserva a sequência ao fechar o painel e recarregar', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/lab?t=avl&q=i30.i20.i10&c=99999')
+  await page.getByRole('button', { name: 'Editar sequência de operações', exact: true }).click()
+  const second = page.getByRole('textbox', { name: 'Número da operação 2', exact: true })
+  await second.fill('25')
+  await second.press('Tab')
+  await page.getByRole('button', { name: 'Mover operação 3 para antes', exact: true }).click()
+  await page.getByRole('combobox', { name: 'Tipo da operação 3', exact: true }).selectOption('d')
+  const expected = 'i30.i10.d25'
+  // Aguarde a gravação enquanto o painel ainda ocupa sua entrada de histórico.
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(expected)
+  const cursor = new URL(page.url()).searchParams.get('c')
+  await page.getByRole('button', { name: 'Voltar ao laboratório', exact: true }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(expected)
+  await expect.poll(() => new URL(page.url()).searchParams.get('c')).toBe(cursor)
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Editar sequência de operações', exact: true })).toBeVisible()
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(expected)
+  await page.getByRole('button', { name: 'Editar sequência de operações', exact: true }).click()
+  await expect(page.getByRole('textbox', { name: 'Número da operação 2', exact: true })).toHaveValue('10')
+  await expect(page.getByRole('textbox', { name: 'Número da operação 3', exact: true })).toHaveValue('25')
+  await expect(page.getByRole('combobox', { name: 'Tipo da operação 3', exact: true })).toHaveValue('d')
+  expect(errors).toEqual([])
+})
+
+test('alterar a semente persiste a geração ao voltar pelo navegador e recarregar', async ({ page }) => {
+  const errors: string[] = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/lab?t=rb&q=i40.i20.i60&c=0')
+  await page.getByRole('button', { name: 'Abrir menu do laboratório', exact: true }).click()
+  await page.getByRole('tab', { name: 'Exemplos', exact: true }).click()
+  await page.locator('#lab-random-count').fill('5')
+  await page.locator('#lab-random-seed').fill('314')
+  await expect(page.getByRole('status').filter({ hasText: 'Sequência atualizada · semente 314' })).toBeVisible()
+  await expect.poll(async () => {
+    const session = await page.evaluate(() => JSON.parse(localStorage.getItem('treelab-lab') ?? '{}'))
+    return session.ops?.length
+  }).toBe(5)
+  const generated = new URL(page.url()).searchParams.get('q')
+  expect(generated).not.toBe('i40.i20.i60')
+  expect(generated?.split('.')).toHaveLength(5)
+  await page.goBack()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(generated)
+  await expect.poll(() => new URL(page.url()).searchParams.get('c')).toBe('0')
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Editar sequência de operações', exact: true })).toBeVisible()
+  await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(generated)
+  await page.getByRole('button', { name: 'Editar sequência de operações', exact: true }).click()
+  await expect(page.locator('.sequence-row')).toHaveCount(5)
+  await page.getByRole('button', { name: 'Voltar ao laboratório', exact: true }).click()
+  await page.getByRole('button', { name: 'Abrir menu do laboratório', exact: true }).click()
+  await expect(page.locator('#lab-random-seed')).toHaveValue('314')
+  await expect(page.locator('#lab-random-count')).toHaveValue('5')
+  expect(errors).toEqual([])
+})

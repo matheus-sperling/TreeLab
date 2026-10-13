@@ -20,7 +20,7 @@ export function createPlayback(source: PlaybackSource, clock: PlaybackClock = re
   let lastPrevious = -Infinity
   function pause() { playing = false; generation++; cancel?.(); cancel = undefined; source.changed(false) }
   function seek(index: number) { pause(); source.seek(Math.max(0, Math.min(index, source.length() - 1)), true) }
-  function move(delta: number) { seek(source.cursor() + delta) }
+  function move(delta: number) { pause(); source.seek(Math.max(0, Math.min(source.cursor() + delta, source.length() - 1)), false) }
   function previous() {
     const now = clock.now()
     const prior = source.ranges()[source.operation() - 1]

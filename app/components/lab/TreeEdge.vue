@@ -11,5 +11,5 @@ const path = useTransform([props.from.x, props.from.y, props.to.x, props.to.y], 
 })
 </script>
 <template>
-  <motion.path :d="path" fill="none" :stroke="diagnosis && highlighted ? 'var(--violation)' : rotation ? 'var(--rotation)' : highlighted ? 'var(--accent)' : 'var(--border-strong)'" :stroke-width="highlighted ? 3 : 2" stroke-linecap="round" vector-effect="non-scaling-stroke" :initial="seeking || reduced ? false : { opacity: 0, pathLength: draw ? 0 : 1 }" :animate="{ opacity: 1, pathLength: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: seeking ? 0 : reduced ? .12 : (draw ? .25 : .16) / speed }" />
+  <motion.path :d="path" fill="none" :stroke="diagnosis && highlighted ? 'var(--violation)' : rotation ? 'var(--rotation)' : highlighted ? 'var(--accent)' : 'var(--border-strong)'" :stroke-width="highlighted ? 3 : 2" stroke-linecap="round" :initial="seeking || reduced ? false : { opacity: 0, pathLength: draw ? 0 : 1 }" :animate="{ opacity: 1, pathLength: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: seeking ? 0 : reduced ? .12 : (draw ? .25 : .16) / speed }" />
 </template>

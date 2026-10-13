@@ -1,0 +1,22 @@
+<script setup lang="ts">
+import { presets } from '../../engine/presets'
+import type { Op, TreeType } from '../../engine/types'
+const props = defineProps<{ type: TreeType }>()
+const emit = defineEmits<{ example: [ops: Op[], type: TreeType] }>()
+const topics = [
+  { id: 'order', name: 'Ordem', icon: 'git-branch', title: 'Uma comparação elimina metade das opções.', idea: 'Um valor menor segue à esquerda; um maior, à direita. Essa regra vale para toda a subárvore, não só para os filhos imediatos.', why: 'Ao buscar 30 na raiz 40, não precisamos visitar o lado direito: todos os valores dali são maiores que 40. A ordem nos permite descartar esse lado.', prompt: 'Busque um valor e observe os caminhos descartados.', preset: 'balanced' },
+  { id: 'height', name: 'Altura', icon: 'route', title: 'O formato muda o trabalho.', idea: 'Altura é a quantidade de arestas no caminho mais longo até uma folha. Uma folha tem altura 0.', why: 'Inserir 1, 2, 3… em uma ABB cria uma lista. Buscar o último valor exige passar por todos os anteriores. Árvores equilibradas reduzem o tamanho dos caminhos.', prompt: 'Abra a sequência crescente e alterne ABB, AVL e RN.', preset: 'ordered' },
+  { id: 'rotation', name: 'Rotações', icon: 'rotate-cw', title: 'Girar corrige o equilíbrio sem ordenar de novo.', idea: 'O filho sobe, o pivô desce e a subárvore do meio troca de pai. As chaves continuam na mesma ordem crescente.', why: 'Na AVL, uma diferença de altura maior que 1 aumenta um dos caminhos. A rotação redistribui os nós. Um zigue-zague precisa de dois giros: primeiro alinhar, depois equilibrar.', prompt: 'Veja a inserção de 20 produzir um zigue-zague e avance pelas duas rotações.', preset: 'avl-lr' },
+  { id: 'color', name: 'Cores', icon: 'paintbrush', title: 'A cor representa uma regra, não um enfeite.', idea: 'Na Rubro-Negra, a raiz é preta, dois vermelhos não podem ser consecutivos e todo caminho até NIL deve ter a mesma quantidade de pretos.', why: 'Um nó novo entra vermelho para não adicionar um preto a apenas um caminho. Se pai e tio forem vermelhos, mudamos suas cores e a do avô para retirar o conflito preservando a quantidade de pretos.', prompt: 'Insira 1 e acompanhe pai, tio e avô mudarem de cor, com a justificativa de cada mudança.', preset: 'rb-i1' },
+] as const
+const selected = ref(props.type === 'rb' ? 'color' : props.type === 'avl' ? 'rotation' : 'order')
+const topic = computed(() => topics.find(item => item.id === selected.value)!)
+const example = computed(() => presets.find(item => item.id === topic.value.preset)!)
+</script>
+<template>
+  <div class="concepts"><nav aria-label="Conceitos"><button v-for="item in topics" :key="item.id" :aria-pressed="selected === item.id" @click="selected = item.id"><Icon :name="`lucide:${item.icon}`" />{{ item.name }}</button></nav><article :key="topic.id" class="concept-body"><span class="eyebrow">ENTENDA EXPERIMENTANDO</span><h3>{{ topic.title }}</h3><p>{{ topic.idea }}</p><div class="concept-tree"><LabMiniTree :type="example.type" :ops="example.ops" :height="150" :label="topic.name" /></div><h4>Por que isso ajuda?</h4><p class="muted">{{ topic.why }}</p><p class="experiment-prompt">{{ topic.prompt }}</p><UiButton variant="primary" @click="emit('example', example.ops, example.type)"><Icon name="lucide:play" />Abrir experimento desde o início</UiButton></article></div>
+</template>
+<style scoped>
+.concepts nav { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding-bottom:20px; }.concepts nav button { min-height:56px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; border:1px solid var(--border); border-radius:12px; font-size:11px; color:var(--muted); }.concepts nav button[aria-pressed='true'] { border-color:var(--accent); background:var(--surface-2); color:var(--accent); }.concepts nav :deep(.iconify) { width:18px; height:18px; }.concept-body h3 { font-size:21px; line-height:1.3; letter-spacing:-.035em; margin:10px 0 12px; }.concept-body p { font-size:14px; line-height:1.7; }.concept-tree { margin:20px 0; border:1px solid var(--border); border-radius:14px; background:var(--bg); overflow:hidden; }.concept-body h4 { font-size:13px; font-weight:650; margin:0 0 8px; color:var(--accent); }.experiment-prompt { margin:20px 0 12px; }.concept-body>:deep(.ui-button) { width:100%; font-size:13px; }
+@media(prefers-reduced-motion:no-preference) { .concept-body { animation:surface-in .22s ease both; } }
+</style>

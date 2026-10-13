@@ -11,6 +11,7 @@ export function usePlayer() {
   const summarized = ref(false)
   const pauseKeyMoments = ref(false)
   const batchEnd = ref<number | null>(null)
+  let held = false
   let repeatTimer: ReturnType<typeof setTimeout> | undefined
   const core = createPlayback({
     cursor: () => lab.cursor, length: () => lab.result.steps.length, range: () => lab.range as [number, number],
@@ -31,7 +32,8 @@ export function usePlayer() {
     core.play()
   }
   function hold(delta: number) {
-    const tick = () => { core.move(delta); repeatTimer = setTimeout(tick, 167) }
+    held = false
+    const tick = () => { held = true; core.move(delta); repeatTimer = setTimeout(tick, 167) }
     repeatTimer = setTimeout(tick, 450)
   }
   function release() { if (repeatTimer) clearTimeout(repeatTimer) }
@@ -46,5 +48,5 @@ export function usePlayer() {
   function visibility() { core.visibility(document.hidden); if (document.hidden) release() }
   onMounted(() => { document.addEventListener('visibilitychange', visibility); window.addEventListener('keydown', keydown) })
   onBeforeUnmount(() => { core.pause(); release(); document.removeEventListener('visibilitychange', visibility); window.removeEventListener('keydown', keydown) })
-  return { ...core, playing, speed, state, summarized, pauseKeyMoments, cycleSpeed, append, hold, release, seek: (index: number) => { batchEnd.value = null; core.seek(index) }, move: (delta: number) => { batchEnd.value = null; core.move(delta) }, previous: () => { batchEnd.value = null; core.previous() }, next: () => { core.next(); batchEnd.value = null } }
+  return { ...core, playing, speed, state, summarized, pauseKeyMoments, cycleSpeed, append, hold, release, seek: (index: number) => { batchEnd.value = null; core.seek(index) }, move: (delta: number) => { if (held) { held = false; return } batchEnd.value = null; core.move(delta) }, previous: () => { batchEnd.value = null; core.previous() }, next: () => { core.next(); batchEnd.value = null } }
 }

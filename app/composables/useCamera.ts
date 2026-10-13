@@ -3,14 +3,15 @@ import type { Position } from '../engine/types'
 
 export interface CameraBounds { minX: number; minY: number; maxX: number; maxY: number }
 export function fitCamera(bounds: CameraBounds, width: number, height: number, root?: Position) {
-  const boxWidth = Math.max(40, bounds.maxX - bounds.minX + 88)
-  const boxHeight = Math.max(40, bounds.maxY - bounds.minY + 88)
+  const boxWidth = Math.max(40, bounds.maxX - bounds.minX + 16)
+  const boxHeight = Math.max(40, bounds.maxY - bounds.minY + 16)
   const rawScale = Math.min(width / boxWidth, height / boxHeight, 1.15)
-  const scale = Math.max(.5, rawScale)
-  const center = rawScale < .5 && root ? root : { x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2 }
+  const scale = Math.max(.025, rawScale)
+  const center = { x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2 }
+  void root
   return { scale, x: width / 2 - center.x * scale, y: height / 2 - center.y * scale }
 }
-export function clampScale(value: number) { return Math.max(.45, Math.min(2.5, value)) }
+export function clampScale(value: number) { return Math.max(.025, Math.min(2.5, value)) }
 
 export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<CameraBounds>, reduced: ComputedRef<boolean>) {
   const x = useMotionValue(0)
@@ -20,8 +21,8 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   const width = ref(412)
   const height = ref(350)
   const following = ref(true)
-  const safeBottom = ref(80)
-  const safeTop = 64
+  const safeBottom = ref(8)
+  const safeTop = 8
   const controls: ReturnType<typeof animate>[] = []
   const pointers = new Map<number, { x: number; y: number }>()
   let lastTap = 0
@@ -44,29 +45,29 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   function fit(root?: Position, instant = false) {
     following.value = true
     if (root) fittedRoot = root
-    const next = fitCamera(bounds.value, Math.max(100, width.value - 80), Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
-    moveTo({ ...next, y: next.y + safeTop }, instant)
+    const next = fitCamera(bounds.value, Math.max(100, width.value - 32), Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
+    moveTo({ ...next, x: next.x + 16, y: next.y + safeTop }, instant)
   }
   function fitBounds(nextBounds: CameraBounds, root?: Position) {
     following.value = false
-    const next = fitCamera(nextBounds, Math.max(100, width.value - 80), Math.max(100, height.value - safeBottom.value - safeTop), root)
-    moveTo({ ...next, y: next.y + safeTop })
+    const next = fitCamera(nextBounds, Math.max(100, width.value - 32), Math.max(100, height.value - safeBottom.value - safeTop), root)
+    moveTo({ ...next, x: next.x + 16, y: next.y + safeTop })
   }
   function focus(point: Position, instant = false) {
-    moveTo({ x: (width.value - 80) / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
+    moveTo({ x: (width.value - 32) / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
   }
   function follow(point: Position, force = false) {
     if ((!following.value && !force) || pointers.size) return
     const px = point.x * scale.get() + x.get()
     const py = point.y * scale.get() + y.get()
-    const right = width.value - 80 - 56
+    const right = width.value - 32 - 56
     const bottom = height.value - safeBottom.value - 56
     const dx = px < 56 ? 56 - px : px > right ? right - px : 0
     const top = safeTop + 24
     const dy = py < top ? top - py : py > bottom ? bottom - py : 0
     if (dx || dy) moveTo({ x: x.get() + dx, y: y.get() + dy })
   }
-  function zoom(factor: number, center = { x: (width.value - 80) / 2, y: (height.value - safeBottom.value) / 2 }) {
+  function zoom(factor: number, center = { x: (width.value - 32) / 2, y: (height.value - safeBottom.value) / 2 }) {
     following.value = false
     const next = clampScale(scale.get() * factor)
     const ratio = next / scale.get()
@@ -124,7 +125,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     else {
       const s = scale.get()
       const margin = 70
-      const nextX = Math.max(margin - bounds.value.maxX * s, Math.min(width.value - 80 - margin - bounds.value.minX * s, x.get() + (pinched ? 0 : velocity.x * 80)))
+      const nextX = Math.max(margin - bounds.value.maxX * s, Math.min(width.value - 32 - margin - bounds.value.minX * s, x.get() + (pinched ? 0 : velocity.x * 80)))
       const nextY = Math.max(margin - bounds.value.maxY * s, Math.min(height.value - safeBottom.value - margin - bounds.value.minY * s, y.get() + (pinched ? 0 : velocity.y * 80)))
       moveTo({ x: nextX, y: nextY })
     }

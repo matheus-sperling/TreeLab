@@ -16,9 +16,7 @@ onBeforeUnmount(() => controls.forEach(control => control.stop()))
 const tabs = [
   { to: '/', icon: 'house', label: 'Início' },
   { to: '/lab', icon: 'flask-conical', label: 'Laboratório' },
-  { to: '/aprender', icon: 'book-open', label: 'Aprender' },
-  { to: '/treinar', icon: 'target', label: 'Treinar' },
-  { to: '/mais', icon: 'ellipsis', label: 'Mais' }
+  { to: '/comparar', icon: 'chart-no-axes-column', label: 'Comparar' }
 ]
 const active = (to: string) => to === '/' ? route.path === '/' : route.path.startsWith(to)
 </script>
@@ -29,7 +27,7 @@ const active = (to: string) => to === '/' ? route.path === '/' : route.path.star
     <nav class="tab-bar" aria-label="Navegação principal">
       <NuxtLink v-for="tab in tabs" :key="tab.to" :to="tab.to" :class="['tab-item', { active: active(tab.to) }]" :aria-current="active(tab.to) ? 'page' : undefined">
         <motion.span v-if="active(tab.to)" layout-id="active-tab" class="tab-indicator" :transition="{ duration: .2 }" />
-        <Icon :name="`lucide:${tab.icon}`" size="22" /><span>{{ tab.label }}<span v-if="tab.to === '/mais'" class="sr-only">: comparar, cola, glossário e ajustes</span></span>
+        <Icon :name="`lucide:${tab.icon}`" size="22" /><span>{{ tab.label }}</span>
       </NuxtLink>
     </nav>
   </div>
