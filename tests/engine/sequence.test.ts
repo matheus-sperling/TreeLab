@@ -19,7 +19,7 @@ describe.each<TreeType>(['bst', 'avl', 'rb'])('%s: oráculo e invariantes', (typ
         expect(validate(step.tree, 'bst').errors, `seed ${seed} passo ${step.i}`).toEqual([])
         expect(messages[step.msg.key], step.msg.key).toBeDefined()
         expect(pseudocode[step.code.algo]?.some(line => line.n === step.code.line), JSON.stringify(step.code)).toBe(true)
-        expect(getMessage(step.msg).length).toBeLessThanOrEqual(140)
+        expect(getMessage(step.msg).length).toBeLessThanOrEqual(380)
       }
       for (const [i, op] of ops.entries()) {
         if (op.t === 'i') keys.add(op.k)

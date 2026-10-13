@@ -45,12 +45,24 @@ export const useLabStore = defineStore('lab', () => {
     type.value = next
     seek(result.value.opRanges[op]?.[1] ?? 0)
   }
-  function replace(ops: Op[]) { operations.value = ops; seek(result.value.steps.length - 1) }
+  function replace(ops: Op[], start = false) { operations.value = [...ops]; seek(start ? 0 : result.value.steps.length - 1) }
+  function updateOperation(index: number, op: Op) {
+    operations.value = operations.value.map((value, i) => i === index ? op : value)
+    seek(result.value.opRanges[index]?.[0] ?? 0)
+  }
+  function moveOperation(index: number, delta: number) {
+    const next = index + delta
+    if (next < 0 || next >= operations.value.length) return
+    const ops = [...operations.value]
+    ;[ops[index], ops[next]] = [ops[next]!, ops[index]!]
+    operations.value = ops
+    seek(result.value.opRanges[Math.min(index, next)]?.[0] ?? 0)
+  }
   function removeOperation(index: number) {
     const removed = operations.value[index]
     operations.value = operations.value.filter((_, i) => i !== index)
     seek(result.value.opRanges[Math.max(0, index - 1)]?.[1] ?? 0)
     return removed
   }
-  return { type, operations, cursor, seeking, result, step, tree, operationIndex, range, operationCost, totalCost, seek, append, changeType, replace, removeOperation }
+  return { type, operations, cursor, seeking, result, step, tree, operationIndex, range, operationCost, totalCost, seek, append, changeType, replace, removeOperation, updateOperation, moveOperation }
 })

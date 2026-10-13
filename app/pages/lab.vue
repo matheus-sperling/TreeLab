@@ -41,7 +41,7 @@ watch(() => sheets.current.value, name => { if (name === null) { selected.value 
 watch(editing, value => { if (value) { player.pause(); player.release() } })
 watch(() => lab.cursor, () => { if (selected.value !== null && !lab.tree.nodes[selected.value]) selected.value = null })
 function closeSheet() { sheets.close(); selected.value = null; canvas.value?.clearFocus() }
-function openSheet(name: string) { if (name === 'details') player.pause(); sheets.open(name) }
+function openSheet(name: string) { player.pause(); keyboard.value = false; sheets.open(name) }
 function changeType(type: TreeType) {
   if (type === lab.type) return
   player.pause(); closeSheet(); lab.changeType(type)
@@ -64,7 +64,7 @@ function preset(ops: Op[], type?: TreeType) {
   const previous = [...lab.operations], previousType = lab.type
   player.pause()
   if (type) lab.type = type
-  lab.replace(ops); closeSheet(); keyboard.value = false
+  lab.replace(ops, true); closeSheet(); keyboard.value = false
   nextTick(() => canvas.value?.fit())
   toast.show('Exemplo carregado.', { label: 'Desfazer', run: () => { player.pause(); lab.type = previousType; lab.replace(previous) } })
 }
@@ -99,7 +99,8 @@ function closeKeyboard() {
   nextTick(() => document.querySelector<HTMLButtonElement>('.lab-screen .play-button:not(:disabled), .lab-screen .action-insert')?.focus({ preventScroll: true }))
 }
 function openKeyboard() { keyboard.value = !settings.systemKeyboard; error.value = '' }
-function dragged(_: unknown, info: { offset: { y: number } }) { if (info.offset.y > 40) closeKeyboard() }
+function dragged(_: unknown, info: { offset: { y: number } }) { if (info.offset.y > 40) closeKeyboard(); else if (info.offset.y < -40) openKeyboard() }
+function toggleDock() { if (editing.value) closeKeyboard(); else openKeyboard() }
 onMounted(() => {
   const instance: unknown = dock.value
   const element = instance && typeof instance === 'object' && '$el' in instance ? instance.$el : instance
@@ -108,8 +109,7 @@ onMounted(() => {
     dockObserver.observe(element)
     document.documentElement.style.setProperty('--lab-dock-height', `${element.offsetHeight}px`)
   }
-  try { if (!localStorage.getItem('treelab-tour')) { keyboard.value = !settings.systemKeyboard; sheets.open('tour') } }
-  catch { keyboard.value = !settings.systemKeyboard }
+  // Start with the canvas and input available; help is an explicit action.
 })
 onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.style.removeProperty('--lab-dock-height') })
 </script>
@@ -118,11 +118,11 @@ onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.sty
   <main class="lab-screen" :class="{ 'keyboard-open': keyboard && !settings.systemKeyboard, 'left-handed': settings.leftHanded }">
     <h1 class="sr-only">Laboratório de árvores</h1>
     <header class="lab-appbar"><NuxtLink to="/" class="lab-back" aria-label="Voltar ao início"><Icon name="lucide:arrow-left" /></NuxtLink><div class="tree-segment" role="group" aria-label="Tipo de árvore"><button v-for="type in types" :key="type.id" :aria-pressed="lab.type === type.id" @click="changeType(type.id)"><motion.span v-if="lab.type === type.id" layout-id="tree-type" class="segment-indicator" :transition="{ type: 'spring', duration: reduced ? 0 : .24, bounce: .08 }" /><span>{{ type.label }}</span></button></div><UiIconButton icon="ellipsis" label="Abrir menu do laboratório" @click="openSheet('menu')" /></header>
-    <LabOperationsBar @seek="player.seek" @remove="removeOperation" />
+    <LabOperationsBar @seek="player.seek" @remove="removeOperation" @edit="openSheet('menu'); settings.menuSection = 'sequence'" @clear="clear" />
     <div class="lab-workspace">
       <NuxtErrorBoundary><div class="canvas-shell"><AnimatePresence><motion.div :key="lab.type" class="canvas-area" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? .12 : .2 }"><LabTreeCanvas :ref="setCanvas" :tree="lab.tree" :type="lab.type" :step="lab.step" :seeking="lab.seeking" :speed="player.speed.value" :reduced="reduced" :selected="selected" :show-heights="settings.showHeights" :show-nils="settings.showNils" :show-letters="settings.showColors" :show-levels="settings.showLevels" @select="inspect" @empty="sheets.current.value === 'inspector' && closeSheet()" @details="openSheet('details')" @preset="emptyPreset" /></motion.div></AnimatePresence></div><template #error="{ clearError }"><div class="lab-error"><Icon name="lucide:info" /><h2>Vamos recomeçar?</h2><p>Não foi possível exibir esta sequência.</p><UiButton @click="player.pause(); lab.replace([]); clearError()">Reiniciar sequência</UiButton></div></template></NuxtErrorBoundary>
       <motion.section ref="dock" class="lab-dock" :layout="reduced ? false : 'size'" :transition="{ layout: { type: 'spring', duration: .35, bounce: .08 } }" aria-label="Painel de operações">
-        <motion.div class="dock-grip" drag="y" :drag-constraints="{ top: 0, bottom: 0 }" :drag-elastic=".12" @drag-end="dragged"><span /></motion.div>
+        <motion.div class="dock-grip" drag="y" :drag-constraints="{ top: 0, bottom: 0 }" :drag-elastic=".12" @drag-end="dragged"><button type="button" :aria-label="editing ? 'Recolher painel de entrada' : 'Expandir painel de entrada'" :aria-expanded="editing" @click="toggleDock"><span /><Icon :name="editing ? 'lucide:chevron-down' : 'lucide:chevron-up'" /></button></motion.div>
         <motion.div v-if="!editing" class="lab-playback" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: reduced ? .12 : .16 }">
           <LabNarration :playing="player.playing.value" @details="openSheet('details')" />
           <LabPlayerBar :player="player" />
@@ -130,7 +130,7 @@ onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.sty
         <LabOperationComposer v-model="value" :editing="editing" :system-keyboard="settings.systemKeyboard" :error="error" :shake="shake" :reduced="reduced" :existing="existing" :haptics="settings.haptics" :left-handed="settings.leftHanded" @open="openKeyboard" @close="closeKeyboard" @clear-error="error = ''" @submit="run" @input-key="physicalKey" />
       </motion.section>
     </div>
-    <UiBottomSheet v-model:open="sheetOpen" :history="false" :title="sheetTitle" :modal="!['details', 'inspector'].includes(sheets.current.value ?? '')"><LabMenu v-if="sheets.current.value === 'menu'" :value="value" @preset="preset" @operation="operation" @share="share" @clear="clear" @help="sheets.open('tour')" @legend="sheets.open('legend')" @text="sheets.open('text')" /><LabDetails v-else-if="sheets.current.value === 'details'" :player="player" /><LabInspector v-else-if="sheets.current.value === 'inspector' && selected !== null" :id="selected" @action="inspectorAction" @focus="canvas?.focusSubtree($event, 90)" @close="closeSheet" /><LabOnboarding v-else-if="sheets.current.value === 'tour'" @done="doneTour" /><LabLegend v-else-if="sheets.current.value === 'legend'" /><LabTreeText v-else-if="sheets.current.value === 'text'" :tree="lab.tree" /></UiBottomSheet>
+    <UiBottomSheet v-model:open="sheetOpen" :history="false" :title="sheetTitle" :modal="!['details', 'inspector'].includes(sheets.current.value ?? '')"><LabMenu v-if="sheets.current.value === 'menu'" :value="value" @preset="preset" @generate="ops => { player.pause(); lab.replace(ops, true); nextTick(() => canvas?.fit()) }" @operation="operation" @share="share" @clear="clear" @help="sheets.open('tour')" @legend="sheets.open('legend')" @text="sheets.open('text')" /><LabDetails v-else-if="sheets.current.value === 'details'" :player="player" /><LabInspector v-else-if="sheets.current.value === 'inspector' && selected !== null" :id="selected" @action="inspectorAction" @focus="canvas?.focusSubtree($event, 90)" @close="closeSheet" /><LabOnboarding v-else-if="sheets.current.value === 'tour'" @done="doneTour" /><LabLegend v-else-if="sheets.current.value === 'legend'" /><LabTreeText v-else-if="sheets.current.value === 'text'" :tree="lab.tree" /></UiBottomSheet>
   </main>
 </template>
 
@@ -144,11 +144,11 @@ onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.sty
 .tree-segment button>span:last-child { position:relative; z-index:1; }
 .segment-indicator { position:absolute; inset:0; background:var(--surface-3); border-radius:9px; }
 .lab-workspace { display:flex; flex-direction:column; flex:1; min-height:0; }
-.canvas-shell { position:relative; flex:1; min-height:280px; overflow:hidden; }
+.canvas-shell { position:relative; flex:1; min-height:0; overflow:hidden; }
 .canvas-area { position:absolute; inset:0; overflow:hidden; }
-.lab-dock { flex-shrink:0; position:relative; border-top:1px solid var(--border); border-radius:20px 20px 0 0; background:var(--surface-1); padding:0 16px calc(max(12px,env(safe-area-inset-bottom)) + 8px); }
+.lab-dock { flex-shrink:0; max-height:calc(100% - 70px); overflow-y:auto; overscroll-behavior:contain; position:relative; border-top:1px solid var(--border); border-radius:20px 20px 0 0; background:var(--surface-1); padding:0 16px calc(max(20px,env(safe-area-inset-bottom)) + 8px); }
 .lab-playback { container:lab-controls / inline-size; }
-.dock-grip { position:absolute; top:-9px; left:25%; width:50%; height:16px; display:grid; place-items:center; touch-action:none; }
+.dock-grip { height:28px; display:grid; place-items:center; touch-action:none; }.dock-grip button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:28px; width:100%; color:var(--muted); }.dock-grip :deep(.iconify) { width:14px; height:14px; }
 .dock-grip span { width:32px; height:3px; background:var(--border-strong); border-radius:999px; }
 .lab-error { flex:1; display:grid; place-content:center; text-align:center; gap:16px; }
 .lab-error p { color:var(--muted); }
@@ -159,8 +159,8 @@ onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.sty
   .lab-appbar { height:48px; }.tree-segment { padding:0; border:0; background:transparent; }
   .lab-screen :deep(.operations-rail) { min-height:44px; }.lab-screen :deep(.narration) { min-height:62px; }
   .lab-screen :deep(.narration p) { min-height:32px; font-size:13px; }
-  .lab-screen :deep(.player-buttons) { height:48px; }.lab-screen :deep(.play-button) { width:48px; height:48px; border-radius:14px; }
-  .lab-dock { padding-bottom:calc(max(8px,env(safe-area-inset-bottom)) + 8px); }.lab-screen :deep(.cost-summary) { display:none; }
+  .lab-screen :deep(.player-buttons) { height:48px; }.lab-screen :deep(.play-button) { width:78px; height:48px; border-radius:14px; }
+  .lab-dock { padding-bottom:calc(max(20px,env(safe-area-inset-bottom)) + 8px); }.lab-screen :deep(.cost-summary) { display:none; }
 }
 @media(min-width:768px),(orientation:landscape) and (max-height:500px) {
   .lab-workspace { flex-direction:row; }.canvas-shell { min-width:0; min-height:0; }
@@ -168,9 +168,9 @@ onBeforeUnmount(() => { dockObserver?.disconnect(); document.documentElement.sty
   .dock-grip { display:none; }.lab-screen :deep(.tree-canvas) { min-height:0; }
 }
 @media(orientation:landscape) and (max-height:500px) {
-  .lab-dock { width:340px; }
+  .lab-dock { width:340px; max-height:100%; }
   .keyboard-open :deep(.operations-rail) { display:none; }
-  .keyboard-open .lab-dock { padding-top:0; padding-bottom:calc(max(8px,env(safe-area-inset-bottom)) + 8px); }
+  .keyboard-open .lab-dock { padding-top:0; padding-bottom:calc(max(20px,env(safe-area-inset-bottom)) + 8px); }
 }
 @media(min-width:1100px) { .lab-screen { max-width:1440px; margin:auto; border-left:1px solid var(--border); border-right:1px solid var(--border); } }
 </style>

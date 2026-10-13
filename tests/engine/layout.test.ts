@@ -57,7 +57,7 @@ describe('layout tidy', () => {
         const mirrored = layoutTree(mirror, { showNils: true })
         for (const nil of layout.nils) {
           const position = layout.positions[nil.parent]!
-          expect(nil.x - position.x).toBe(nil.side === 'L' ? -26 : 26)
+          expect(nil.x - position.x).toBe(nil.side === 'L' ? -SIBLING_GAP / 2 : SIBLING_GAP / 2)
           const reflected = mirrored.nils.find(n => n.parent === nil.parent && n.side !== nil.side)!
           expect(reflected.x).toBeCloseTo(-nil.x)
           expect(reflected.y).toBe(nil.y)
@@ -68,6 +68,31 @@ describe('layout tidy', () => {
           const virtual = extra.nils[0]!
           expect(extra.nils).toHaveLength(1)
           for (const position of Object.values(extra.positions).filter(p => p.y === virtual.y)) expect(Math.abs(position.x - virtual.x)).toBeGreaterThanOrEqual(SIBLING_GAP)
+        }
+      }
+    }
+  }, 30_000)
+})
+
+describe('ângulo uniforme e espaço de anotações', () => {
+  it('mantém a inclinação em todas as arestas e separa nós inclusive em profundidades diferentes', () => {
+    for (const type of ['bst', 'avl', 'rb'] as const) {
+      for (let seed = 1; seed <= 30; seed++) {
+        const ops = Array.from({ length: 63 }, (_, i) => ({ t: 'i' as const, k: ((i * 37 + seed * 29) % 127) - 63 }))
+        const result = runSequence(type, ops)
+        for (const [, end] of result.opRanges) {
+          const tree = result.steps[end]!.tree, layout = layoutTree(tree, { showNils: true })
+          for (const [id, node] of Object.entries(tree.nodes)) {
+            const parent = layout.positions[Number(id)]!
+            for (const child of [node.l, node.r]) if (child !== null) {
+              const point = layout.positions[child]!
+              expect((point.y - parent.y) / Math.abs(point.x - parent.x)).toBeCloseTo(1)
+            }
+          }
+          const points = Object.values(layout.positions)
+          for (let i = 0; i < points.length; i++) for (let j = i + 1; j < points.length; j++) {
+            expect(Math.hypot(points[i]!.x - points[j]!.x, points[i]!.y - points[j]!.y)).toBeGreaterThanOrEqual(64)
+          }
         }
       }
     }

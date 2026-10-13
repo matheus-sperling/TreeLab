@@ -9,7 +9,7 @@ const result = computed(() => runSequence(props.type, props.ops ?? []))
 const snapshot = computed(() => props.tree ?? (index.value >= 0 ? result.value.steps[index.value]?.tree : result.value.final) ?? result.value.final)
 const layout = computed(() => layoutTree(snapshot.value))
 const viewBox = computed(() => `${layout.value.bounds.minX - 34} ${layout.value.bounds.minY - 34} ${Math.max(90, layout.value.bounds.maxX - layout.value.bounds.minX + 68)} ${Math.max(90, layout.value.bounds.maxY - layout.value.bounds.minY + 68)}`)
-const link = computed(() => `/lab?t=${props.type}&q=${encodeOps(props.ops ?? [])}`)
+const link = computed(() => `/lab?t=${props.type}&q=${encodeOps(props.ops ?? [])}&c=0`)
 const narration = computed(() => index.value >= 0 && result.value.steps[index.value] ? getMessage(result.value.steps[index.value]!.msg) : 'Resultado da sequência. Volte um passo ou reproduza desde o início.')
 const description = computed(() => `${props.label}. ${Object.keys(snapshot.value.nodes).length} nós. Altura ${snapshot.value.rootId === null ? -1 : snapshot.value.nodes[snapshot.value.rootId]!.h}.`)
 function pause() { playing.value = false; if (timer) clearTimeout(timer) }

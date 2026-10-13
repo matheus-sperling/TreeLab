@@ -21,7 +21,7 @@ export function useUrlSync() {
       if (['bst', 'avl', 'rb'].includes(params.get('t') ?? '')) lab.type = params.get('t') as TreeType
       if (params.has('q')) {
         lab.replace(decodeOps(params.get('q') ?? ''))
-        lab.seek(Number(params.get('c') ?? lab.result.steps.length - 1))
+        lab.seek(Number(params.get('c') ?? 0))
       }
       else {
         const saved: { type?: TreeType; ops?: Parameters<typeof lab.replace>[0]; cursor?: number } = JSON.parse(localStorage.getItem('treelab-lab') ?? '{}')

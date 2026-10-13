@@ -39,9 +39,10 @@ watch(() => [props.tree, props.seeking, props.showNils] as const, () => {
   const point = layout.value.positions[active]
   nextTick(() => {
     if (nodes.value.length < 2 || props.seeking && camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
-    else if (point) camera.follow(point)
+    else if (point) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId])
   })
 }, { immediate: true })
+function depth(id: number) { let level = 0; let parent = props.tree.nodes[id]?.p; while (parent !== null && parent !== undefined) { level++; parent = props.tree.nodes[parent]?.p } return level }
 function balance(id: number) { const node = props.tree.nodes[id]!; return (node.l === null ? -1 : props.tree.nodes[node.l]?.h ?? -1) - (node.r === null ? -1 : props.tree.nodes[node.r]?.h ?? -1) }
 function highlighted(from: number, to: number) { return props.step?.edges.some(edge => edge.from === from && edge.to === to) || selectedPath.value.includes(from) && selectedPath.value.includes(to) }
 function fit() { camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId]) }
@@ -62,27 +63,28 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
 </script>
 
 <template>
-  <section ref="container" class="tree-canvas" @pointerdown="camera.down" @pointermove="camera.drag" @pointerup="camera.up" @pointercancel="camera.up" @wheel="camera.wheel">
+  <section ref="container" class="tree-canvas" :class="{ tiny: camera.height.value < 180 }" @pointerdown="camera.down" @pointermove="camera.drag" @pointerup="camera.up" @pointercancel="camera.up" @wheel="camera.wheel">
     <svg class="tree-svg" role="img" :aria-label="a11yLabel" @click="empty">
-      <g v-if="showLevels" class="level-guides"><LabLevelGuide v-for="level in Math.max(0, height + 1)" :key="level" :level="level - 1" :width="camera.width.value" :camera-y="camera.y" :camera-scale="camera.scale" /></g>
+
       <motion.g :style="{ transform: camera.transform, originX: 0, originY: 0, transformOrigin: '0px 0px', transformBox: 'view-box' }">
         <LabRotationGuide v-if="step?.kind === 'rotate-pre' && step.meta?.rotation && positions[step.meta.rotation.pivot] && positions[step.meta.rotation.child]" :pivot="positions[step.meta.rotation.pivot]!" :child="positions[step.meta.rotation.child]!" :direction="step.meta.rotation.dir" :reduced="reduced" />
-        <motion.g v-if="step?.kind === 'rotate-pre' && step.meta?.rotation?.movedSubtree && positions[step.meta.rotation.movedSubtree]" :style="{ x: positions[step.meta.rotation.movedSubtree]!.x, y: positions[step.meta.rotation.movedSubtree]!.y }"><rect x="-28" y="-28" width="56" height="56" rx="12" fill="none" stroke="var(--rotation)" stroke-width="1.5" stroke-dasharray="4 4" /><text y="-34" text-anchor="middle" fill="var(--rotation)" font-size="9">troca de pai</text></motion.g>
+        <motion.g v-if="step?.kind === 'rotate-pre' && step.meta?.rotation?.movedSubtree && positions[step.meta.rotation.movedSubtree]" :style="{ x: positions[step.meta.rotation.movedSubtree]!.x, y: positions[step.meta.rotation.movedSubtree]!.y }"><rect x="-28" y="-28" width="56" height="56" rx="12" fill="none" stroke="var(--rotation)" stroke-width="1.5" stroke-dasharray="4 4" /></motion.g>
         <AnimatePresence :initial="false"><LabTreeEdge v-for="edge in edges" :key="`${edge.from}:${edge.to}`" :from="positions[edge.from]!" :to="positions[edge.to]!" :highlighted="highlighted(edge.from, edge.to)" :rotation="step?.kind === 'rotate-pre'" :diagnosis="step?.kind === 'imbalance' || step?.kind === 'case'" :draw="step?.kind === 'compare' && highlighted(edge.from, edge.to)" :seeking="seeking" :reduced="reduced" :speed="speed" /></AnimatePresence>
-        <g v-for="nil in layout.nils" :key="nil.id"><line :x1="layout.positions[nil.parent]?.x" :y1="(layout.positions[nil.parent]?.y ?? 0) + 20" :x2="nil.x" :y2="nil.y" stroke="var(--border-strong)" vector-effect="non-scaling-stroke" /><rect :x="nil.x - 5" :y="nil.y - 5" width="10" height="10" fill="#15161B" :stroke="step?.meta?.extraBlack?.parent === nil.parent && step.meta.extraBlack.side === nil.side ? 'var(--rotation)' : '#8B90A0'" /><text v-if="step?.meta?.extraBlack?.parent === nil.parent && step.meta.extraBlack.side === nil.side" :x="nil.x + 10" :y="nil.y + 4" fill="var(--rotation)" font-size="10">+1</text></g>
-        <AnimatePresence :initial="false"><LabTreeNode v-for="{ id, node } in nodes" :id="id" :key="id" :node="node" :position="positions[id]!" :type="type" :role="step?.hl[id]" :root="id === tree.rootId" :selected="selectedPath.includes(id)" :seeking="seeking" :reduced="reduced" :balance="balance(id)" :show-height="showHeights" :show-letters="showLetters" :order="step?.meta?.order?.indexOf(node.key) === undefined ? undefined : step.meta.order.indexOf(node.key) + 1" :speed="speed" @select="emit('select', $event)" /></AnimatePresence>
+        <g v-for="nil in layout.nils" :key="nil.id"><line :x1="(layout.positions[nil.parent]?.x ?? 0) + (nil.side === 'L' ? -1 : 1) * 20 / Math.SQRT2" :y1="(layout.positions[nil.parent]?.y ?? 0) + 20 / Math.SQRT2" :x2="nil.x" :y2="nil.y" stroke="var(--border-strong)" vector-effect="non-scaling-stroke" /><rect :x="nil.x - 5" :y="nil.y - 5" width="10" height="10" fill="#15161B" :stroke="step?.meta?.extraBlack?.parent === nil.parent && step.meta.extraBlack.side === nil.side ? 'var(--rotation)' : '#8B90A0'" /><text v-if="step?.meta?.extraBlack?.parent === nil.parent && step.meta.extraBlack.side === nil.side" :x="nil.x + 10" :y="nil.y + 4" fill="var(--rotation)" font-size="10">+1</text></g>
+        <AnimatePresence :initial="false"><LabTreeNode v-for="{ id, node } in nodes" :id="id" :key="id" :node="node" :position="positions[id]!" :type="type" :role="step?.hl[id]" :root="id === tree.rootId" :selected="selectedPath.includes(id)" :seeking="seeking" :reduced="reduced" :balance="balance(id)" :show-height="showHeights" :depth="showLevels ? depth(id) : undefined" :show-letters="showLetters" :order="step?.meta?.order?.indexOf(node.key) === undefined ? undefined : step.meta.order.indexOf(node.key) + 1" :speed="speed" @select="emit('select', $event)" /></AnimatePresence>
       </motion.g>
     </svg>
     <div class="node-targets" role="group" aria-label="Nós da árvore: selecione para inspecionar"><LabNodeTarget v-for="{ id, node } in nodes" :id="id" :key="id" :node-key="node.key" :height="node.h" :root="id === tree.rootId" :selected="selected === id" :position="positions[id]!" :camera="camera" @select="emit('select', $event)" @focus="layout.positions[$event] && camera.follow(layout.positions[$event]!, true)" /></div>
-    <button class="metrics" aria-label="Abrir legenda e métricas" @pointerdown.stop @click="emit('details')"><span>n <b>{{ nodes.length }}</b></span><span>h <b>{{ height }}</b></span><span v-if="type === 'avl'">|FB|máx <b>{{ maxBalance }}</b></span><span v-if="type === 'rb'">bh <b>{{ blackHeight }}</b></span></button>
+    <button class="metrics" aria-label="Abrir explicação do passo" @pointerdown.stop @click="emit('details')"><span>nós <b>{{ nodes.length }}</b></span><span>altura <b>{{ height }}</b></span><span v-if="type === 'avl'">|FB|máx <b>{{ maxBalance }}</b></span><span v-if="type === 'rb'">pretos <b>{{ blackHeight }}</b></span></button>
     <div v-if="!nodes.length" class="empty-tree" :class="{ compact: camera.height.value < 400 }"><svg viewBox="0 0 180 90" aria-hidden="true"><path d="M90 25L45 70M90 25L135 70" /><circle cx="90" cy="25" r="18" /><circle cx="45" cy="70" r="15" /><circle cx="135" cy="70" r="15" /></svg><h2>Uma árvore, passo a passo.</h2><p>Insira um valor ou comece por um exemplo.</p><div><button @click="emit('preset', 'ordered')">1 → 7 em ordem</button><button @click="emit('preset', 'balanced')">Balanceada</button><button @click="emit('preset', 'random')">Aleatória</button></div></div>
-    <div class="camera-actions" @pointerdown.stop><UiIconButton icon="lucide:plus" label="Aumentar diagrama" @click="camera.zoom(1.2)" /><UiIconButton icon="lucide:minus" label="Diminuir diagrama" @click="camera.zoom(1 / 1.2)" /><UiIconButton icon="lucide:scan" label="Ajustar árvore à tela" @click="fit" /><UiIconButton icon="lucide:focus" :label="camera.following.value ? 'Seguir ligado' : 'Ativar seguir'" :class="{ following: camera.following.value }" @click="camera.following.value = true; fit()" /></div>
+    <div class="camera-actions" @pointerdown.stop><UiIconButton icon="lucide:scan" label="Ajustar árvore à tela" @click="fit" /></div>
     <button class="canvas-details" @pointerdown.stop @click="emit('details')"><Icon name="lucide:panel-bottom" />Detalhes</button>
   </section>
 </template>
 
 <style scoped>
-.tree-canvas { position: relative; width: 100%; height: 100%; min-height: 280px; overflow: hidden; touch-action: none; user-select: none; -webkit-touch-callout: none; background-image: radial-gradient(var(--border) .65px, transparent .65px); background-size: 20px 20px; }
+.tree-canvas { position: relative; width: 100%; height: 100%; min-height: 0; overflow: hidden; touch-action: none; user-select: none; -webkit-touch-callout: none; background-image: radial-gradient(var(--border) .65px, transparent .65px); background-size: 20px 20px; }
+.tree-svg,.node-targets { clip-path:inset(58px 0 80px); }
 .tree-svg { width: 100%; height: 100%; display: block; }
 .node-targets { position: absolute; inset: 0; pointer-events: none; }
 .metrics { position: absolute; left: 16px; top: 12px; min-height: 48px; display: flex; align-items: center; gap: 12px; color: var(--muted); font: 12px 'JetBrains Mono', monospace; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0 10px; }
@@ -96,4 +98,8 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
 .empty-tree h2 { font-size: 18px; margin-top: 14px; }.empty-tree p { margin: 6px 0 14px; color: var(--muted); font-size: 13px; }
 .empty-tree.compact { inset: 64px 80px 80px 16px; }.empty-tree.compact svg { position:absolute; left:0; top:10px; width:32px; height:24px; }.empty-tree.compact h2 { padding-left:40px; font-size:14px; margin-top:0; margin-bottom:8px; }.empty-tree.compact p { display:none; }
 .empty-tree > div { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; pointer-events: auto; }.empty-tree button { padding: 0 12px; min-height: 48px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-1); font-size: 12px; }
+</style>
+
+<style scoped>
+.empty-tree.compact { inset:76px 16px 78px; }.empty-tree.compact svg { display:none; }.empty-tree.compact h2 { padding:0; }.empty-tree.compact>div { flex-wrap:nowrap; width:100%; }.empty-tree.compact button { min-height:36px; padding:4px 8px; font-size:11px; }.tiny .metrics,.tiny .camera-actions,.tiny .canvas-details,.tiny .empty-tree { display:none; }
 </style>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const links = [{ to: '/comparar', title: 'Comparar árvores', text: 'Uma sequência, três estruturas.', icon: 'chart-no-axes-column' }, { to: '/cola', title: 'Cola de complexidade', text: 'Invariantes e custos em um lugar.', icon: 'layers' }, { to: '/glossario', title: 'Glossário', text: 'Os termos, sem complicação.', icon: 'book-open' }, { to: '/ajustes', title: 'Ajustes', text: 'Deixe o TreeLab do seu jeito.', icon: 'settings' }]
-useSeoMeta({ title: 'Mais — TreeLab' })
+await navigateTo('/', { replace: true, redirectCode: 301 })
 </script>
-<template><div class="page-shell"><div class="page-header"><span class="eyebrow">PARA CONSULTAR</span><h1>À mão quando precisar.</h1><p class="muted">Ferramentas e referências para seu estudo.</p></div><NuxtLink v-for="link in links" :key="link.to" :to="link.to" class="more-link"><Icon :name="`lucide:${link.icon}`" size="26" /><div><strong>{{ link.title }}</strong><p class="muted">{{ link.text }}</p></div><Icon name="lucide:arrow-right" /></NuxtLink></div></template>
-<style scoped>.more-link{display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--border);padding:20px 0;min-height:88px}.more-link>div{flex:1}.more-link p{font-size:.8rem;margin-top:8px}.more-link>.iconify:first-child{color:var(--accent)}</style>
+<template><div /></template>

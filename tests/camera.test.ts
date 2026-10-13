@@ -8,14 +8,17 @@ describe('safe camera fit', () => {
     expect(result.x).toBe(206)
     expect(result.y + 34 * result.scale).toBeCloseTo(175)
   })
-  it('keeps a large tree root visible at the minimum fit zoom', () => {
+  it('fits the full large tree without cropping at a minimum zoom', () => {
     const result = fitCamera({ minX: -1500, maxX: 1500, minY: 0, maxY: 1000 }, 360, 280, { x: 0, y: 0 })
-    expect(result.scale).toBe(.5)
+    expect(result.scale).toBeLessThan(.5)
+    expect(result.x - 1500 * result.scale).toBeGreaterThan(0)
+    expect(result.x + 1500 * result.scale).toBeLessThan(360)
     expect(result.x).toBe(180)
-    expect(result.y).toBe(140)
+    expect(result.y).toBeGreaterThan(0)
+    expect(result.y + 1000 * result.scale).toBeLessThan(280)
   })
   it('bounds manual zoom without blocking inspection', () => {
-    expect(clampScale(.1)).toBe(.45)
+    expect(clampScale(.0001)).toBe(.001)
     expect(clampScale(4)).toBe(2.5)
   })
   it('mantém alvos de 48 px fora dos controles no canvas mínimo', () => {

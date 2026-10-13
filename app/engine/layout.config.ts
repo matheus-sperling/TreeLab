@@ -1,3 +1,3 @@
 export const NODE_R = 20
-export const LEVEL_GAP = 68
-export const SIBLING_GAP = 52
+export const LEVEL_GAP = 48
+export const SIBLING_GAP = 96

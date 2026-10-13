@@ -2,7 +2,7 @@
 import { motion } from 'motion-v'
 import type { MotionValue } from 'motion-v'
 import type { Role, TreeNode, TreeType } from '../../engine/types'
-const props = defineProps<{ id: number; node: TreeNode; position: { x: MotionValue<number>; y: MotionValue<number> }; type: TreeType; role?: Role; selected?: boolean; root?: boolean; seeking?: boolean; reduced?: boolean; balance?: number; showHeight?: boolean; showLetters?: boolean; order?: number; speed?: number }>()
+const props = defineProps<{ id: number; node: TreeNode; position: { x: MotionValue<number>; y: MotionValue<number> }; type: TreeType; role?: Role; selected?: boolean; root?: boolean; seeking?: boolean; reduced?: boolean; balance?: number; showHeight?: boolean; showLetters?: boolean; order?: number; speed?: number; depth?: number }>()
 const emit = defineEmits<{ select: [id: number] }>()
 const colors: Partial<Record<Role, string>> = { current: 'var(--compare)', new: 'var(--accent)', found: 'var(--success)', delete: 'var(--delete)', successor: 'var(--delete)', pivot: 'var(--rotation)', moved: 'var(--rotation)', violation: 'var(--violation)', 'extra-black': 'var(--rotation)', visited: 'var(--accent)' }
 const ring = computed(() => props.selected ? 'var(--accent)' : props.role ? colors[props.role] : undefined)
@@ -22,6 +22,7 @@ function select(event: Event) { event.stopPropagation(); emit('select', props.id
     <text v-if="root" y="-33" text-anchor="middle" fill="var(--muted)" font-size="10">raiz</text>
     <g v-if="type === 'avl'"><rect x="12" y="-27" width="22" height="15" rx="6" :fill="Math.abs(balance ?? 0) > 1 ? 'var(--violation)' : balance ? 'var(--compare)' : 'var(--success)'" /><LabAnimatedNumber :value="balance ?? 0" :x="23" :y="-16" :prefix="balance && balance > 0 ? '+' : ''" color="var(--on-semantic)" :font-weight="700" :seeking="seeking" :reduced="reduced" :speed="speed" /></g>
     <LabAnimatedNumber v-if="showHeight" :value="node.h" :y="35" prefix="h=" color="var(--muted)" :seeking="seeking" :reduced="reduced" :speed="speed" />
+    <text v-if="depth !== undefined" :y="showHeight ? 50 : 38" text-anchor="middle" fill="var(--muted)" font-size="9">nível {{ depth }}</text>
     <g v-if="badge || (type === 'rb' && showLetters)"><rect x="14" y="10" :width="badge === '+1' ? 22 : 16" height="16" rx="5" :fill="ring ?? 'var(--surface-3)'" /><text :x="badge === '+1' ? 25 : 22" y="22" text-anchor="middle" :fill="ring ? 'var(--on-semantic)' : 'var(--text)'" font-size="10" font-weight="700">{{ badge || (node.c === 'R' ? 'R' : 'N') }}</text></g>
   </motion.g>
 </template>

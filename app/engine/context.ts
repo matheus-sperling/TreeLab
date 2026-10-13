@@ -1,3 +1,4 @@
+import { caseReason } from './messages'
 import { emptyTree, immutableSnapshot, recomputeHeights } from './tree'
 import type { Color, Cost, MessageParams, MutableSnapshot, NodeId, Role, Step, StepKind, StepMeta, TreeType } from './types'
 
@@ -28,9 +29,15 @@ export class EngineContext {
   }
   setColor(id: NodeId | null, c: Color, algo = 'rb-recolor', line = 1): void {
     if (id === null || this.tree.nodes[id]!.c === c) return
+    const from = this.tree.nodes[id]!.c ?? 'B'
+    const recentCase = [...this.steps].reverse().find(step => step.op === this.op && step.meta?.caseName)?.meta?.caseName
+    const reason = algo === 'rb-delete' ? 'O sucessor assume a cor do nó removido para conservar a quantidade de pretos nesse lugar.'
+      : algo === 'rb-insert-fix' && line === 7 ? 'A raiz deve ser preta; assim todos os caminhos começam com o mesmo preto.'
+      : algo === 'rb-delete-fix' && line === 10 ? 'Este nó absorve o preto extra e restaura a quantidade de pretos que faltava no caminho.'
+      : recentCase ? caseReason(recentCase) : 'Restauramos a mesma quantidade de nós pretos em todos os caminhos até NIL.'
     this.tree.nodes[id]!.c = c
     this.cost.recolorings++
-    this.emit('recolor', 'recolor', { key: this.tree.nodes[id]!.key, color: c }, { [id]: 'current' }, undefined, algo, line)
+    this.emit('recolor', 'recolor', { key: this.tree.nodes[id]!.key, color: c, from, reason }, { [id]: 'current' }, undefined, algo, line)
   }
   rotate(pivot: NodeId, dir: 'left' | 'right', meta: StepMeta = {}): void {
     const node = this.tree.nodes[pivot]!
@@ -39,7 +46,7 @@ export class EngineContext {
     const movedSubtree = dir === 'left' ? promoted.l : promoted.r
     const rotation = { dir, pivot, child, movedSubtree, n: meta.rotation?.n ?? 1, of: meta.rotation?.of ?? 1 }
     const fullMeta = { ...meta, rotation }
-    const params = { key: node.key, child: promoted.key, dir }
+    const params = { key: node.key, child: promoted.key, dir, reason: meta.caseName ? caseReason(meta.caseName) : 'A rotação reduz a diferença de altura e conserva a ordem das chaves.' }
     this.emit('case', 'rotation-diagnosis', params, { [pivot]: 'violation', [child]: 'pivot' }, fullMeta, 'rotation', 1)
     this.emit('rotate-pre', 'rotation-prepare', params, { [pivot]: 'pivot', [child]: 'pivot', ...(movedSubtree === null ? {} : { [movedSubtree]: 'moved' as const }) }, fullMeta, 'rotation', 2)
     if (dir === 'left') { node.r = promoted.l; if (promoted.l !== null) this.tree.nodes[promoted.l]!.p = pivot }

@@ -7,6 +7,7 @@ import PlayerBar from '../app/components/lab/PlayerBar.vue'
 
 const fixture = vi.hoisted(() => ({ cursor: 1, range: [0, 3], operations: [{ t: 'i', k: 10 }], result: { steps: [{}, {}, {}, {}] } }))
 vi.mock('../app/stores/lab', () => ({ useLabStore: () => fixture }))
+vi.mock('../app/stores/settings', () => ({ useSettingsStore: () => ({ settings: { haptics: false } }) }))
 vi.mock('motion-v', () => ({ motion: { button: { template: '<button><slot /></button>' } } }))
 const stubs = {
   Icon: { props: ['name'], template: '<span aria-hidden="true" :data-icon="name" />' },
