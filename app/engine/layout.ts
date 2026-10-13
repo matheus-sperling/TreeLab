@@ -36,12 +36,17 @@ export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutR
   function solve(id: NodeId): Subtree {
     const node = tree.nodes[id]!, a = branch(node.l, id, 'L'), b = branch(node.r, id, 'R')
     const onlyVirtualChildren = (!a || a.nil) && (!b || b.nil)
-    let offset = onlyVirtualChildren ? NIL_GAP : options.showLevels ? EDGE_GAP + 12 : EDGE_GAP
+    // The centered labels below a parent need horizontal clearance from the
+    // first child as well as clearance between siblings. This also applies to
+    // a parent with a single child, which does not enter separation().
+    let offset = onlyVirtualChildren ? NIL_GAP : options.showHeights || options.showLevels ? EDGE_GAP + 12 : EDGE_GAP
     if (a && b) offset = Math.max(offset, separation(a, b))
     const result: Subtree = { positions: { [id]: { x: 0, y: 0 } }, nils: [], contour: [rectangle(0, 0, NODE_R + 10, NODE_R + 10), rectangle(0, 35, 15, 9)], nil: false }
     if (id === tree.rootId) result.contour.push(rectangle(0, -36, 24, 7))
-    if (options.showHeights) result.contour.push(rectangle(0, 0, 65, 10))
-    if (options.showLevels) result.contour.push(rectangle(0, 52, 22, 7))
+    // AnimatedNumber is centered. Reserve its clipped entering/leaving glyphs
+    // plus clearance in y=43..60 around the height baseline at 54.
+    if (options.showHeights) result.contour.push(rectangle(0, 51.5, 17, 8.5))
+    if (options.showLevels) result.contour.push(rectangle(0, options.showHeights ? 67 : 51, 23, 7))
     for (const [child, sign] of [[a, -1], [b, 1]] as const) {
       if (!child) continue
       const x = sign * offset, y = offset
@@ -55,12 +60,12 @@ export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutR
   const result = tree.rootId === null ? null : solve(tree.rootId)
   const positions = result?.positions ?? {}, nils = result?.nils ?? []
   const all: Position[] = [...Object.values(positions), ...nils]
-  const horizontalMargin = options.showHeights ? 73 : LABEL_MARGIN
+  const bottomMargin = options.showLevels ? options.showHeights ? 82 : 64 : options.showHeights ? 68 : LABEL_MARGIN
   const bounds = all.length ? {
-    minX: Math.min(...all.map(p => p.x)) - horizontalMargin,
+    minX: Math.min(...all.map(p => p.x)) - LABEL_MARGIN,
     minY: Math.min(...all.map(p => p.y)) - LABEL_MARGIN,
-    maxX: Math.max(...all.map(p => p.x)) + horizontalMargin,
-    maxY: Math.max(...all.map(p => p.y)) + (options.showLevels ? 64 : LABEL_MARGIN),
+    maxX: Math.max(...all.map(p => p.x)) + LABEL_MARGIN,
+    maxY: Math.max(...all.map(p => p.y)) + bottomMargin,
   } : { minX: -LABEL_MARGIN, minY: -LABEL_MARGIN, maxX: LABEL_MARGIN, maxY: LABEL_MARGIN }
   return { positions, bounds, nils }
 }

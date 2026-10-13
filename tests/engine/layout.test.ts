@@ -3,6 +3,25 @@ import { decodeOps, layoutTree, NODE_R, runSequence } from '../../app/engine'
 import type { Position, Snapshot } from '../../app/engine'
 
 type Options = Parameters<typeof layoutTree>[1]
+interface LabelBox { id: string; owner: number; left: number; right: number; top: number; bottom: number }
+function labelBoxes(tree: Snapshot, positions: Record<number, Position>, options: Options): LabelBox[] {
+  return Object.entries(positions).flatMap(([rawId, position]) => {
+    const owner = Number(rawId)
+    const box = (name: string, left: number, right: number, top: number, bottom: number): LabelBox => ({ id: `${name}:${owner}`, owner, left: position.x + left, right: position.x + right, top: position.y + top, bottom: position.y + bottom })
+    // Include the AnimatedNumber clip, not just the glyph at its resting baseline.
+    const labels = [box('FB', -12, 12, 26, 42)]
+    if (owner === tree.rootId) labels.push(box('raiz', -20, 20, -42, -31))
+    if (options?.showHeights) labels.push(box('altura', -12, 12, 43, 58))
+    if (options?.showLevels) {
+      const baseline = options.showHeights ? 70 : 54
+      labels.push(box('nível', -20, 20, baseline - 9, baseline + 2))
+    }
+    return labels
+  })
+}
+function boxesOverlap(a: LabelBox, b: LabelBox): boolean {
+  return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+}
 function mirror(tree: Snapshot): Snapshot {
   return { rootId: tree.rootId, nodes: Object.fromEntries(Object.entries(tree.nodes).map(([id, node]) => [id, { ...node, l: node.r, r: node.l }])) }
 }
@@ -31,7 +50,11 @@ function check(tree: Snapshot, options: Options = {}): void {
   const edges = Object.entries(tree.nodes).flatMap(([id, node]) => [node.l, node.r].filter(child => child !== null).map(child => ({ from: id, to: String(child) })))
   edges.push(...layout.nils.map(nil => ({ from: String(nil.parent), to: nil.id })))
   const byId = new Map(points.map(point => [point.id, point]))
+  const labels = labelBoxes(tree, layout.positions, options)
   const collisions: string[] = []
+  for (const [index, label] of labels.entries()) {
+    for (const other of labels.slice(index + 1)) if (boxesOverlap(label, other)) collisions.push(`${label.id}/${other.id}`)
+  }
   for (let i = 0; i < points.length; i++) {
     const a = points[i]!
     for (let j = i + 1; j < points.length; j++) {
@@ -53,8 +76,8 @@ function check(tree: Snapshot, options: Options = {}): void {
     }
     for (const [id, position] of Object.entries(layout.positions)) {
       if (crossesRectangle(a, b, position.x - 15, position.x + 15, position.y + 26, position.y + 44)) collisions.push(`${edge.from}→${edge.to}/FB:${id}`)
-      if (options.showHeights && crossesRectangle(a, b, position.x + 34, position.x + 65, position.y - 10, position.y + 10)) collisions.push(`${edge.from}→${edge.to}/altura:${id}`)
-      if (options.showLevels && crossesRectangle(a, b, position.x - 22, position.x + 22, position.y + 45, position.y + 59)) collisions.push(`${edge.from}→${edge.to}/nível:${id}`)
+      if (options.showHeights && crossesRectangle(a, b, position.x - 17, position.x + 17, position.y + 43, position.y + 60)) collisions.push(`${edge.from}→${edge.to}/altura:${id}`)
+      if (options.showLevels && crossesRectangle(a, b, position.x - 23, position.x + 23, position.y + (options.showHeights ? 60 : 44), position.y + (options.showHeights ? 74 : 58))) collisions.push(`${edge.from}→${edge.to}/nível:${id}`)
     }
   }
   expect(collisions).toEqual([])
@@ -71,13 +94,13 @@ function check(tree: Snapshot, options: Options = {}): void {
       const dy = Math.max(0, Math.abs(point.y - position.y - 35) - 9)
       expect(Math.hypot(dx, dy) + .001).toBeGreaterThanOrEqual(point.radius)
       if (options.showHeights) {
-        const labelDx = Math.max(position.x + 34 - point.x, 0, point.x - position.x - 65)
-        const labelDy = Math.max(0, Math.abs(point.y - position.y) - 10)
+        const labelDx = Math.max(0, Math.abs(point.x - position.x) - 17)
+        const labelDy = Math.max(position.y + 43 - point.y, 0, point.y - position.y - 60)
         expect(Math.hypot(labelDx, labelDy) + .001).toBeGreaterThanOrEqual(point.radius)
       }
       if (options.showLevels) {
-        const labelDx = Math.max(0, Math.abs(point.x - position.x) - 22)
-        const labelDy = Math.max(0, Math.abs(point.y - position.y - 52) - 7)
+        const labelDx = Math.max(0, Math.abs(point.x - position.x) - 23)
+        const labelDy = Math.max(0, Math.abs(point.y - position.y - (options.showHeights ? 67 : 51)) - 7)
         expect(Math.hypot(labelDx, labelDy) + .001).toBeGreaterThanOrEqual(point.radius)
       }
     }
@@ -93,6 +116,12 @@ function check(tree: Snapshot, options: Options = {}): void {
     expect(point.x + point.radius).toBeLessThanOrEqual(layout.bounds.maxX)
     expect(point.y - point.radius).toBeGreaterThanOrEqual(layout.bounds.minY)
     expect(point.y + point.radius).toBeLessThanOrEqual(layout.bounds.maxY)
+  }
+  for (const label of labels) {
+    expect(label.left).toBeGreaterThanOrEqual(layout.bounds.minX)
+    expect(label.right).toBeLessThanOrEqual(layout.bounds.maxX)
+    expect(label.top).toBeGreaterThanOrEqual(layout.bounds.minY)
+    expect(label.bottom).toBeLessThanOrEqual(layout.bounds.maxY)
   }
 }
 function balancedKeys(start: number, end: number): number[] {
@@ -137,6 +166,34 @@ describe('layout diagonal por contornos', () => {
     const { bounds } = layoutTree(tree)
     expect(bounds.maxX - bounds.minX).toBeLessThanOrEqual(270)
     expect(bounds.maxY - bounds.minY).toBeLessThanOrEqual(200)
+  })
+  it('separa a altura de um filho esquerdo do nível do pai desde sua inserção', () => {
+    const result = runSequence('rb', decodeOps('i4.i2.i6.i1'))
+    const attach = result.steps.find(step => step.kind === 'attach' && Object.values(step.tree.nodes).some(node => node.key === 2))!
+    for (const tree of [attach.tree, result.final]) {
+      check(tree, { showHeights: true })
+      check(tree, { showLevels: true })
+      check(tree, { showHeights: true, showLevels: true })
+      const { bounds } = layoutTree(tree, { showHeights: true, showLevels: true })
+      expect(bounds.maxX - bounds.minX).toBeLessThanOrEqual(270)
+      expect(bounds.maxY - bounds.minY).toBeLessThanOrEqual(240)
+    }
+  })
+  it('mantém as alturas fora do halo e quadro da subárvore transferida em rotações AVL', () => {
+    const result = runSequence('avl', decodeOps('i1.i2.i3.i4.i5.i6.i7'))
+    let checkedMovedSubtree = false
+    for (const step of result.steps.filter(step => step.kind === 'rotate-pre')) {
+      check(step.tree, { showHeights: true, showLevels: true })
+      const moved = step.meta?.rotation?.movedSubtree
+      if (moved === null || moved === undefined) continue
+      checkedMovedSubtree = true
+      const layout = layoutTree(step.tree, { showHeights: true, showLevels: true })
+      const point = layout.positions[moved]!
+      const outline: LabelBox = { id: 'quadro', owner: moved, left: point.x - 28, right: point.x + 28, top: point.y - 28, bottom: point.y + 28 }
+      const labels = labelBoxes(step.tree, layout.positions, { showHeights: true, showLevels: true }).filter(label => label.id.startsWith('altura:') || label.id.startsWith('nível:'))
+      for (const label of labels) expect(boxesOverlap(label, outline)).toBe(false)
+    }
+    expect(checkedMovedSubtree).toBe(true)
   })
   it('gera somente os NILs solicitados, inclusive o preto adicional de remoção', () => {
     const tree = runSequence('rb', decodeOps('i10')).final

@@ -6,15 +6,17 @@ export interface CameraBounds { minX: number; minY: number; maxX: number; maxY: 
 export function fitCamera(bounds: CameraBounds, width: number, height: number, root?: Position) {
   const boxWidth = Math.max(40, bounds.maxX - bounds.minX + 16)
   const boxHeight = Math.max(40, bounds.maxY - bounds.minY + 16)
-  const rawScale = Math.min(width / boxWidth, height / boxHeight, 1.15)
-  const scale = Math.max(.025, rawScale)
+  const rawScale = Math.min(Math.max(1, width) / boxWidth, Math.max(1, height) / boxHeight, 1.15)
+  // Automatic framing must still fit a tall tree in a shortened mobile canvas.
+  // The manual zoom floor remains larger, so inspection gestures stay useful.
+  const scale = Math.max(.001, rawScale)
   const center = { x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2 }
   void root
   return { scale, x: width / 2 - center.x * scale, y: height / 2 - center.y * scale }
 }
-export function clampScale(value: number) { return Math.max(.025, Math.min(2.5, value)) }
+export function clampScale(value: number, minimum = .025) { return Math.max(minimum, Math.min(2.5, value)) }
 
-export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<CameraBounds>, reduced: ComputedRef<boolean>) {
+export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<CameraBounds>, reduced: ComputedRef<boolean>, resizing?: ComputedRef<boolean>) {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const scale = useMotionValue(1)
@@ -49,16 +51,17 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   function fit(root?: Position, instant = false) {
     following.value = true
     if (root) fittedRoot = root
-    const next = fitCamera(bounds.value, Math.max(100, width.value - 32), Math.max(100, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
+    const next = fitCamera(bounds.value, Math.max(1, width.value - 32), Math.max(1, height.value - safeBottom.value - safeTop), root ?? fittedRoot)
     moveTo({ ...next, x: next.x + 16, y: next.y + safeTop }, instant)
   }
   function fitBounds(nextBounds: CameraBounds, root?: Position) {
     following.value = false
-    const next = fitCamera(nextBounds, Math.max(100, width.value - 32), Math.max(100, height.value - safeBottom.value - safeTop), root)
+    const next = fitCamera(nextBounds, Math.max(1, width.value - 32), Math.max(1, height.value - safeBottom.value - safeTop), root)
     moveTo({ ...next, x: next.x + 16, y: next.y + safeTop })
   }
   function focus(point: Position, instant = false) {
-    moveTo({ x: (width.value - 32) / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
+    following.value = false
+    moveTo({ x: width.value / 2 - point.x * scale.get(), y: safeTop + (height.value - safeBottom.value - safeTop) / 2 - point.y * scale.get() }, instant)
   }
   function follow(point: Position, force = false) {
     if ((!following.value && !force) || pointers.size) return
@@ -71,9 +74,11 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     const dy = py < top ? top - py : py > bottom ? bottom - py : 0
     if (dx || dy) moveTo({ x: x.get() + dx, y: y.get() + dy })
   }
-  function zoom(factor: number, center = { x: (width.value - 32) / 2, y: (height.value - safeBottom.value) / 2 }) {
+  function zoom(factor: number, center = { x: width.value / 2, y: safeTop + (height.value - safeBottom.value - safeTop) / 2 }) {
     following.value = false
-    const next = clampScale(scale.get() * factor)
+    const current = scale.get()
+    // A tiny automatically fitted tree must not zoom in when the user zooms out.
+    const next = clampScale(current * factor, current < .025 ? .001 : .025)
     const ratio = next / scale.get()
     moveTo({ x: center.x - (center.x - x.get()) * ratio, y: center.y - (center.y - y.get()) * ratio, scale: next })
   }
@@ -107,7 +112,7 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()]
       if (!a || !b) return
-      const next = clampScale(initialScale * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, initialDistance))
+      const next = clampScale(initialScale * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, initialDistance), initialScale < .025 ? .001 : .025)
       scale.set(next); x.set((a.x + b.x) / 2 - anchor.x * next); y.set((a.y + b.y) / 2 - anchor.y * next)
     }
     else {
@@ -135,13 +140,26 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     }
   }
   function wheel(event: WheelEvent) { event.preventDefault(); zoom(event.deltaY > 0 ? .9 : 1.1, { x: event.offsetX, y: event.offsetY }) }
+  watch(() => resizing?.value, active => {
+    // Direct manipulation follows the finger without a second delayed tween.
+    if (!active) return
+    if (following.value) fit(undefined, true)
+    else stop()
+  })
   onMounted(() => {
     observer = new ResizeObserver(([entry]) => {
       if (!entry) return
       const next = entry.contentRect
-      if (measured && Math.abs(width.value - next.width) < .5 && Math.abs(height.value - next.height) < .5) return
+      // Keep fractional CSS pixels: dropping the final resize fraction leaves
+      // a stale viewport and shifts the inspected point on the next drag.
+      if (measured && Math.abs(width.value - next.width) < .001 && Math.abs(height.value - next.height) < .001) return
+      const previousWidth = width.value, previousHeight = height.value
       width.value = next.width; height.value = next.height
-      if (following.value) fit(undefined, !measured)
+      if (following.value) fit(undefined, !measured || resizing?.value)
+      else if (measured) {
+        // Keep the inspected world point centered without undoing a manual zoom.
+        moveTo({ x: (destination?.x ?? x.get()) + (next.width - previousWidth) / 2, y: (destination?.y ?? y.get()) + (next.height - previousHeight) / 2, scale: destination?.scale ?? scale.get() }, resizing?.value)
+      }
       measured = true
     })
     if (element.value) observer.observe(element.value)

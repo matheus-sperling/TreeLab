@@ -3,8 +3,8 @@ import { motion, animate, useMotionValue } from 'motion-v'
 import type { MotionValue } from 'motion-v'
 import { layoutTree } from '../../engine'
 import { movementDuration, TREE_EASE } from './motion'
-import type { LayoutResult, Position, Snapshot, Step, TreeType } from '../../engine/types'
-const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined })
+import type { LayoutResult, Position, Role, Snapshot, Step, TreeType } from '../../engine/types'
+const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean; resizing?: boolean }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined, resizing: false })
 const emit = defineEmits<{ select: [id: number]; empty: []; details: []; compose: []; concepts: []; preset: [name: string] }>()
 const container = ref<HTMLElement | null>(null)
 const positions = shallowReactive<Record<number, { x: MotionValue<number>; y: MotionValue<number> }>>({})
@@ -30,7 +30,7 @@ function movePoint(key: string, point: MotionPoint, target: Position) {
   controls.set(key, [animate(point.x, target.x, transition), animate(point.y, target.y, transition)])
 }
 const layout = computed(() => layoutTree(props.tree, { showNils: props.showNils, showHeights: props.showHeights, showLevels: props.showLevels, extraBlack: props.step?.meta?.extraBlack }))
-const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced))
+const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced), computed(() => props.resizing))
 const nodes = computed(() => Object.entries(props.tree.nodes).map(([id, node]) => ({ id: Number(id), node })))
 const edges = computed(() => nodes.value.flatMap(({ id, node }) => [node.l, node.r].filter((child): child is number => child !== null).map(child => ({ from: id, to: child }))))
 const height = computed(() => props.tree.rootId === null ? -1 : props.tree.nodes[props.tree.rootId]?.h ?? -1)
@@ -82,28 +82,62 @@ watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.sho
     controls.delete(key); targets.delete(key)
   }
   if (props.step?.kind === 'done' || props.seeking) a11yLabel.value = label.value
-  const active = Number(Object.entries(props.step?.hl ?? {}).find(([, role]) => ['current', 'new', 'pivot', 'found', 'violation'].includes(role))?.[0])
-  const point = layout.value.positions[active]
   nextTick(() => {
-    if (nodes.value.length < 2 || props.seeking && camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
-    else if (point) camera.follow(point)
+    // Automatic framing keeps the complete tree visible as insertion/removal
+    // changes its bounds. A highlighted-node pan retained the old zoom and
+    // clipped the root and other branches after the tree grew.
+    if (camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
   })
 }, { immediate: true })
 function depth(id: number) { let value = 0; let idParent = props.tree.nodes[id]?.p; while (idParent !== null && idParent !== undefined) { value++; idParent = props.tree.nodes[idParent]?.p } return value }
 function balance(id: number) { const node = props.tree.nodes[id]!; return (node.l === null ? -1 : props.tree.nodes[node.l]?.h ?? -1) - (node.r === null ? -1 : props.tree.nodes[node.r]?.h ?? -1) }
-function highlighted(from: number, to: number) { return props.step?.edges.some(edge => edge.from === from && edge.to === to) || selectedPath.value.includes(from) && selectedPath.value.includes(to) }
+function edgeRole(from: number, to: number): Role | undefined {
+  const step = props.step
+  const explicit = step?.edges.find(edge => edge.from === from && edge.to === to)?.role
+  if (explicit) return explicit
+  const destinationRole = step?.hl[to]
+  if (step?.kind === 'descend' && props.tree.nodes[from]?.key === step.msg.params.at) {
+    const parent = props.tree.nodes[from]!
+    const left = step.msg.params.side === 'l' || step.msg.params.dir === 'left'
+    if ((left ? parent.l : parent.r) === to) return 'path'
+  }
+  if (step?.kind === 'compare' && destinationRole === 'current') return 'current'
+  if (step?.kind === 'visit' && destinationRole) return destinationRole
+  if (step?.kind === 'attach' && destinationRole === 'new') return 'new'
+  if (destinationRole === 'found' || destinationRole === 'delete' || destinationRole === 'successor' || destinationRole === 'moved') return destinationRole
+  return selectedPath.value.includes(from) && selectedPath.value.includes(to) ? 'path' : undefined
+}
+function drawnEdge(from: number, to: number): boolean {
+  const step = props.step
+  if (step?.kind === 'compare') return step.hl[to] === 'current'
+  if (step?.kind === 'descend' && props.tree.nodes[from]?.key === step.msg.params.at) {
+    const parent = props.tree.nodes[from]!
+    const left = step.msg.params.side === 'l' || step.msg.params.dir === 'left'
+    return (left ? parent.l : parent.r) === to
+  }
+  return step?.kind === 'visit' && props.tree.nodes[to]?.key === step.msg.params.key && (step.hl[to] === 'visited' || step.hl[to] === 'current')
+}
+function highlighted(from: number, to: number) { return Boolean(edgeRole(from, to)) }
 function fit() { camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId]) }
-function focus(id: number, safeBottom = 0) { const point = layout.value.positions[id]; camera.safeBottom.value = 8 + safeBottom; if (point) camera.focus(point) }
+let followingBeforeFocus: boolean | undefined
+function rememberFraming() { followingBeforeFocus ??= camera.following.value }
+function focus(id: number, safeBottom = 0) { const point = layout.value.positions[id]; if (!point) return; rememberFraming(); camera.safeBottom.value = 8 + safeBottom; camera.focus(point) }
 function focusSubtree(id: number, safeBottom = 0) {
   const ids: number[] = []
   const visit = (current: number | null) => { if (current === null) return; const node = props.tree.nodes[current]; if (!node) return; ids.push(current); visit(node.l); visit(node.r) }
   visit(id)
   const points = ids.map(current => layout.value.positions[current]).filter(point => point !== undefined)
   if (!points.length) return
+  rememberFraming()
   camera.safeBottom.value = 8 + safeBottom
   camera.fitBounds({ minX: Math.min(...points.map(point => point.x)) - 20, maxX: Math.max(...points.map(point => point.x)) + 20, minY: Math.min(...points.map(point => point.y)) - 20, maxY: Math.max(...points.map(point => point.y)) + 20 }, layout.value.positions[id])
 }
-function clearFocus() { camera.safeBottom.value = 8 }
+function clearFocus() {
+  camera.safeBottom.value = 8
+  const resume = followingBeforeFocus
+  followingBeforeFocus = undefined
+  if (resume) fit()
+}
 function empty(event: MouseEvent) { if (!(event.target as Element).closest('[data-node]') && !camera.moved()) emit('empty') }
 onBeforeUnmount(() => { for (const group of controls.values()) for (const control of group) control.stop() })
 defineExpose({ fit, focus, focusSubtree, clearFocus })
@@ -116,11 +150,11 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
     <svg class="tree-svg" role="img" :aria-label="a11yLabel" @click="empty">
 
       <motion.g :style="{ transform: camera.transform, originX: 0, originY: 0, transformOrigin: '0px 0px', transformBox: 'view-box' }">
-        <AnimatePresence :initial="false"><LabRotationGuide v-if="step?.kind === 'rotate-pre' && step.meta?.rotation && positions[step.meta.rotation.pivot] && positions[step.meta.rotation.child]" :pivot="positions[step.meta.rotation.pivot]!" :child="positions[step.meta.rotation.child]!" :direction="step.meta.rotation.dir" :reduced="reduced" :speed="speed" /></AnimatePresence>
-        <motion.g v-if="step?.kind === 'rotate-pre' && step.meta?.rotation?.movedSubtree && positions[step.meta.rotation.movedSubtree]" :style="{ x: positions[step.meta.rotation.movedSubtree]!.x, y: positions[step.meta.rotation.movedSubtree]!.y }"><rect x="-28" y="-28" width="56" height="56" rx="12" fill="none" stroke="var(--rotation)" stroke-width="1.5" stroke-dasharray="4 4" /></motion.g>
-        <LabTreeEdge v-for="(edge, id) in visibleEdges" :key="id" :from="positions[edge.from]!" :to="positions[edge.to]!" :active="edge.active" :highlighted="highlighted(edge.from, edge.to)" :rotation="step?.kind === 'rotate-pre'" :diagnosis="step?.kind === 'imbalance' || step?.kind === 'case'" :draw="step?.kind === 'compare' && highlighted(edge.from, edge.to)" :seeking="seeking" :reduced="reduced" :speed="speed" @exit-complete="finishEdgeExit(id)" />
+        <AnimatePresence :initial="false"><LabRotationGuide v-if="step?.kind === 'rotate-pre' && step.meta?.rotation && positions[step.meta.rotation.pivot] && positions[step.meta.rotation.child]" :pivot="positions[step.meta.rotation.pivot]!" :child="positions[step.meta.rotation.child]!" :direction="step.meta.rotation.dir" :seeking="seeking" :reduced="reduced" :speed="speed" /></AnimatePresence>
+        <motion.g v-if="step?.kind === 'rotate-pre' && step.meta?.rotation?.movedSubtree && positions[step.meta.rotation.movedSubtree]" :style="{ x: positions[step.meta.rotation.movedSubtree]!.x, y: positions[step.meta.rotation.movedSubtree]!.y }"><rect class="subtree-outline" x="-28" y="-28" width="56" height="56" rx="12" fill="none" stroke="var(--rotation)" stroke-width="1.5" stroke-dasharray="4 4" /></motion.g>
+        <LabTreeEdge v-for="(edge, id) in visibleEdges" :key="id" :from="positions[edge.from]!" :to="positions[edge.to]!" :active="edge.active" :role="edgeRole(edge.from, edge.to)" :effect-key="step?.i" :highlighted="highlighted(edge.from, edge.to)" :rotation="step?.kind === 'rotate-pre' && highlighted(edge.from, edge.to)" :diagnosis="step?.kind === 'imbalance' || step?.kind === 'case'" :draw="drawnEdge(edge.from, edge.to)" :seeking="seeking" :reduced="reduced" :speed="speed" @exit-complete="finishEdgeExit(id)" />
         <LabTreeNil v-for="nil in visibleNils" :id="nil.id" :key="nil.id" :parent-id="nil.parent" :parent="positions[nil.parent]!" :position="nilPositions[nil.id]!" :active="nil.active" :extra-black="step?.meta?.extraBlack?.id === null && step.meta.extraBlack.parent === nil.parent && step.meta.extraBlack.side === nil.side" :seeking="seeking" :reduced="reduced" :speed="speed" @exit-complete="finishNilExit(nil.id)" />
-        <AnimatePresence :initial="false"><LabTreeNode v-for="{ id, node } in nodes" :id="id" :key="id" :node="node" :position="positions[id]!" :type="type" :role="step?.hl[id]" :root="id === tree.rootId" :selected="selectedPath.includes(id)" :seeking="seeking" :reduced="reduced" :balance="balance(id)" :show-height="showHeights" :depth="showLevels ? depth(id) : undefined" :show-letters="showLetters" :order="step?.meta?.order?.indexOf(node.key) === undefined ? undefined : step.meta.order.indexOf(node.key) + 1" :speed="speed" @select="emit('select', $event)" /></AnimatePresence>
+        <AnimatePresence :initial="false"><LabTreeNode v-for="{ id, node } in nodes" :id="id" :key="id" :node="node" :position="positions[id]!" :type="type" :role="step?.hl[id]" :step-kind="step?.kind" :effect-key="step?.i" :root="id === tree.rootId" :selected="selectedPath.includes(id)" :seeking="seeking" :reduced="reduced" :balance="balance(id)" :show-height="showHeights" :depth="showLevels ? depth(id) : undefined" :show-letters="showLetters" :order="step?.meta?.order?.indexOf(node.key) === undefined ? undefined : step.meta.order.indexOf(node.key) + 1" :speed="speed" @select="emit('select', $event)" /></AnimatePresence>
       </motion.g>
     </svg>
     <div class="node-targets" role="group" aria-label="Nós da árvore: selecione para inspecionar"><LabNodeTarget v-for="{ id, node } in nodes" :id="id" :key="id" :node-key="node.key" :height="node.h" :root="id === tree.rootId" :selected="selected === id" :position="positions[id]!" :camera="camera" @select="emit('select', $event)" @focus="layout.positions[$event] && camera.follow(layout.positions[$event]!, true)" /></div>

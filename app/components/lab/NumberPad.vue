@@ -1,17 +1,21 @@
 <script setup lang="ts">
 import { motion } from 'motion-v'
-import { computed, onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useHaptics } from '../../composables/useHaptics'
 import { editNumber } from './input'
 const props = defineProps<{ modelValue: string; existing: number[]; haptics?: boolean; leftHanded?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string]; close: [] }>()
+// Várias teclas podem chegar antes de o pai renderizar o novo modelValue.
+const draft = ref(props.modelValue)
+watch(() => props.modelValue, value => { draft.value = value }, { flush: 'sync' })
+function update(value: string) { draft.value = value; emit('update:modelValue', value) }
 const { tap } = useHaptics()
 const rows = [['1', '2', '3', 'backspace'], ['4', '5', '6', 'clear'], ['7', '8', '9', 'random'], ['-', '0', ',', 'close']]
 const keys = rows.flatMap((row, r) => row.map((value, c) => ({ value, row: r + 1, column: c + 1, utility: c === 3 })))
 const labels: Record<string, string> = { '-': 'Alternar sinal', ',': 'Separar valores', backspace: 'Apagar; segure para limpar', clear: 'Limpar valores', random: 'Valor aleatório livre', close: 'Recolher teclado' }
 const captions: Record<string, string> = { '-': 'Sinal', ',': 'Separar', backspace: 'Apagar', clear: 'Limpar', random: 'Aleatório', close: 'Recolher' }
 const icons: Record<string, string> = { backspace: 'lucide:delete', clear: 'lucide:eraser', random: 'lucide:dices', close: 'lucide:chevron-down' }
-const tokens = computed(() => props.modelValue.trim().split(/[,\s]+/).filter(Boolean))
+const tokens = computed(() => draft.value.trim().split(/[,\s]+/).filter(Boolean))
 const available = computed(() => {
   const used = new Set([...props.existing, ...tokens.value.map(Number)])
   return Array.from({ length: 99 }, (_, i) => i + 1).filter(key => !used.has(key))
@@ -19,25 +23,26 @@ const available = computed(() => {
 let hold: ReturnType<typeof setTimeout> | undefined
 let cleared = false
 function disabled(key: string) {
-  if (key === 'backspace' || key === 'clear') return !props.modelValue
+  if (key === 'backspace' || key === 'clear') return !draft.value
   if (key === 'random') return tokens.value.length >= 20 || !available.value.length
   return false
 }
 function press(key: string) {
-  tap(props.haptics)
   if (cleared) { cleared = false; return }
+  if (disabled(key)) return
+  tap(props.haptics)
   if (key === 'close') emit('close')
-  else if (key === 'clear') emit('update:modelValue', '')
+  else if (key === 'clear') update('')
   else if (key === 'random') {
     const next = available.value[Math.floor(Math.random() * available.value.length)]
-    const prefix = props.modelValue.trim().replace(/[,\s]+$/, '')
-    if (next !== undefined) emit('update:modelValue', prefix ? `${prefix}, ${next}` : String(next))
+    const prefix = draft.value.trim().replace(/[,\s]+$/, '')
+    if (next !== undefined) update(prefix ? `${prefix}, ${next}` : String(next))
   }
-  else emit('update:modelValue', editNumber(props.modelValue, key))
+  else update(editNumber(draft.value, key))
 }
 function start(key: string) {
   end(); cleared = false
-  if (key === 'backspace') hold = setTimeout(() => { emit('update:modelValue', ''); cleared = true }, 550)
+  if (key === 'backspace') hold = setTimeout(() => { update(''); cleared = true }, 550)
 }
 function end() { if (hold) clearTimeout(hold) }
 onBeforeUnmount(end)

@@ -20,12 +20,11 @@ const toast = useToast()
 interface CanvasControls { fit: () => void; focus: (id: number, safeBottom?: number) => void; focusSubtree: (id: number, safeBottom?: number) => void; clearFocus: () => void }
 const canvas = shallowRef<CanvasControls | null>(null)
 function setCanvas(instance: Element | ComponentPublicInstance | null) { if (instance) canvas.value = instance as unknown as CanvasControls }
-const dock = useTemplateRef('dock')
-let dockObserver: ResizeObserver | undefined
 const value = ref('')
 const error = ref('')
 const keyboard = ref(false)
 const collapsed = ref(false)
+const dockResizing = ref(false)
 const currentSummary = computed(() => lab.operations.length ? 'Sua sequência está pronta para continuar.' : 'Comece inserindo seu primeiro número.')
 const editing = computed(() => keyboard.value && !settings.systemKeyboard)
 const selected = ref<number | null>(null)
@@ -102,19 +101,11 @@ function closeKeyboard() {
 function openKeyboard() { collapsed.value = false; keyboard.value = true; error.value = '' }
 function compose() { openKeyboard(); nextTick(() => document.querySelector<HTMLInputElement>('#lab-values')?.focus({ preventScroll: true })) }
 function toggleDock() { if (keyboard.value) closeKeyboard(); else { collapsed.value = !collapsed.value; if (collapsed.value) player.pause() } }
-function dragged(_: unknown, info: { offset: { y: number } }) { if (info.offset.y > 40) { if (keyboard.value) closeKeyboard(); else { collapsed.value = true; player.pause() } } else if (info.offset.y < -40) { collapsed.value = false } }
 onMounted(() => {
-  const instance: unknown = dock.value
-  const element = instance && typeof instance === 'object' && '$el' in instance ? instance.$el : instance
-  if (element instanceof HTMLElement) {
-    dockObserver = new ResizeObserver(() => document.documentElement.style.setProperty('--lab-dock-height', `${element.offsetHeight}px`))
-    dockObserver.observe(element)
-    document.documentElement.style.setProperty('--lab-dock-height', `${element.offsetHeight}px`)
-  }
   // First entry stays in the lab. Help is available on demand.
   if (new URLSearchParams(location.search).has('conceito')) openSheet('concepts')
 })
-onBeforeUnmount(() => { toast.suspended.value = false; dockObserver?.disconnect(); document.documentElement.style.removeProperty('--lab-dock-height') })
+onBeforeUnmount(() => { toast.suspended.value = false })
 </script>
 
 <template>
@@ -123,16 +114,15 @@ onBeforeUnmount(() => { toast.suspended.value = false; dockObserver?.disconnect(
     <header class="lab-appbar"><NuxtLink to="/" class="lab-back" aria-label="Voltar ao início"><Icon name="lucide:arrow-left" /></NuxtLink><div class="tree-segment" role="group" aria-label="Tipo de árvore"><button v-for="type in types" :key="type.id" :aria-pressed="lab.type === type.id" @click="changeType(type.id)"><motion.span v-if="lab.type === type.id" layout-id="tree-type" class="segment-indicator" :transition="{ type: 'spring', duration: reduced ? 0 : .24, bounce: .08 }" /><span>{{ type.label }}</span></button></div><UiIconButton icon="ellipsis" label="Abrir menu do laboratório" @click="openSheet('menu')" /></header>
     <LabOperationsBar :reduced="reduced" @seek="player.seek" @edit="openSheet('sequence')" @clear="clear" />
     <div class="lab-workspace">
-      <NuxtErrorBoundary><div class="canvas-shell"><AnimatePresence><motion.div :key="lab.type" class="canvas-area" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? .12 : .2 }"><LabTreeCanvas :ref="setCanvas" :tree="lab.tree" :type="lab.type" :step="lab.step" :seeking="lab.seeking" :speed="player.speed.value" :reduced="reduced" :selected="selected" :show-heights="settings.showHeights" :show-nils="settings.showNils" :show-letters="settings.showColors" :show-levels="settings.showLevels" @select="inspect" @empty="emptyClicked" @details="openSheet('details')" @preset="emptyPreset" @compose="compose" @concepts="openSheet('concepts')" /></motion.div></AnimatePresence></div><template #error="{ clearError }"><div class="lab-error"><Icon name="lucide:info" /><h2>Vamos recomeçar?</h2><p>Não foi possível exibir esta sequência.</p><UiButton @click="player.pause(); lab.replace([]); clearError()">Reiniciar sequência</UiButton></div></template></NuxtErrorBoundary>
-      <motion.section ref="dock" class="lab-dock" :class="{ collapsed }" :layout="reduced ? false : 'size'" :transition="{ layout: { type: 'spring', duration: .35, bounce: .08 } }" aria-label="Painel de operações">
-        <motion.div class="dock-grip" drag="y" :drag-constraints="{ top: 0, bottom: 0 }" :drag-elastic=".12" @drag-end="dragged"><button type="button" :aria-label="keyboard ? 'Voltar à reprodução' : collapsed ? 'Expandir controles' : 'Recolher controles'" :aria-expanded="!collapsed" @click="toggleDock"><span class="grip-line" /><span class="dock-label">{{ keyboard ? 'Entrada de valores' : 'Passo a passo' }}</span><Icon :name="collapsed ? 'lucide:chevron-up' : 'lucide:chevron-down'" /></button></motion.div>
+      <NuxtErrorBoundary><div class="canvas-shell"><AnimatePresence><motion.div :key="lab.type" class="canvas-area" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? .12 : .2 }"><LabTreeCanvas :ref="setCanvas" :tree="lab.tree" :type="lab.type" :step="lab.step" :seeking="lab.seeking" :resizing="dockResizing" :speed="player.speed.value" :reduced="reduced" :selected="selected" :show-heights="settings.showHeights" :show-nils="settings.showNils" :show-letters="settings.showColors" :show-levels="settings.showLevels" @select="inspect" @empty="emptyClicked" @details="openSheet('details')" @preset="emptyPreset" @compose="compose" @concepts="openSheet('concepts')" /></motion.div></AnimatePresence></div><template #error="{ clearError }"><div class="lab-error"><Icon name="lucide:info" /><h2>Vamos recomeçar?</h2><p>Não foi possível exibir esta sequência.</p><UiButton @click="player.pause(); lab.replace([]); clearError()">Reiniciar sequência</UiButton></div></template></NuxtErrorBoundary>
+      <LabDock v-model:collapsed="collapsed" :keyboard="keyboard" :reduced="reduced" @update:resizing="dockResizing = $event" @toggle="toggleDock">
         <div v-if="collapsed" class="dock-peek"><p>{{ currentSummary }}</p><button type="button" @click="compose"><Icon name="lucide:plus" />Inserir</button></div>
         <motion.div v-if="!keyboard && !collapsed" class="lab-playback" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: reduced ? .12 : .16 }">
           <LabNarration :playing="player.playing.value" @details="openSheet('details')" />
           <LabPlayerBar :player="player" />
         </motion.div>
         <LabOperationComposer v-if="!collapsed" v-model="value" :editing="editing" :system-keyboard="settings.systemKeyboard" :error="error" :shake="shake" :reduced="reduced" :existing="existing" :haptics="settings.haptics" :left-handed="settings.leftHanded" @open="openKeyboard" @close="closeKeyboard" @clear-error="error = ''" @blur="inputBlurred" @submit="run" @input-key="physicalKey" />
-      </motion.section>
+      </LabDock>
     </div>
     <UiBottomSheet v-model:open="sheetOpen" :history="false" :title="sheetTitle" :modal="true"><LabMenu v-if="sheets.current.value === 'menu'" :value="value" :type="lab.type" @preset="preset" @generate="generated" @sequence="openSheet('sequence')" @concepts="openSheet('concepts')" @operation="operation" @share="share" @clear="clear" @help="sheets.open('tour')" @legend="sheets.open('legend')" @text="sheets.open('text')" /><LabSequenceEditor v-else-if="sheets.current.value === 'sequence'" :initial-index="lab.operationIndex" :reduced="reduced" @change="player.pause" @clear="clear" @close="closeSheet" /><LabConcepts v-else-if="sheets.current.value === 'concepts'" :type="lab.type" @example="preset" /><LabDetails v-else-if="sheets.current.value === 'details'" :player="player" /><LabInspector v-else-if="sheets.current.value === 'inspector' && selected !== null" :id="selected" @action="inspectorAction" @focus="canvas?.focusSubtree($event, 90)" @close="closeSheet" /><LabOnboarding v-else-if="sheets.current.value === 'tour'" @done="doneTour" /><LabLegend v-else-if="sheets.current.value === 'legend'" /><LabTreeText v-else-if="sheets.current.value === 'text'" :tree="lab.tree" /></UiBottomSheet>
   </main>
@@ -148,11 +138,10 @@ onBeforeUnmount(() => { toast.suspended.value = false; dockObserver?.disconnect(
 .tree-segment button>span:last-child { position:relative; z-index:1; }
 .segment-indicator { position:absolute; inset:0; background:var(--surface-3); border-radius:9px; }
 .lab-workspace { display:flex; flex-direction:column; flex:1; min-height:0; }
-.canvas-shell { position:relative; flex:1; min-height:100px; overflow:hidden; }
+.canvas-shell { position:relative; flex:1; min-height:0; overflow:hidden; }
 .canvas-area { position:absolute; inset:0; overflow:hidden; }
-.lab-dock { flex-shrink:0; max-height:calc(100% - 100px); overflow-y:auto; overscroll-behavior:contain; position:relative; border-top:1px solid var(--border); border-radius:20px 20px 0 0; background:var(--surface-1); padding:0 16px calc(max(24px,env(safe-area-inset-bottom))); }
 .lab-playback { container:lab-controls / inline-size; }
-.dock-grip { touch-action:none; height:34px; }.dock-grip button { width:100%; min-height:34px; display:flex; align-items:center; gap:8px; color:var(--muted); }.grip-line { width:28px; height:3px; border-radius:999px; background:var(--border-strong); }.dock-label { font-size:11px; }.dock-grip :deep(.iconify) { margin-left:auto; width:16px; height:16px; }.dock-peek { display:flex; align-items:center; gap:12px; padding-bottom:4px; }.dock-peek p { flex:1; color:var(--muted); font-size:12px; line-height:1.5; }.dock-peek button { display:flex; gap:5px; align-items:center; min-height:44px; font-size:13px; color:var(--accent); }
+.dock-peek { display:flex; align-items:center; gap:12px; padding-bottom:4px; }.dock-peek p { flex:1; color:var(--muted); font-size:12px; line-height:1.5; }.dock-peek button { display:flex; gap:5px; align-items:center; min-height:44px; font-size:13px; color:var(--accent); }
 .lab-error { flex:1; display:grid; place-content:center; text-align:center; gap:16px; }
 .lab-error p { color:var(--muted); }
 .lab-error>:deep(.iconify) { margin:auto; width:40px; height:40px; color:var(--accent); }
@@ -161,17 +150,11 @@ onBeforeUnmount(() => { toast.suspended.value = false; dockObserver?.disconnect(
   .lab-screen :deep(.operations-rail) { min-height:44px; }.lab-screen :deep(.narration) { min-height:62px; }
   .lab-screen :deep(.narration p) { min-height:32px; font-size:13px; }
   .lab-screen :deep(.player-buttons) { height:52px; }
-  .lab-dock { padding-bottom:calc(max(24px,env(safe-area-inset-bottom))); }.lab-screen :deep(.cost-summary) { display:none; }
+  .lab-screen :deep(.cost-summary) { display:none; }
 }
 @media(min-width:768px),(orientation:landscape) and (max-height:500px) {
   .lab-workspace { flex-direction:row; }.canvas-shell { min-width:0; min-height:0; }
-  .lab-dock { width:380px; max-height:100%; border-top:0; border-left:1px solid var(--border); border-radius:0; overflow-y:auto; padding-top:12px; }
-  .dock-grip { display:block; }.lab-screen :deep(.tree-canvas) { min-height:0; }
-}
-@media(orientation:landscape) and (max-height:500px) {
-  .lab-dock { width:340px; }
-  .keyboard-open .dock-grip { height:24px; }.keyboard-open .dock-grip button { min-height:24px; }
-  .keyboard-open .lab-dock { padding-top:0; padding-bottom:calc(max(24px,env(safe-area-inset-bottom))); }
+  .lab-screen :deep(.tree-canvas) { min-height:0; }
 }
 @media(min-width:1100px) { .lab-screen { max-width:1440px; margin:auto; border-left:1px solid var(--border); border-right:1px solid var(--border); } }
 </style>
