@@ -99,16 +99,3 @@ h3 { font-weight:650; }
 
 .toast>span{flex:1;line-height:16px}.toast-close{display:grid;place-items:center;min-width:48px;flex-shrink:0}.lab-toast{bottom:calc(var(--lab-dock-height,240px) + 16px);right:96px;max-width:380px;align-items:flex-start}.lab-toast .toast{width:100%;gap:8px;pointer-events:none}.lab-toast .toast button{pointer-events:auto;flex-shrink:0}.lab-toast .toast>span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 @media (min-width:768px),(orientation:landscape) and (max-height:500px){.lab-toast{bottom:calc(16px + env(safe-area-inset-bottom))}}
-
-/* Motion follows the visitor's preference and stays out of the canvas transform. */
-@keyframes enter-surface { from { opacity:0; translate:0 10px; } to { opacity:1; translate:0 0; } }
-@keyframes enter-sheet { from { opacity:0; margin-bottom:-32px; } to { opacity:1; margin-bottom:0; } }
-@media(prefers-reduced-motion:no-preference) {
-  .home-page>*,.comparison-card { animation:enter-surface .45s ease both; }
-  .home-page>:nth-child(2) { animation-delay:.04s; }.home-page>:nth-child(3) { animation-delay:.08s; }.home-page>:nth-child(4) { animation-delay:.12s; }
-  .sheet-content[data-state='open'] { animation:enter-sheet .24s ease both; }
-  button,a,input,select { transition:background-color .18s,border-color .18s,color .18s,box-shadow .18s; }
-  button:active,.ui-button:active,.tree-card:active { scale:.97; }
-  .comparison-card rect { transition:y .4s,height .4s; }
-}
-html[data-reduced-motion='true'] *,html[data-reduced-motion='true'] *::before { animation:none!important; transition:none!important; }

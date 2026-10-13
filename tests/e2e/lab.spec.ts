@@ -25,7 +25,7 @@ test('inserção em lote, troca de tipo e viagem no tempo', async ({ page }) => 
 
 test('valor inválido mantém a árvore e oferece correção', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('treelab-tour', 'seen'))
-  await page.goto('/lab?t=avl&q=i30.i20.i10&c=99999')
+  await page.goto('/lab?t=avl&q=i30.i20.i10')
   const input = page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })
   await input.click(); await input.pressSequentially('9999')
   await page.getByRole('button', { name: 'Inserir valores' }).click()
@@ -37,7 +37,7 @@ test('valor inválido mantém a árvore e oferece correção', async ({ page }) 
 
 test('notificações preservam o player e Espaço mantém controles nativos', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('treelab-tour', 'seen'))
-  await page.goto('/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7&c=99999')
+  await page.goto('/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7')
   const input = page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })
   await input.click(); await input.pressSequentially('8')
   await page.getByRole('button', { name: 'Inserir valores' }).click()
@@ -62,7 +62,7 @@ test('notificações preservam o player e Espaço mantém controles nativos', as
 
 test('teclado preserva listas, pausa a reprodução e devolve o foco aos controles', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('treelab-tour', 'seen'))
-  await page.goto('/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7&c=99999')
+  await page.goto('/lab?t=avl&q=i1.i2.i3.i4.i5.i6.i7')
   await page.getByRole('button', { name: 'Reproduzir', exact: true }).click()
   const input = page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })
   await input.click()

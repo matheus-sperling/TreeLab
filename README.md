@@ -4,17 +4,12 @@ Estude ABB, AVL e Rubro-Negra com controle de cada comparação, transplante, ro
 
 ## O que está disponível
 
-- Início focado em criar uma árvore vazia, escolher ABB/AVL/RN ou abrir um experimento desde a primeira inserção. Uma abertura curta explica a relação entre altura e complexidade.
-- Laboratório: inserir, remover e buscar valores; editor explícito para mudar chaves, trocar operações, reordenar e excluir; zerar a árvore com desfazer.
-- Reprodução com rótulo, feedback tátil quando suportado, linha do tempo com área de toque independente dos botões e painel de entrada expansível por toque ou arrasto.
-- Detalhes explicam o motivo de cada decisão, as mudanças reais no snapshot, a regra desejada, pseudocódigo e totais de trabalho.
-- Todas as arestas têm inclinação absoluta de 45°. Subárvores ocupam intervalos separados; comprimentos verticais variam para evitar cruzamentos e manter o ângulo. A câmera enquadra a árvore inteira; pan e pinça permitem inspecionar árvores grandes.
-- Rotações mostram o filho subindo e o pivô descendo; toda mudança de cor mostra a transição e o motivo específico do caso.
-- Comparar na navegação principal: mesma sequência nas três estruturas, linha do tempo e atualização imediata ao editar a semente.
-- Opções, seção do menu, semente e tamanho da sequência aleatória persistem no dispositivo.
-- PWA, fontes e ícones locais, sem login ou backend. Movimento reduzido respeita a preferência do dispositivo e os ajustes do usuário.
-
-As antigas rotas de lições, treino, cola e glossário redirecionam ao início. Os conceitos são apresentados nos experimentos e nos passos do laboratório.
+- Laboratório: três motores, sequência editável, player, câmera com pan/pinça, teclado próprio, inspetor, código e custos, presets, consultas, percursos e links compartilháveis.
+- Aprender: 16 lições em M0–M6, exemplos com player, tabela comparativa, experimento altura × n, testes rápidos e progresso local.
+- Comparar: mesma sequência nas três estruturas, linha do tempo por operação e experimentos de altura.
+- Treinar: sessões de 8 questões ou desafio de 3. Respostas estruturais calculadas pelo motor e 60 questões conceituais curadas.
+- Cola, glossário com 65 termos e ajustes de tema, movimento, texto, teclado e visualização.
+- PWA com fontes, ícones, conteúdo e chunks locais; nenhum login ou variável de ambiente.
 
 ## Rodar
 

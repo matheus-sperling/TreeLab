@@ -47,5 +47,5 @@ function clear() { value.value = ''; emit('clearError') }
 .lab-actions.left-handed { flex-direction:row-reverse; }
 @media(max-width:379px) { .operation-composer { padding-top:8px; }.operation-composer.editing { padding-top:8px; }.lab-actions :deep(.ui-button) { gap:6px; }.entry-heading label { font-size:12px; } }
 @media(max-height:760px) and (orientation:portrait) { .editing .entry-heading { display:none; } }
-@media(orientation:landscape) and (max-height:500px) { .operation-composer.editing { padding-top:4px; gap:6px; }.editing .entry-heading { display:none; }.value-field { min-height:40px; }.value-field input,.value-field>button { min-height:38px; }.lab-actions :deep(.ui-button) { min-height:40px; padding-block:6px; } }
+@media(orientation:landscape) and (max-height:500px) { .operation-composer.editing { padding-top:4px; }.editing .entry-heading { display:none; } }
 </style>

@@ -1,13 +1,12 @@
 import { defineStore } from 'pinia'
-export interface Settings { theme: 'auto' | 'dark' | 'light'; textScale: number; speed: number; granularity: 'detailed' | 'summary'; pauseOnKey: boolean; haptics: boolean; systemKeyboard: boolean; leftHanded: boolean; showNils: boolean; showHeights: boolean; showColors: boolean; showLevels: boolean; reducedMotion: boolean; keepKeyboard: boolean; menuSection: string; seed: number; randomCount: number }
-export const defaultSettings: Settings = { theme: 'dark', textScale: 1, speed: 1, granularity: 'detailed', pauseOnKey: false, haptics: true, systemKeyboard: false, leftHanded: false, showNils: false, showHeights: false, showColors: true, showLevels: false, reducedMotion: false, keepKeyboard: false, menuSection: 'sequence', seed: 42, randomCount: 15 }
+export interface Settings { theme: 'auto' | 'dark' | 'light'; textScale: number; speed: number; granularity: 'detailed' | 'summary'; pauseOnKey: boolean; haptics: boolean; systemKeyboard: boolean; leftHanded: boolean; showNils: boolean; showHeights: boolean; showColors: boolean; showLevels: boolean; reducedMotion: boolean; keepKeyboard: boolean }
+export const defaultSettings: Settings = { theme: 'dark', textScale: 1, speed: 1, granularity: 'detailed', pauseOnKey: false, haptics: true, systemKeyboard: false, leftHanded: false, showNils: false, showHeights: false, showColors: true, showLevels: false, reducedMotion: false, keepKeyboard: false }
 export const useSettingsStore = defineStore('settings', () => {
   const settings = reactive<Settings>({ ...defaultSettings })
   const ready = ref(false)
   function apply() {
     const theme = settings.theme === 'auto' ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : settings.theme
     document.documentElement.dataset.theme = theme
-    document.documentElement.dataset.reducedMotion = String(settings.reducedMotion)
     document.documentElement.style.setProperty('--text-scale', String(settings.textScale))
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0B0C10' : '#F6F7FA')
   }

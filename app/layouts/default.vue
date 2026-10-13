@@ -16,8 +16,9 @@ onBeforeUnmount(() => controls.forEach(control => control.stop()))
 const tabs = [
   { to: '/', icon: 'house', label: 'Início' },
   { to: '/lab', icon: 'flask-conical', label: 'Laboratório' },
-  { to: '/comparar', icon: 'chart-no-axes-column', label: 'Comparar' },
-  { to: '/ajustes', icon: 'settings', label: 'Ajustes' }
+  { to: '/aprender', icon: 'book-open', label: 'Aprender' },
+  { to: '/treinar', icon: 'target', label: 'Treinar' },
+  { to: '/mais', icon: 'ellipsis', label: 'Mais' }
 ]
 const active = (to: string) => to === '/' ? route.path === '/' : route.path.startsWith(to)
 </script>

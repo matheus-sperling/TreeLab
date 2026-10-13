@@ -66,5 +66,5 @@ onBeforeUnmount(end)
 .sign-icons :deep(.iconify) { width:13px; height:13px; }
 .number-pad button:disabled { opacity:.4; }
 @media(max-width:379px) { .number-pad button { min-height:44px; border-radius:10px; }.number-pad :deep(.iconify) { width:18px; height:18px; }.sign-icons :deep(.iconify) { width:13px; height:13px; } }
-@media(orientation:landscape) and (max-height:500px) { .number-pad { gap:4px; }.number-pad button { padding:2px; min-height:36px; }.key-value { font-size:16px; }.key-caption { font-size:9px; }.number-pad :deep(.iconify) { width:16px; height:16px; } }
+@media(orientation:landscape) and (max-height:500px) { .number-pad button { padding:2px; } }
 </style>
