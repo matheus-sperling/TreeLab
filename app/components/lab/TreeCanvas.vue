@@ -4,7 +4,7 @@ import type { MotionValue } from 'motion-v'
 import { layoutTree } from '../../engine'
 import { movementDuration, TREE_EASE } from './motion'
 import type { LayoutResult, Position, Role, Snapshot, Step, TreeType } from '../../engine/types'
-const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean; resizing?: boolean }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined, resizing: false })
+const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean; resizing?: boolean; reserveRotationSpace?: boolean }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined, resizing: false, reserveRotationSpace: false })
 const emit = defineEmits<{ select: [id: number]; empty: []; details: []; compose: []; concepts: []; preset: [name: string] }>()
 const container = ref<HTMLElement | null>(null)
 const positions = shallowReactive<Record<number, { x: MotionValue<number>; y: MotionValue<number> }>>({})
@@ -30,7 +30,7 @@ function movePoint(key: string, point: MotionPoint, target: Position) {
   controls.set(key, [animate(point.x, target.x, transition), animate(point.y, target.y, transition)])
 }
 const layout = computed(() => layoutTree(props.tree, { showNils: props.showNils, showHeights: props.showHeights, showLevels: props.showLevels, extraBlack: props.step?.meta?.extraBlack }))
-const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced), computed(() => props.resizing))
+const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced), computed(() => props.resizing), computed(() => Object.keys(props.tree.nodes).length <= 1))
 const nodes = computed(() => Object.entries(props.tree.nodes).map(([id, node]) => ({ id: Number(id), node })))
 const edges = computed(() => nodes.value.flatMap(({ id, node }) => [node.l, node.r].filter((child): child is number => child !== null).map(child => ({ from: id, to: child }))))
 const height = computed(() => props.tree.rootId === null ? -1 : props.tree.nodes[props.tree.rootId]?.h ?? -1)
@@ -40,7 +40,8 @@ const label = computed(() => {
   return `Árvore ${props.type === 'rb' ? 'Rubro-Negra' : props.type === 'avl' ? 'AVL' : 'Binária de Busca'}. ${nodes.value.length} nós. Altura ${height.value}. ${props.tree.rootId === null ? 'Árvore vazia.' : `Raiz ${props.tree.nodes[props.tree.rootId]?.key}. In-ordem: ${values(props.tree.rootId).join(', ')}.`}`
 })
 const a11yLabel = ref(label.value)
-watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.showHeights, props.showLevels] as const, () => {
+watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.showHeights, props.showLevels] as const, (_, previous) => {
+  const restarting = props.tree.rootId === null || previous?.[0].rootId === null
   const activeKeys = new Set<string>()
   for (const { id, node } of nodes.value) {
     const target = layout.value.positions[id]
@@ -86,7 +87,7 @@ watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.sho
     // Automatic framing keeps the complete tree visible as insertion/removal
     // changes its bounds. A highlighted-node pan retained the old zoom and
     // clipped the root and other branches after the tree grew.
-    if (camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
+    if (restarting || camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
   })
 }, { immediate: true })
 function depth(id: number) { let value = 0; let idParent = props.tree.nodes[id]?.p; while (idParent !== null && idParent !== undefined) { value++; idParent = props.tree.nodes[idParent]?.p } return value }
@@ -160,7 +161,7 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
     <div class="node-targets" role="group" aria-label="Nós da árvore: selecione para inspecionar"><LabNodeTarget v-for="{ id, node } in nodes" :id="id" :key="id" :node-key="node.key" :height="node.h" :root="id === tree.rootId" :selected="selected === id" :position="positions[id]!" :camera="camera" @select="emit('select', $event)" @focus="layout.positions[$event] && camera.follow(layout.positions[$event]!, true)" /></div>
     <div v-if="!nodes.length" class="empty-tree" :class="{ compact: camera.height.value < 300 }" @pointerdown.stop><svg viewBox="0 0 180 90" aria-hidden="true"><path d="M90 25L45 70M90 25L135 70" /><circle cx="90" cy="25" r="18" /><circle cx="45" cy="70" r="15" /><circle cx="135" cy="70" r="15" /></svg><h2>{{ step ? 'Tudo começa na raiz.' : 'Sua árvore começa aqui.' }}</h2><p>{{ step ? 'Toque em Reproduzir para iniciar a sequência.' : 'Escolha um número. O laboratório mostra o caminho.' }}</p><button v-if="!step" class="empty-primary" @click="emit('compose')"><Icon name="lucide:plus" />Inserir primeiro número</button><button class="empty-concepts" @click="emit('concepts')">Explorar um conceito<Icon name="lucide:arrow-right" /></button></div>
   </section>
-    <div class="rotation-band"><AnimatePresence :initial="false"><motion.div v-if="rotation" :key="`${rotation.pivot}:${rotation.child}:${rotation.n}`" class="rotation-caption" :initial="reduced ? false : { opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? 0 : .18 }"><Icon :name="rotation.dir === 'left' ? 'lucide:rotate-ccw' : 'lucide:rotate-cw'" /><span><strong>{{ tree.nodes[rotation.child]?.key }}</strong> sobe · <strong>{{ tree.nodes[rotation.pivot]?.key }}</strong> desce</span><span>{{ rotation.dir === 'left' ? 'à esquerda' : 'à direita' }}</span></motion.div></AnimatePresence></div>
+    <div v-if="reserveRotationSpace" class="rotation-band"><AnimatePresence :initial="false"><motion.div v-if="rotation" :key="`${rotation.pivot}:${rotation.child}:${rotation.n}`" class="rotation-caption" :initial="reduced ? false : { opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? 0 : .18 }"><Icon :name="rotation.dir === 'left' ? 'lucide:rotate-ccw' : 'lucide:rotate-cw'" /><span><strong>{{ tree.nodes[rotation.child]?.key }}</strong> sobe · <strong>{{ tree.nodes[rotation.pivot]?.key }}</strong> desce</span><span>{{ rotation.dir === 'left' ? 'à esquerda' : 'à direita' }}</span></motion.div></AnimatePresence></div>
   </section>
 </template>
 

@@ -16,7 +16,7 @@ export function fitCamera(bounds: CameraBounds, width: number, height: number, r
 }
 export function clampScale(value: number, minimum = .025) { return Math.max(minimum, Math.min(2.5, value)) }
 
-export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<CameraBounds>, reduced: ComputedRef<boolean>, resizing?: ComputedRef<boolean>) {
+export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<CameraBounds>, reduced: ComputedRef<boolean>, resizing?: ComputedRef<boolean>, containWholeTree?: ComputedRef<boolean>) {
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const scale = useMotionValue(1)
@@ -40,6 +40,26 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
   let fittedRoot: Position | undefined
   let measured = false
   let destination: { x: number; y: number; scale?: number } | undefined
+  function inspectionScale(value: number) {
+    if (!containWholeTree?.value) return value
+    const scene = bounds.value
+    // A lone node has no useful off-screen branch to inspect. Keep its root
+    // label, balance badge and virtual leaves together, even after a pinch or
+    // a taller dock. Larger trees remain pannable at inspection zoom levels.
+    const maximum = Math.min(Math.max(1, width.value - 32) / Math.max(40, scene.maxX - scene.minX + 16), Math.max(1, height.value - safeBottom.value - safeTop) / Math.max(40, scene.maxY - scene.minY + 16), 2.5)
+    return Math.min(value, Math.max(.001, maximum))
+  }
+  function contain(next: { x: number; y: number; scale?: number }) {
+    const scene = bounds.value
+    const s = inspectionScale(next.scale ?? scale.get())
+    const left = 16 - scene.minX * s, right = width.value - 16 - scene.maxX * s
+    const top = safeTop - scene.minY * s, bottom = height.value - safeBottom.value - scene.maxY * s
+    return {
+      x: left <= right ? Math.max(left, Math.min(right, next.x)) : next.x,
+      y: top <= bottom ? Math.max(top, Math.min(bottom, next.y)) : next.y,
+      ...(next.scale !== undefined || s !== scale.get() ? { scale: s } : {}),
+    }
+  }
   function stop() { for (const control of controls.splice(0)) control.stop(); destination = undefined }
   function moveTo(next: { x: number; y: number; scale?: number }, instant = false) {
     if (!instant && !reduced.value && destination?.x === next.x && destination.y === next.y && destination.scale === next.scale) return
@@ -78,9 +98,9 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     following.value = false
     const current = scale.get()
     // A tiny automatically fitted tree must not zoom in when the user zooms out.
-    const next = clampScale(current * factor, current < .025 ? .001 : .025)
+    const next = inspectionScale(clampScale(current * factor, current < .025 ? .001 : .025))
     const ratio = next / scale.get()
-    moveTo({ x: center.x - (center.x - x.get()) * ratio, y: center.y - (center.y - y.get()) * ratio, scale: next })
+    moveTo(contain({ x: center.x - (center.x - x.get()) * ratio, y: center.y - (center.y - y.get()) * ratio, scale: next }))
   }
   function point(event: PointerEvent) {
     const rect = element.value?.getBoundingClientRect()
@@ -112,11 +132,14 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()]
       if (!a || !b) return
-      const next = clampScale(initialScale * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, initialDistance), initialScale < .025 ? .001 : .025)
-      scale.set(next); x.set((a.x + b.x) / 2 - anchor.x * next); y.set((a.y + b.y) / 2 - anchor.y * next)
+      const next = inspectionScale(clampScale(initialScale * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, initialDistance), initialScale < .025 ? .001 : .025))
+      const contained = contain({ x: (a.x + b.x) / 2 - anchor.x * next, y: (a.y + b.y) / 2 - anchor.y * next, scale: next })
+      scale.set(contained.scale!); x.set(contained.x); y.set(contained.y)
     }
     else {
-      x.set(x.get() + p.x - old.x); y.set(y.get() + p.y - old.y)
+      const contained = contain({ x: x.get() + p.x - old.x, y: y.get() + p.y - old.y })
+      if (contained.scale !== undefined) scale.set(contained.scale)
+      x.set(contained.x); y.set(contained.y)
       const now = performance.now()
       velocity = { x: (p.x - previous.x) / Math.max(1, now - previous.t), y: (p.y - previous.y) / Math.max(1, now - previous.t) }
       previous = { ...p, t: now }
@@ -136,10 +159,17 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
       const margin = 70
       const nextX = Math.max(margin - bounds.value.maxX * s, Math.min(width.value - 32 - margin - bounds.value.minX * s, x.get() + (pinched ? 0 : velocity.x * 80)))
       const nextY = Math.max(margin - bounds.value.maxY * s, Math.min(height.value - safeBottom.value - margin - bounds.value.minY * s, y.get() + (pinched ? 0 : velocity.y * 80)))
-      moveTo({ x: nextX, y: nextY })
+      moveTo(contain({ x: nextX, y: nextY }))
     }
   }
   function wheel(event: WheelEvent) { event.preventDefault(); zoom(event.deltaY > 0 ? .9 : 1.1, { x: event.offsetX, y: event.offsetY }) }
+  watch(bounds, (next, previous) => {
+    // Turning on NILs or annotations changes the scene without resizing the
+    // SVG. A manually positioned lone node needs the same containment then.
+    if (following.value || !containWholeTree?.value) return
+    if (next.minX === previous.minX && next.minY === previous.minY && next.maxX === previous.maxX && next.maxY === previous.maxY) return
+    moveTo(contain({ x: destination?.x ?? x.get(), y: destination?.y ?? y.get(), scale: destination?.scale ?? scale.get() }), true)
+  })
   watch(() => resizing?.value, active => {
     // Direct manipulation follows the finger without a second delayed tween.
     if (!active) return
@@ -155,10 +185,13 @@ export function useCamera(element: Ref<HTMLElement | null>, bounds: ComputedRef<
       if (measured && Math.abs(width.value - next.width) < .001 && Math.abs(height.value - next.height) < .001) return
       const previousWidth = width.value, previousHeight = height.value
       width.value = next.width; height.value = next.height
-      if (following.value) fit(undefined, !measured || resizing?.value)
+      // A shrinking viewport is already animated by the dock/browser. Fit its
+      // current size directly so a second camera tween cannot trail behind it
+      // and crop leaves while the controls are opening.
+      if (following.value) fit(undefined, !measured || resizing?.value || next.width < previousWidth || next.height < previousHeight)
       else if (measured) {
         // Keep the inspected world point centered without undoing a manual zoom.
-        moveTo({ x: (destination?.x ?? x.get()) + (next.width - previousWidth) / 2, y: (destination?.y ?? y.get()) + (next.height - previousHeight) / 2, scale: destination?.scale ?? scale.get() }, resizing?.value)
+        moveTo(contain({ x: (destination?.x ?? x.get()) + (next.width - previousWidth) / 2, y: (destination?.y ?? y.get()) + (next.height - previousHeight) / 2, scale: destination?.scale ?? scale.get() }), resizing?.value || containWholeTree?.value)
       }
       measured = true
     })
