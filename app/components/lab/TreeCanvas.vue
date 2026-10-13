@@ -4,7 +4,8 @@ import type { MotionValue } from 'motion-v'
 import { layoutTree } from '../../engine'
 import { movementDuration, TREE_EASE } from './motion'
 import type { LayoutResult, Position, Role, Snapshot, Step, TreeType } from '../../engine/types'
-const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean; resizing?: boolean; reserveRotationSpace?: boolean }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined, resizing: false, reserveRotationSpace: false })
+import type { CameraOcclusion } from '../../composables/useCamera'
+const props = withDefaults(defineProps<{ tree: Snapshot; type: TreeType; step?: Step; seeking?: boolean; speed?: number; reduced?: boolean; selected?: number | null; showHeights?: boolean; showNils?: boolean; showLetters?: boolean; showLevels?: boolean; resizing?: boolean; occlusion?: CameraOcclusion }>(), { speed: 1, reduced: false, seeking: true, selected: null, step: undefined, resizing: false, occlusion: () => ({ bottom: 0, right: 0 }) })
 const emit = defineEmits<{ select: [id: number]; empty: []; details: []; compose: []; concepts: []; preset: [name: string] }>()
 const container = ref<HTMLElement | null>(null)
 const positions = shallowReactive<Record<number, { x: MotionValue<number>; y: MotionValue<number> }>>({})
@@ -30,7 +31,8 @@ function movePoint(key: string, point: MotionPoint, target: Position) {
   controls.set(key, [animate(point.x, target.x, transition), animate(point.y, target.y, transition)])
 }
 const layout = computed(() => layoutTree(props.tree, { showNils: props.showNils, showHeights: props.showHeights, showLevels: props.showLevels, extraBlack: props.step?.meta?.extraBlack }))
-const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced), computed(() => props.resizing), computed(() => Object.keys(props.tree.nodes).length <= 1))
+const camera = useCamera(container, computed(() => layout.value.bounds), computed(() => props.reduced), computed(() => props.resizing), computed(() => ({ bottom: props.occlusion.bottom + 32, right: props.occlusion.right })))
+const emptyStyle = computed(() => ({ bottom: `${props.occlusion.bottom + 44}px`, right: `${props.occlusion.right + 16}px` }))
 const nodes = computed(() => Object.entries(props.tree.nodes).map(([id, node]) => ({ id: Number(id), node })))
 const edges = computed(() => nodes.value.flatMap(({ id, node }) => [node.l, node.r].filter((child): child is number => child !== null).map(child => ({ from: id, to: child }))))
 const height = computed(() => props.tree.rootId === null ? -1 : props.tree.nodes[props.tree.rootId]?.h ?? -1)
@@ -40,8 +42,7 @@ const label = computed(() => {
   return `Árvore ${props.type === 'rb' ? 'Rubro-Negra' : props.type === 'avl' ? 'AVL' : 'Binária de Busca'}. ${nodes.value.length} nós. Altura ${height.value}. ${props.tree.rootId === null ? 'Árvore vazia.' : `Raiz ${props.tree.nodes[props.tree.rootId]?.key}. In-ordem: ${values(props.tree.rootId).join(', ')}.`}`
 })
 const a11yLabel = ref(label.value)
-watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.showHeights, props.showLevels] as const, (_, previous) => {
-  const restarting = props.tree.rootId === null || previous?.[0].rootId === null
+watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.showHeights, props.showLevels] as const, () => {
   const activeKeys = new Set<string>()
   for (const { id, node } of nodes.value) {
     const target = layout.value.positions[id]
@@ -87,7 +88,7 @@ watch(() => [props.tree, props.seeking, props.reduced, props.showNils, props.sho
     // Automatic framing keeps the complete tree visible as insertion/removal
     // changes its bounds. A highlighted-node pan retained the old zoom and
     // clipped the root and other branches after the tree grew.
-    if (restarting || camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
+    if (camera.following.value) camera.fit(props.tree.rootId === null ? undefined : layout.value.positions[props.tree.rootId], props.seeking)
   })
 }, { immediate: true })
 function depth(id: number) { let value = 0; let idParent = props.tree.nodes[id]?.p; while (idParent !== null && idParent !== undefined) { value++; idParent = props.tree.nodes[idParent]?.p } return value }
@@ -146,7 +147,7 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
 
 <template>
   <section class="tree-canvas-frame">
-    <header class="canvas-toolbar"><div class="metrics" aria-label="Métricas da árvore"><span><b>{{ nodes.length }}</b> nós</span><span>altura <b>{{ nodes.length ? height : '—' }}</b></span></div><button type="button" class="canvas-details" aria-label="Detalhes" @click="emit('details')"><Icon name="lucide:lightbulb" />Por quê?</button><UiIconButton icon="scan" label="Ajustar árvore à tela" @click="fit" /></header>
+    <header class="canvas-toolbar" :style="{ marginRight: `${occlusion.right}px` }"><div class="metrics" aria-label="Métricas da árvore"><span><b>{{ nodes.length }}</b> nós</span><span>altura <b>{{ nodes.length ? height : '—' }}</b></span></div><button type="button" class="canvas-details" aria-label="Detalhes" @click="emit('details')"><Icon name="lucide:lightbulb" />Por quê?</button><UiIconButton icon="scan" label="Ajustar árvore à tela" @click="fit" /></header>
   <section ref="container" class="tree-canvas" @pointerdown="camera.down" @pointermove="camera.drag" @pointerup="camera.up" @pointercancel="camera.up" @wheel="camera.wheel">
     <svg class="tree-svg" role="img" :aria-label="a11yLabel" @click="empty">
 
@@ -159,14 +160,14 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
       </motion.g>
     </svg>
     <div class="node-targets" role="group" aria-label="Nós da árvore: selecione para inspecionar"><LabNodeTarget v-for="{ id, node } in nodes" :id="id" :key="id" :node-key="node.key" :height="node.h" :root="id === tree.rootId" :selected="selected === id" :position="positions[id]!" :camera="camera" @select="emit('select', $event)" @focus="layout.positions[$event] && camera.follow(layout.positions[$event]!, true)" /></div>
-    <div v-if="!nodes.length" class="empty-tree" :class="{ compact: camera.height.value < 300 }" @pointerdown.stop><svg viewBox="0 0 180 90" aria-hidden="true"><path d="M90 25L45 70M90 25L135 70" /><circle cx="90" cy="25" r="18" /><circle cx="45" cy="70" r="15" /><circle cx="135" cy="70" r="15" /></svg><h2>{{ step ? 'Tudo começa na raiz.' : 'Sua árvore começa aqui.' }}</h2><p>{{ step ? 'Toque em Reproduzir para iniciar a sequência.' : 'Escolha um número. O laboratório mostra o caminho.' }}</p><button v-if="!step" class="empty-primary" @click="emit('compose')"><Icon name="lucide:plus" />Inserir primeiro número</button><button class="empty-concepts" @click="emit('concepts')">Explorar um conceito<Icon name="lucide:arrow-right" /></button></div>
+    <div v-if="!nodes.length" class="empty-tree" :style="emptyStyle" :class="{ compact: camera.visibleHeight.value < 300 }" @pointerdown.stop><svg viewBox="0 0 180 90" aria-hidden="true"><path d="M90 25L45 70M90 25L135 70" /><circle cx="90" cy="25" r="18" /><circle cx="45" cy="70" r="15" /><circle cx="135" cy="70" r="15" /></svg><h2>{{ step ? 'Tudo começa na raiz.' : 'Sua árvore começa aqui.' }}</h2><p>{{ step ? 'Toque em Reproduzir para iniciar a sequência.' : 'Escolha um número. O laboratório mostra o caminho.' }}</p><button v-if="!step" class="empty-primary" @click="emit('compose')"><Icon name="lucide:plus" />Inserir primeiro número</button><button class="empty-concepts" @click="emit('concepts')">Explorar um conceito<Icon name="lucide:arrow-right" /></button></div>
   </section>
-    <div v-if="reserveRotationSpace" class="rotation-band"><AnimatePresence :initial="false"><motion.div v-if="rotation" :key="`${rotation.pivot}:${rotation.child}:${rotation.n}`" class="rotation-caption" :initial="reduced ? false : { opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? 0 : .18 }"><Icon :name="rotation.dir === 'left' ? 'lucide:rotate-ccw' : 'lucide:rotate-cw'" /><span><strong>{{ tree.nodes[rotation.child]?.key }}</strong> sobe · <strong>{{ tree.nodes[rotation.pivot]?.key }}</strong> desce</span><span>{{ rotation.dir === 'left' ? 'à esquerda' : 'à direita' }}</span></motion.div></AnimatePresence></div>
+    <div class="rotation-band" :style="{ bottom: `${occlusion.bottom}px`, right: `${occlusion.right}px` }"><AnimatePresence :initial="false"><motion.div v-if="rotation" :key="`${rotation.pivot}:${rotation.child}:${rotation.n}`" class="rotation-caption" :initial="reduced ? false : { opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? 0 : .18 }"><Icon :name="rotation.dir === 'left' ? 'lucide:rotate-ccw' : 'lucide:rotate-cw'" /><span><strong>{{ tree.nodes[rotation.child]?.key }}</strong> sobe · <strong>{{ tree.nodes[rotation.pivot]?.key }}</strong> desce</span><span>{{ rotation.dir === 'left' ? 'à esquerda' : 'à direita' }}</span></motion.div></AnimatePresence></div>
   </section>
 </template>
 
 <style scoped>
-.tree-canvas-frame { height:100%; display:flex; flex-direction:column; min-height:0; }
+.tree-canvas-frame { position:relative; height:100%; display:flex; flex-direction:column; min-height:0; }
 .canvas-toolbar { flex-shrink:0; display:flex; align-items:center; gap:8px; height:48px; padding:0 12px; border-bottom:1px solid var(--border); background:var(--bg); }
 .metrics { display:flex; align-items:center; flex:1; min-width:0; gap:10px; color:var(--muted); font:11px 'JetBrains Mono',monospace; }.metrics b { font-weight:500; color:var(--text); }
 .canvas-details { display:flex; align-items:center; gap:6px; padding:0 10px; font-size:12px; min-height:36px; background:var(--surface-1); border:1px solid var(--border); border-radius:10px; }
@@ -177,6 +178,6 @@ defineExpose({ fit, focus, focusSubtree, clearFocus })
 .empty-tree svg { width:150px; height:80px; fill:transparent; stroke:var(--border-strong); stroke-width:1.5; stroke-dasharray:4 5; }.empty-tree h2 { font-size:20px; font-weight:650; margin-top:10px; }.empty-tree p { max-width:260px; line-height:1.6; font-size:13px; color:var(--muted); margin:8px 0 16px; }
 .empty-tree>button { display:flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border-radius:12px; }.empty-primary { color:var(--bg); background:var(--accent); border:1px solid var(--accent); padding:0 18px; font-size:13px; font-weight:600; }.empty-concepts { background:transparent; color:var(--muted); font-size:12px; margin-top:4px; }.empty-tree :deep(.iconify) { width:16px; height:16px; }
 .empty-tree.compact { inset:8px 12px; }.empty-tree.compact svg { display:none; }.empty-tree.compact h2 { font-size:16px; margin:0 0 6px; }.empty-tree.compact p { font-size:12px; margin:0 0 8px; }
-.rotation-band { position:relative; flex-shrink:0; height:32px; }.rotation-caption { position:absolute; inset:0; min-height:32px; display:flex; align-items:center; gap:8px; padding:6px 16px; border-top:1px solid var(--border); color:var(--rotation); font-size:12px; background:var(--surface-1); }.rotation-caption>span:last-child { margin-left:auto; font-size:11px; color:var(--muted); }.rotation-caption strong { font-family:'JetBrains Mono',monospace; }.rotation-caption :deep(.iconify) { width:16px; height:16px; }
+.rotation-band { position:absolute; left:0; height:32px; pointer-events:none; }.rotation-caption { position:absolute; inset:0; min-height:32px; display:flex; align-items:center; gap:8px; padding:6px 16px; border-top:1px solid var(--border); color:var(--rotation); font-size:12px; background:var(--surface-1); }.rotation-caption>span:last-child { margin-left:auto; font-size:11px; color:var(--muted); }.rotation-caption strong { font-family:'JetBrains Mono',monospace; }.rotation-caption :deep(.iconify) { width:16px; height:16px; }
 @media(max-height:740px) { .empty-tree.compact .empty-concepts { display:none; } }
 </style>

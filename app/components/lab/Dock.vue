@@ -3,7 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{ keyboard: boolean; reduced: boolean }>()
 const collapsed = defineModel<boolean>('collapsed', { required: true })
-const emit = defineEmits<{ toggle: []; 'update:resizing': [value: boolean] }>()
+const emit = defineEmits<{ toggle: []; 'update:resizing': [value: boolean]; 'update:occlusion': [value: { bottom: number; right: number }] }>()
 const panel = ref<HTMLElement | null>(null)
 const content = ref<HTMLElement | null>(null)
 const scrollArea = ref<HTMLElement | null>(null)
@@ -30,6 +30,18 @@ let workspaceObserver: ResizeObserver | undefined
 let contentObserver: ResizeObserver | undefined
 let panelObserver: ResizeObserver | undefined
 let drag: { pointer: number; y: number; height: number; moved: boolean } | undefined
+let lastOcclusion: { bottom: number; right: number } | undefined
+
+function measureOcclusion() {
+  if (!panel.value) return
+  const rect = panel.value.getBoundingClientRect()
+  const occlusion = sidePanel.value ? { bottom: 0, right: rect.width } : { bottom: rect.height, right: 0 }
+  if (lastOcclusion?.bottom !== occlusion.bottom || lastOcclusion?.right !== occlusion.right) {
+    lastOcclusion = occlusion
+    emit('update:occlusion', occlusion)
+  }
+  document.documentElement.style.setProperty('--lab-dock-height', `${rect.height}px`)
+}
 
 function saveHeight() {
   if (props.keyboard || preferredHeight.value === null) return
@@ -78,6 +90,7 @@ function measureContent() {
   naturalHeight.value = 45 + content.value.offsetHeight + bottom
 }
 watch(() => props.keyboard, () => { keyboardHeight.value = null })
+watch(sidePanel, async () => { await nextTick(); measureOcclusion() }, { flush: 'post' })
 watch([() => props.keyboard, maximumHeight, naturalHeight], async () => {
   if (!props.keyboard) return
   await nextTick()
@@ -100,10 +113,11 @@ onMounted(() => {
     contentObserver.observe(content.value)
   }
   if (panel.value) {
-    panelObserver = new ResizeObserver(() => document.documentElement.style.setProperty('--lab-dock-height', `${panel.value!.offsetHeight}px`))
+    panelObserver = new ResizeObserver(measureOcclusion)
     panelObserver.observe(panel.value)
   }
   measureContent()
+  nextTick(measureOcclusion)
 })
 onBeforeUnmount(() => {
   workspaceObserver?.disconnect(); contentObserver?.disconnect(); panelObserver?.disconnect()
@@ -122,7 +136,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.lab-dock { flex-shrink:0; min-height:0; overflow:hidden; display:flex; flex-direction:column; position:relative; border-top:1px solid var(--border); border-radius:20px 20px 0 0; background:var(--surface-1); padding-bottom:max(24px,env(safe-area-inset-bottom)); transition:height .28s cubic-bezier(.4,0,.2,1); }
+.lab-dock { min-height:0; overflow:hidden; display:flex; flex-direction:column; position:absolute; bottom:0; left:0; right:0; z-index:10; border-top:1px solid var(--border); border-radius:20px 20px 0 0; background:var(--surface-1); padding-bottom:max(24px,env(safe-area-inset-bottom)); transition:height .28s cubic-bezier(.4,0,.2,1); }
 .lab-dock.resizing,.lab-dock.reduced { transition:none; }
 .dock-grip { display:flex; align-items:center; flex-shrink:0; height:44px; padding-inline:16px 8px; }
 .dock-resize-handle { display:flex; flex:1; align-items:center; gap:10px; align-self:stretch; cursor:ns-resize; touch-action:none; user-select:none; border-radius:10px; }
@@ -136,7 +150,7 @@ onBeforeUnmount(() => {
 .dock-scroll { min-height:0; flex:1; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; padding:0 16px; }
 .dock-content { display:flow-root; }
 @media(min-width:768px),(orientation:landscape) and (max-height:500px) {
-  .lab-dock { width:380px; height:100%; max-height:100%; border-top:0; border-left:1px solid var(--border); border-radius:0; transition:none; }
+  .lab-dock { top:0; bottom:0; right:0; left:auto; width:380px; height:100%; max-height:100%; border-top:0; border-left:1px solid var(--border); border-radius:0; transition:none; }
   .dock-resize-handle { cursor:default; }.grip-line { display:none; }
 }
 @media(orientation:landscape) and (max-height:500px) { .lab-dock { width:340px; }.dock-grip { height:36px; }.dock-grip button { height:36px; }.dock-scroll { padding-top:0; } }

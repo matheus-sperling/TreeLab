@@ -35,13 +35,16 @@ for (const viewport of [{ width: 412, height: 915 }, { width: 393, height: 680 }
     await expect(page.locator('.tree-svg')).toHaveAttribute('aria-label', /9 nós/)
     await page.waitForTimeout(400)
     const initial = (await dock.boundingBox())!
+    const initialCanvas = (await page.locator('.tree-svg').boundingBox())!
     const heights = await touchResize(page, 96)
     for (let frame = 0; frame < heights.length; frame++) expect(heights[frame]).toBeCloseTo(Math.max(128, initial.height - (frame + 1) * 12), 0)
     const resized = (await dock.boundingBox())!
     expect(resized.height).toBeLessThan(initial.height - 80)
-    const canvas = (await page.locator('.canvas-shell').boundingBox())!
-    expect(canvas.y + canvas.height).toBeCloseTo(resized.y, 0)
-    expect(canvas.height).toBeGreaterThan(160)
+    const canvas = (await page.locator('.tree-svg').boundingBox())!
+    const workspace = (await page.locator('.lab-workspace').boundingBox())!
+    expect(canvas.y + canvas.height).toBeCloseTo(workspace.y + workspace.height, 0)
+    expect(canvas.height).toBeCloseTo(initialCanvas.height, 3)
+    expect(canvas.y + canvas.height).toBeGreaterThan(resized.y + 100)
     expect(await page.locator('.lab-dock.collapsed').count()).toBe(0)
     await expectReachable(page, 'Reproduzir')
     await expectReachable(page, 'Inserir valores')

@@ -168,8 +168,28 @@ async function inspectSnapshot(page: Page, type: TreeType, sequence: string, ste
   expect(collisions(initial), `${type} passo ${step.i} (${step.kind}), escala ajustada`).toEqual([])
   if (step.meta?.rotation?.movedSubtree && step.kind === 'rotate-pre') expect(initial.outlines).toHaveLength(1)
 
-  const canvas = await page.locator('.tree-canvas').boundingBox()
-  const x = canvas!.x + canvas!.width / 2, y = canvas!.y + canvas!.height - 24
+  const center = await page.evaluate(() => {
+    const canvas = document.querySelector<HTMLElement>('.tree-canvas')!
+    const bounds = canvas.getBoundingClientRect(), dock = document.querySelector('.lab-dock')?.getBoundingClientRect()
+    const left = Math.max(16, bounds.left + 16), top = Math.max(16, bounds.top + 16)
+    let right = Math.min(innerWidth - 16, bounds.right - 16), bottom = Math.min(innerHeight - 16, bounds.bottom - 16)
+    if (dock) {
+      if (dock.left > bounds.left + bounds.width * .4 && dock.width < bounds.width * .8) right = Math.min(right, dock.left - 16)
+      else bottom = Math.min(bottom, dock.top - 32 - 16)
+    }
+    // The SVG continues under the overlay dock. Select actual exposed hit targets,
+    // avoiding its controls and the rotation caption as well as node touch targets.
+    const accepts = (x: number, y: number) => {
+      const target = document.elementFromPoint(x, y)
+      return target?.closest('.tree-canvas') === canvas && !target.closest('[data-node],.node-target,button,.rotation-band')
+    }
+    for (let y = bottom - 16; y >= top; y -= 16) for (let x = (left + right) / 2; x >= left + 72; x -= 16) {
+      if (x + 72 <= right && [-70, -35, 35, 70].every(offset => accepts(x + offset, y))) return { x, y }
+    }
+    return null
+  })
+  expect(center, 'a pinça deve começar e terminar no SVG exposto').not.toBeNull()
+  const { x, y } = center!
   // Browser touch input exercises the actual two-finger camera gesture.
   const session = await page.context().newCDPSession(page)
   await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 35, y, id: 1 }, { x: x + 35, y, id: 2 }] })

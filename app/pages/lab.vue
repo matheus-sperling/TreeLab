@@ -25,10 +25,7 @@ const error = ref('')
 const keyboard = ref(false)
 const collapsed = ref(false)
 const dockResizing = ref(false)
-const reserveRotationSpace = computed(() => {
-  const [start = 0, end = 0] = lab.range
-  return lab.result.steps.slice(start, end + 1).some(step => step.meta?.rotation)
-})
+const dockOcclusion = ref({ bottom: 0, right: 0 })
 const currentSummary = computed(() => lab.operations.length ? 'Sua sequência está pronta para continuar.' : 'Comece inserindo seu primeiro número.')
 const editing = computed(() => keyboard.value && !settings.systemKeyboard)
 const selected = ref<number | null>(null)
@@ -118,8 +115,8 @@ onBeforeUnmount(() => { toast.suspended.value = false })
     <header class="lab-appbar"><NuxtLink to="/" class="lab-back" aria-label="Voltar ao início"><Icon name="lucide:arrow-left" /></NuxtLink><div class="tree-segment" role="group" aria-label="Tipo de árvore"><button v-for="type in types" :key="type.id" :aria-pressed="lab.type === type.id" @click="changeType(type.id)"><motion.span v-if="lab.type === type.id" layout-id="tree-type" class="segment-indicator" :transition="{ type: 'spring', duration: reduced ? 0 : .24, bounce: .08 }" /><span>{{ type.label }}</span></button></div><UiIconButton icon="ellipsis" label="Abrir menu do laboratório" @click="openSheet('menu')" /></header>
     <LabOperationsBar :reduced="reduced" @seek="player.seek" @edit="openSheet('sequence')" @clear="clear" />
     <div class="lab-workspace">
-      <NuxtErrorBoundary><div class="canvas-shell"><AnimatePresence><motion.div :key="lab.type" class="canvas-area" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? .12 : .2 }"><LabTreeCanvas :ref="setCanvas" :tree="lab.tree" :type="lab.type" :step="lab.step" :seeking="lab.seeking" :resizing="dockResizing" :reserve-rotation-space="reserveRotationSpace" :speed="player.speed.value" :reduced="reduced" :selected="selected" :show-heights="settings.showHeights" :show-nils="settings.showNils" :show-letters="settings.showColors" :show-levels="settings.showLevels" @select="inspect" @empty="emptyClicked" @details="openSheet('details')" @preset="emptyPreset" @compose="compose" @concepts="openSheet('concepts')" /></motion.div></AnimatePresence></div><template #error="{ clearError }"><div class="lab-error"><Icon name="lucide:info" /><h2>Vamos recomeçar?</h2><p>Não foi possível exibir esta sequência.</p><UiButton @click="player.pause(); lab.replace([]); clearError()">Reiniciar sequência</UiButton></div></template></NuxtErrorBoundary>
-      <LabDock v-model:collapsed="collapsed" :keyboard="keyboard" :reduced="reduced" @update:resizing="dockResizing = $event" @toggle="toggleDock">
+      <NuxtErrorBoundary><div class="canvas-shell"><AnimatePresence><motion.div :key="lab.type" class="canvas-area" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :exit="{ opacity: 0 }" :transition="{ duration: reduced ? .12 : .2 }"><LabTreeCanvas :ref="setCanvas" :tree="lab.tree" :type="lab.type" :step="lab.step" :seeking="lab.seeking" :resizing="dockResizing" :occlusion="dockOcclusion" :speed="player.speed.value" :reduced="reduced" :selected="selected" :show-heights="settings.showHeights" :show-nils="settings.showNils" :show-letters="settings.showColors" :show-levels="settings.showLevels" @select="inspect" @empty="emptyClicked" @details="openSheet('details')" @preset="emptyPreset" @compose="compose" @concepts="openSheet('concepts')" /></motion.div></AnimatePresence></div><template #error="{ clearError }"><div class="lab-error"><Icon name="lucide:info" /><h2>Vamos recomeçar?</h2><p>Não foi possível exibir esta sequência.</p><UiButton @click="player.pause(); lab.replace([]); clearError()">Reiniciar sequência</UiButton></div></template></NuxtErrorBoundary>
+      <LabDock v-model:collapsed="collapsed" :keyboard="keyboard" :reduced="reduced" @update:resizing="dockResizing = $event" @update:occlusion="dockOcclusion = $event" @toggle="toggleDock">
         <div v-if="collapsed" class="dock-peek"><p>{{ currentSummary }}</p><button type="button" @click="compose"><Icon name="lucide:plus" />Inserir</button></div>
         <motion.div v-if="!keyboard && !collapsed" class="lab-playback" :initial="{ opacity: 0 }" :animate="{ opacity: 1 }" :transition="{ duration: reduced ? .12 : .16 }">
           <LabNarration :playing="player.playing.value" @details="openSheet('details')" />
@@ -141,8 +138,8 @@ onBeforeUnmount(() => { toast.suspended.value = false })
 .tree-segment button[aria-pressed='true'] { color:var(--text); }
 .tree-segment button>span:last-child { position:relative; z-index:1; }
 .segment-indicator { position:absolute; inset:0; background:var(--surface-3); border-radius:9px; }
-.lab-workspace { display:flex; flex-direction:column; flex:1; min-height:0; }
-.canvas-shell { position:relative; flex:1; min-height:0; overflow:hidden; }
+.lab-workspace { position:relative; display:flex; flex-direction:column; flex:1; min-height:0; }
+.canvas-shell { position:absolute; inset:0; z-index:0; overflow:hidden; }
 .canvas-area { position:absolute; inset:0; overflow:hidden; }
 .lab-playback { container:lab-controls / inline-size; }
 .dock-peek { display:flex; align-items:center; gap:12px; padding-bottom:4px; }.dock-peek p { flex:1; color:var(--muted); font-size:12px; line-height:1.5; }.dock-peek button { display:flex; gap:5px; align-items:center; min-height:44px; font-size:13px; color:var(--accent); }

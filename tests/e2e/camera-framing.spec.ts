@@ -15,14 +15,17 @@ async function preferences(page: Page, reducedMotion = false) {
 async function frame(page: Page) {
   return page.evaluate(() => {
     const canvas = document.querySelector('.tree-canvas')!.getBoundingClientRect()
+    const dock = document.querySelector('.lab-dock')!.getBoundingClientRect()
+    const sidebar = dock.left > canvas.left + 1
+    const exposed = { left: canvas.left, right: sidebar ? dock.left : canvas.right, top: canvas.top, bottom: sidebar ? canvas.bottom - 32 : dock.top - 32 }
     const camera = document.querySelector<SVGGElement>('.tree-svg > g')!.getScreenCTM()!
     const center = new DOMPoint(canvas.left + canvas.width / 2, canvas.top + canvas.height / 2).matrixTransform(camera.inverse())
     const nodes = [...document.querySelectorAll<SVGGElement>('.tree-svg [data-node]')].map(node => {
       const box = node.getBoundingClientRect()
       return { key: node.querySelector(':scope > text')?.textContent, left: box.left, right: box.right, top: box.top, bottom: box.bottom }
     })
-    const clipped = nodes.filter(node => node.left < canvas.left - .5 || node.right > canvas.right + .5 || node.top < canvas.top - .5 || node.bottom > canvas.bottom + .5)
-    return { width: canvas.width, height: canvas.height, nodes, clipped, scale: Math.hypot(camera.a, camera.b), center: { x: center.x, y: center.y } }
+    const clipped = nodes.filter(node => node.left < exposed.left - .5 || node.right > exposed.right + .5 || node.top < exposed.top - .5 || node.bottom > exposed.bottom + .5)
+    return { width: canvas.width, height: canvas.height, exposed: { ...exposed, width: exposed.right - exposed.left, height: exposed.bottom - exposed.top }, nodes, clipped, x: camera.e - canvas.left, y: camera.f - canvas.top, scale: Math.hypot(camera.a, camera.b), center: { x: center.x, y: center.y } }
   })
 }
 async function framed(page: Page, count = 9) {
@@ -72,7 +75,7 @@ test('reprodução que começa com um nó termina com a árvore AVL inteira vis�
   expect(errors).toEqual([])
 })
 
-test('a árvore continua dentro do canvas durante cada movimento da alça do painel', async ({ page }) => {
+test('o ajuste automático usa a região exposta sem encurtar o SVG ao mover o painel', async ({ page }) => {
   await page.setViewportSize({ width: 393, height: 680 })
   await preferences(page)
   await page.goto(`/lab?t=avl&q=${sequence}&c=99999`)
@@ -88,12 +91,13 @@ test('a árvore continua dentro do canvas durante cada movimento da alça do pai
     await page.mouse.move(x, y - delta)
     await nextPaint(page)
     const current = await frame(page)
-    heights.push(current.height)
+    heights.push(current.exposed.height)
+    expect(current.height).toBeCloseTo(before.height, 3)
     expect(current.nodes).toHaveLength(9)
     expect(current.clipped).toEqual([])
   }
   await page.mouse.up()
-  expect(Math.min(...heights)).toBeLessThan(before.height - 30)
+  expect(Math.min(...heights)).toBeLessThan(before.exposed.height - 30)
   await framed(page)
   await page.setViewportSize({ width: 393, height: 820 })
   await framed(page)
@@ -105,8 +109,7 @@ test('zoom manual conserva a escala e o ponto central após resize e avanço de 
   await page.goto(`/lab?t=avl&q=${sequence}&c=99999`)
   await framed(page)
   const auto = await settledFrame(page)
-  const canvas = (await page.locator('.tree-canvas').boundingBox())!
-  await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2)
+  await page.mouse.move(auto.exposed.left + auto.exposed.width / 2, auto.exposed.top + auto.exposed.height / 2)
   await page.mouse.wheel(0, -100)
   await expect.poll(async () => (await frame(page)).scale).toBeCloseTo(auto.scale * 1.1, 4)
   const manual = await settledFrame(page)
@@ -118,6 +121,9 @@ test('zoom manual conserva a escala e o ponto central após resize e avanço de 
     await page.mouse.move(x, y - delta)
     await nextPaint(page)
     const current = await frame(page)
+    expect(current.height).toBeCloseTo(manual.height, 3)
+    expect(current.x).toBeCloseTo(manual.x, 4)
+    expect(current.y).toBeCloseTo(manual.y, 4)
     expect(current.scale).toBeCloseTo(manual.scale, 4)
     expect(current.center.x).toBeCloseTo(manual.center.x, 1)
     expect(current.center.y).toBeCloseTo(manual.center.y, 1)
@@ -145,9 +151,8 @@ test('zoom manual conserva a escala e o ponto central após resize e avanço de 
   // Grabbing the handle during a zoom freezes the visible transform rather
   // than applying the pending zoom destination on the first resized frame.
   const restored = await settledFrame(page)
-  const zoomCanvas = (await page.locator('.tree-canvas').boundingBox())!
   const resizeHandle = (await page.getByRole('separator', { name: 'Ajustar altura do painel de operações' }).boundingBox())!
-  await page.mouse.move(zoomCanvas.x + zoomCanvas.width / 2, zoomCanvas.y + zoomCanvas.height / 2)
+  await page.mouse.move(restored.exposed.left + restored.exposed.width / 2, restored.exposed.top + restored.exposed.height / 2)
   await page.mouse.wheel(0, -100)
   await page.waitForTimeout(80)
   const handleX = resizeHandle.x + resizeHandle.width / 2, handleY = resizeHandle.y + resizeHandle.height / 2
