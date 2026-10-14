@@ -22,13 +22,16 @@ const active = (to: string) => to === '/' ? route.path === '/' : route.path.star
 </script>
 <template>
   <div class="default-shell">
-    <header class="site-header"><NuxtLink to="/" class="brand"><Icon name="lucide:git-branch" size="25" /><span>TreeLab<span class="brand-dot">.</span></span></NuxtLink><NuxtLink to="/ajustes" class="icon-button" aria-label="Ajustes"><Icon name="lucide:settings" size="21" /></NuxtLink></header>
+    <header class="site-header">
+      <NuxtLink to="/" class="brand"><Icon name="lucide:git-branch" size="25" /><span>TreeLab<span class="brand-dot">.</span></span></NuxtLink>
+      <nav class="tab-bar" aria-label="Navegação principal">
+        <NuxtLink v-for="tab in tabs" :key="tab.to" :to="tab.to" :class="['tab-item', { active: active(tab.to) }]" :aria-current="active(tab.to) ? 'page' : undefined">
+          <motion.span v-if="active(tab.to)" layout-id="active-tab" class="tab-indicator" :transition="{ duration: .2 }" />
+          <Icon :name="`lucide:${tab.icon}`" size="22" /><span>{{ tab.label }}</span>
+        </NuxtLink>
+      </nav>
+      <NuxtLink to="/ajustes" class="icon-button settings-link" aria-label="Ajustes" :aria-current="route.path === '/ajustes' ? 'page' : undefined"><Icon name="lucide:settings" size="21" /><span>Ajustes</span></NuxtLink>
+    </header>
     <main><motion.div :style="{ opacity, y }"><slot /></motion.div></main>
-    <nav class="tab-bar" aria-label="Navegação principal">
-      <NuxtLink v-for="tab in tabs" :key="tab.to" :to="tab.to" :class="['tab-item', { active: active(tab.to) }]" :aria-current="active(tab.to) ? 'page' : undefined">
-        <motion.span v-if="active(tab.to)" layout-id="active-tab" class="tab-indicator" :transition="{ duration: .2 }" />
-        <Icon :name="`lucide:${tab.icon}`" size="22" /><span>{{ tab.label }}</span>
-      </NuxtLink>
-    </nav>
   </div>
 </template>

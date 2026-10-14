@@ -53,7 +53,14 @@ test('dock, teclado, timeline e árvore cabem nas telas reais de uso', async ({ 
     await expect.poll(() => insert.evaluate(el => { const b = el.getBoundingClientRect(); return b.bottom <= innerHeight - 20 && b.top >= 0 && document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2)?.closest('button') === el })).toBe(true)
     await page.waitForTimeout(400) // Capture the expanded dock after its spring.
     await page.screenshot({ path: `docs/screenshots/redo-keyboard-${size.width}x${size.height}.png` })
-    await page.getByRole('button', { name: 'Recolher teclado', exact: true }).last().click()
+    if (size.width >= 1024) {
+      await expect(page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })).toBeEditable()
+      await expect(page.locator('.entry-keyboard')).toHaveCount(0)
+      await expect(page.locator('.lab-playback')).toBeVisible()
+      await page.getByRole('textbox', { name: 'Valor ou lista de inteiros' }).press('Escape')
+    } else {
+      await page.getByRole('button', { name: 'Recolher teclado', exact: true }).last().click()
+    }
     await page.getByRole('button', { name: 'Recolher controles', exact: true }).click()
     await expect(page.getByRole('textbox', { name: 'Valor ou lista de inteiros' })).toHaveCount(0)
     await page.getByRole('button', { name: 'Expandir controles', exact: true }).click()

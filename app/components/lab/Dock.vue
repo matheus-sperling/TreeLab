@@ -144,8 +144,8 @@ onBeforeUnmount(() => {
 <template>
   <section ref="panel" class="lab-dock" :class="{ collapsed, resizing, reduced }" :style="panelStyle" aria-label="Painel de operações">
     <div class="dock-grip">
-      <div class="dock-resize-handle" role="separator" :tabindex="sidePanel ? -1 : 0" aria-label="Ajustar altura do painel de operações" aria-orientation="horizontal" :aria-valuemin="Math.round(collapsed ? Math.min(minimumHeight, height) : minimumHeight)" :aria-valuemax="Math.round(maximumHeight)" :aria-valuenow="Math.round(height)" :aria-valuetext="`${Math.round(height)} pixels; arraste ou use as setas para ajustar`" @pointerdown="startResize" @pointermove="moveResize" @pointerup="endResize" @pointercancel="endResize" @keydown="resizeWithKeys"><span class="grip-line" /><span class="dock-label">{{ keyboard ? 'Entrada de valores' : 'Passo a passo' }}</span></div>
-      <button type="button" :aria-label="keyboard ? 'Voltar à reprodução' : collapsed ? 'Expandir controles' : 'Recolher controles'" :aria-expanded="!collapsed" @click="emit('toggle')"><Icon :name="collapsed ? 'lucide:chevron-up' : 'lucide:chevron-down'" /></button>
+      <div class="dock-resize-handle" role="separator" :tabindex="sidePanel ? -1 : 0" aria-label="Ajustar altura do painel de operações" aria-orientation="horizontal" :aria-valuemin="Math.round(collapsed ? Math.min(minimumHeight, height) : minimumHeight)" :aria-valuemax="Math.round(maximumHeight)" :aria-valuenow="Math.round(height)" :aria-valuetext="`${Math.round(height)} pixels; arraste ou use as setas para ajustar`" @pointerdown="startResize" @pointermove="moveResize" @pointerup="endResize" @pointercancel="endResize" @keydown="resizeWithKeys"><span class="grip-line" /><span class="dock-label">{{ keyboard ? 'Entrada de valores' : 'Passo a passo' }}</span><span class="dock-desktop-label">Controles do laboratório</span></div>
+      <button type="button" :aria-label="keyboard ? 'Voltar à reprodução' : collapsed ? 'Expandir controles' : 'Recolher controles'" :aria-expanded="!collapsed" @click="emit('toggle')"><Icon :name="sidePanel ? collapsed ? 'lucide:chevron-left' : 'lucide:chevron-right' : collapsed ? 'lucide:chevron-up' : 'lucide:chevron-down'" /></button>
     </div>
     <div ref="scrollArea" class="dock-scroll"><div ref="content" class="dock-content"><slot /></div></div>
   </section>
@@ -160,6 +160,7 @@ onBeforeUnmount(() => {
 .grip-line { width:32px; height:4px; border-radius:999px; background:var(--border-strong); transition:background .18s; }
 .dock-resize-handle:hover .grip-line,.resizing .grip-line,.dock-resize-handle:focus-visible .grip-line { background:var(--accent); }
 .dock-label { font-size:11px; color:var(--muted); }
+.dock-desktop-label { display:none; }
 .dock-grip button { flex-shrink:0; width:44px; height:44px; display:grid; place-items:center; color:var(--muted); border-radius:10px; }
 .dock-grip button:active { background:var(--surface-2); }
 .dock-grip :deep(.iconify) { width:16px; height:16px; }
@@ -170,5 +171,17 @@ onBeforeUnmount(() => {
   .dock-resize-handle { cursor:default; }.grip-line { display:none; }
 }
 @media(orientation:landscape) and (max-height:500px) { .lab-dock { width:340px; }.dock-grip { height:36px; }.dock-grip button { height:36px; }.dock-scroll { padding-top:0; } }
+@media(min-width:1024px) {
+  .lab-dock { width:360px; padding-bottom:20px; transition:width .24s cubic-bezier(.4,0,.2,1); }
+  .dock-grip { height:64px; padding-inline:24px 12px; }
+  .dock-label { display:none; }
+  .dock-desktop-label { display:block; color:var(--text); font-size:13px; font-weight:600; white-space:nowrap; }
+  .dock-scroll { min-width:360px; padding-inline:24px; scrollbar-gutter:stable; }
+  .lab-dock.collapsed { width:56px; }
+  .collapsed .dock-grip { padding:0 6px; }
+  .collapsed .dock-resize-handle { display:none; }
+  .collapsed .dock-scroll { visibility:hidden; }
+}
+@media(min-width:1440px) { .lab-dock:not(.collapsed) { width:400px; }.dock-scroll { min-width:400px; } }
 @media(prefers-reduced-motion:reduce) { .lab-dock,.grip-line { transition:none; } }
 </style>
