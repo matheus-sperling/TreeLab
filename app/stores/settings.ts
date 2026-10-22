@@ -4,12 +4,12 @@ export interface Settings {
   theme: 'auto' | 'dark' | 'light'; textScale: number; speed: number; granularity: 'detailed' | 'summary'
   pauseOnKey: boolean; haptics: boolean; systemKeyboard: boolean; leftHanded: boolean; showNils: boolean
   showHeights: boolean; showColors: boolean; showLevels: boolean; reducedMotion: boolean; keepKeyboard: boolean
-  labMenuSection: 'examples' | 'explore' | 'options'; randomSeed: number; randomCount: number
+  labMenuSection: 'examples' | 'explore' | 'options'; randomSeed: string; randomCount: number
 }
 export const defaultSettings: Settings = {
   theme: 'dark', textScale: 1, speed: 1, granularity: 'detailed', pauseOnKey: false, haptics: true,
   systemKeyboard: false, leftHanded: false, showNils: false, showHeights: false, showColors: true,
-  showLevels: false, reducedMotion: false, keepKeyboard: false, labMenuSection: 'examples', randomSeed: 42, randomCount: 7,
+  showLevels: false, reducedMotion: false, keepKeyboard: false, labMenuSection: 'examples', randomSeed: '42', randomCount: 7,
 }
 const booleanFields = ['pauseOnKey', 'haptics', 'systemKeyboard', 'leftHanded', 'showNils', 'showHeights', 'showColors', 'showLevels', 'reducedMotion', 'keepKeyboard'] as const
 export const useSettingsStore = defineStore('settings', () => {
@@ -25,7 +25,7 @@ export const useSettingsStore = defineStore('settings', () => {
   function load() {
     if (ready.value) return
     try {
-      const saved = JSON.parse(localStorage.getItem('treelab:settings') || '{}') as Partial<Settings> | null
+      const saved = JSON.parse(localStorage.getItem('treelab:settings') || '{}') as (Omit<Partial<Settings>, 'randomSeed'> & { randomSeed?: unknown }) | null
       if (saved && typeof saved === 'object') {
         for (const field of booleanFields) if (typeof saved[field] === 'boolean') settings[field] = saved[field]
         if (saved.theme && ['auto', 'dark', 'light'].includes(saved.theme)) settings.theme = saved.theme
@@ -33,7 +33,8 @@ export const useSettingsStore = defineStore('settings', () => {
         if (saved.labMenuSection && ['examples', 'explore', 'options'].includes(saved.labMenuSection)) settings.labMenuSection = saved.labMenuSection
         if (saved.speed !== undefined && [.5, 1, 1.5, 2, 4].includes(saved.speed)) settings.speed = saved.speed
         if (saved.textScale !== undefined && [.9, 1, 1.12, 1.25].includes(saved.textScale)) settings.textScale = saved.textScale
-        if (typeof saved.randomSeed === 'number' && Number.isInteger(saved.randomSeed) && saved.randomSeed >= 0 && saved.randomSeed <= 4294967295) settings.randomSeed = saved.randomSeed
+        if (typeof saved.randomSeed === 'string' && /^\d{1,100}$/.test(saved.randomSeed)) settings.randomSeed = BigInt(saved.randomSeed).toString()
+        else if (typeof saved.randomSeed === 'number' && Number.isSafeInteger(saved.randomSeed) && saved.randomSeed >= 0) settings.randomSeed = String(saved.randomSeed)
         if (typeof saved.randomCount === 'number' && Number.isInteger(saved.randomCount) && saved.randomCount >= 1 && saved.randomCount <= 63) settings.randomCount = saved.randomCount
       }
     } catch { /* Configurações antigas inválidas voltam ao padrão. */ }

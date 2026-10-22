@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { decodeOps, encodeOps, height, runSequence } from '~/engine'
-import { seededRandom } from '~/engine/training'
+import { countTreeShapes, isShapeSeed, normalizeShapeSeed, shapeSequence } from '~/engine/shapes'
 import type { Cost, Op, Snapshot, TreeType } from '~/engine/types'
 const route = useRoute(), lab = useLabStore()
 const types: { type: TreeType; label: string; icon: string; note: string }[] = [
@@ -12,9 +12,16 @@ const empty: Snapshot = { rootId: null, nodes: {} }
 const sequence = ref<Op[]>(Array.from({ length: 15 }, (_, i) => ({ t: 'i', k: i + 1 })))
 const preferenceStore = useSettingsStore()
 const settings = preferenceStore.settings
-let hydrated = false
-const seed = computed({ get: () => settings.randomSeed, set: value => { settings.randomSeed = value } })
+let hydrated = false, syncingControls = false
+const seed = ref(settings.randomSeed)
 const count = ref(sequence.value.length)
+const validCount = computed(() => Number.isInteger(count.value) && count.value >= 1 && count.value <= 63)
+const shapeCount = computed(() => validCount.value ? countTreeShapes('bst', count.value) : 0n)
+const maxSeed = computed(() => (shapeCount.value > 0n ? shapeCount.value - 1n : 0n).toString())
+const validSeed = computed(() => validCount.value && isShapeSeed('bst', count.value, seed.value))
+const seedHint = computed(() => !validCount.value ? 'Escolha entre 1 e 63 nós.'
+  : !validSeed.value ? `Use uma semente inteira de 0 a ${maxSeed.value}.`
+    : `ABB: ${shapeCount.value.toLocaleString('pt-BR')} ${shapeCount.value === 1n ? 'formato possível' : 'formatos possíveis'}. Sementes de 0 a ${maxSeed.value}. A mesma ordem é aplicada às três árvores.`)
 const cursor = ref(sequence.value.length), experiment = ref('Sua sequência'), notice = ref('')
 const results = computed(() => types.map(item => ({ ...item, result: runSequence(item.type, sequence.value) })))
 const cards = computed(() => results.value.map(item => {
@@ -23,8 +30,21 @@ const cards = computed(() => results.value.map(item => {
   const cost = item.result.cost.slice(0, cursor.value).reduce<Cost>((sum, value) => ({ comparisons: sum.comparisons + value.comparisons, rotations: sum.rotations + value.rotations, recolorings: sum.recolorings + value.recolorings, heightUpdates: sum.heightUpdates + value.heightUpdates, visits: sum.visits + value.visits }), { comparisons: 0, rotations: 0, recolorings: 0, heightUpdates: 0, visits: 0 })
   return { ...item, tree, cost, height: height(tree, tree.rootId), count: Object.keys(tree.nodes).length, link: { path: '/lab', query: { t: item.type, q: encodeOps(sequence.value), c: '0' } } }
 }))
-watch(seed, value => { if (hydrated && preferenceStore.ready && Number.isInteger(value) && value >= 0) applyExperiment('random') }, { flush: 'sync' })
-watch(count, value => { if (hydrated && Number.isInteger(value) && value >= 1 && value <= 63) applyExperiment('random') }, { flush: 'sync' })
+watch([count, seed], ([currentCount], [previousCount]) => {
+  if (!hydrated || syncingControls || !preferenceStore.ready || !validCount.value) return
+  if (currentCount !== previousCount && (/^\d+$/.test(seed.value) || shapeCount.value === 1n)) {
+    const normalized = normalizeShapeSeed('bst', count.value, seed.value)
+    if (normalized !== seed.value) { seed.value = normalized; return }
+  }
+  if (validSeed.value) applyExperiment('random')
+}, { flush: 'sync' })
+watch(() => preferenceStore.ready, ready => { if (ready) restoreSeed() }, { flush: 'sync' })
+function restoreSeed() {
+  syncingControls = true
+  seed.value = normalizeShapeSeed('bst', count.value, settings.randomSeed)
+  settings.randomSeed = seed.value
+  syncingControls = false
+}
 const chartMax = computed(() => Math.max(1, ...cards.value.map(card => card.height)))
 const chartLabel = computed(() => `Altura depois de ${cursor.value} operações: ${cards.value.map(card => `${card.label}, ${card.height}`).join('; ')}.`)
 const summary = computed(() => {
@@ -39,15 +59,14 @@ function operationLabel(op: Op): string {
   return op.t === 'min' ? 'mínimo' : op.t === 'max' ? 'máximo' : `${op.t === 'succ' ? 'sucessor' : 'predecessor'} ${op.k}`
 }
 function applyExperiment(kind: 'ordered' | 'random' | 'zigzag') {
-  const size = Math.max(1, Math.min(63, Number.isInteger(count.value) ? count.value : 31))
+  if (!validCount.value || (kind === 'random' && !validSeed.value)) return
+  const size = count.value
   const values = Array.from({ length: size }, (_, i) => i + 1)
-  if (kind === 'random') {
-    const random = seededRandom(Number.isFinite(seed.value) ? seed.value : 42)
-    for (let i = values.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [values[i], values[j]] = [values[j]!, values[i]!] }
-  }
+  if (kind === 'random') settings.randomSeed = seed.value
   const keys = kind === 'zigzag' ? values.map((_, i) => i % 2 ? size - Math.floor(i / 2) : 1 + Math.floor(i / 2)) : values
-  sequence.value = keys.map(k => ({ t: 'i', k })); cursor.value = keys.length
-  experiment.value = kind === 'ordered' ? `1 a ${size} em ordem` : kind === 'random' ? `Aleatória · semente ${seed.value}` : 'Zigue-zague'
+  sequence.value = kind === 'random' ? shapeSequence('bst', size, seed.value) : keys.map(k => ({ t: 'i', k }))
+  cursor.value = sequence.value.length
+  experiment.value = kind === 'ordered' ? `1 a ${size} em ordem` : kind === 'random' ? `Formato de ABB · semente ${seed.value}` : 'Zigue-zague'
 }
 onMounted(() => {
   try {
@@ -55,7 +74,8 @@ onMounted(() => {
     if (query.length) { sequence.value = [...query]; cursor.value = query.length }
   }
   catch { notice.value = 'O link continha uma sequência inválida. Mostramos o exemplo em ordem.' }
-  count.value = Math.max(1, sequence.value.filter(op => op.t === 'i').length)
+  count.value = Math.max(1, Math.min(63, sequence.value.filter(op => op.t === 'i').length))
+  restoreSeed()
   hydrated = true
 })
 useSeoMeta({ title: 'Comparar — TreeLab', description: 'Uma sequência, três árvores. Compare altura, comparações, rotações e recolorações em ABB, AVL e Rubro-Negra.' })
@@ -65,7 +85,7 @@ useSeoMeta({ title: 'Comparar — TreeLab', description: 'Uma sequência, três 
     <header class="page-header"><span class="eyebrow">A MESMA ENTRADA</span><h1>Três caminhos.<br> Um experimento.</h1><p class="muted">Avance por operação. Observe como cada árvore responde à mesma sequência.</p></header>
     <p v-if="notice" class="compare-notice" role="status">{{ notice }}</p>
     <div class="comparison-controls">
-    <section class="experiments" aria-label="Experimentos"><div class="experiment-heading"><h2>Experimentos</h2><label class="seed-control">Semente<input v-model.number="seed" type="number" min="0" max="999999" inputmode="numeric" aria-label="Semente da sequência aleatória"></label></div><label class="count-control muted">Quantidade de valores<input v-model.number="count" type="number" min="1" max="63" aria-label="Quantidade de valores da comparação"></label><p class="seed-hint muted">Alterar a semente gera outra sequência na hora.</p><div class="experiment-options"><UiButton @click="applyExperiment('ordered')">Crescente</UiButton><UiButton @click="applyExperiment('random')"><Icon name="lucide:shuffle" />Aleatória</UiButton><UiButton @click="applyExperiment('zigzag')">Zigue-zague</UiButton></div><p class="muted experiment-name">{{ experiment }}</p></section>
+    <section class="experiments" aria-label="Experimentos"><div class="experiment-heading"><h2>Experimentos</h2><label class="seed-control">Semente<input v-model="seed" type="text" inputmode="numeric" pattern="[0-9]*" :disabled="shapeCount === 1n" :aria-invalid="!validSeed" aria-describedby="compare-seed-hint" aria-label="Semente do formato de ABB"></label></div><label class="count-control muted">Quantidade de valores<input v-model.number="count" type="number" min="1" max="63" :aria-invalid="!validCount" aria-describedby="compare-seed-hint" aria-label="Quantidade de valores da comparação"></label><p id="compare-seed-hint" class="seed-hint muted" :class="{ invalid: !validCount || !validSeed }">{{ seedHint }}</p><div class="experiment-options"><UiButton :disabled="!validCount" @click="applyExperiment('ordered')">Crescente</UiButton><UiButton :disabled="!validCount || !validSeed" @click="applyExperiment('random')"><Icon name="lucide:shuffle" />Por semente</UiButton><UiButton :disabled="!validCount" @click="applyExperiment('zigzag')">Zigue-zague</UiButton></div><p class="muted experiment-name">{{ experiment }}</p></section>
     <section class="comparison-timeline" aria-label="Linha do tempo por operação"><div class="timeline-heading"><span class="mono muted">Operação {{ cursor }} de {{ sequence.length }}</span><span v-if="cursor" class="mono accent">{{ operationLabel(sequence[cursor - 1]!) }}</span><span v-else class="muted">Árvores vazias</span></div><div class="comparison-scrubber"><UiIconButton icon="chevron-left" label="Operação anterior" :disabled="cursor === 0" @click="cursor--" /><UiSlider v-model="cursor" :max="sequence.length" label="Número de operações concluídas" /><UiIconButton icon="chevron-right" label="Próxima operação" :disabled="cursor === sequence.length" @click="cursor++" /></div><div class="compare-operation-chips"><button v-for="(op, i) in sequence" :key="i" type="button" :class="{ active: i + 1 === cursor, future: i + 1 > cursor }" :aria-label="`Ir ao fim da operação ${i + 1}: ${operationLabel(op)}`" @click="cursor = i + 1">{{ operationLabel(op) }}</button></div></section>
     </div>
     <div class="comparison-cards"><NuxtLink v-for="card in cards" :key="card.type" :to="card.link" class="comparison-card" :aria-label="`Abrir ${card.label} no laboratório com esta sequência`"><div class="comparison-card-heading"><Icon :name="`lucide:${card.icon}`" size="24" /><div><h2>{{ card.label }}</h2><p class="muted">{{ card.note }}</p></div><span class="height-stat mono"><strong>{{ card.height }}</strong><small class="muted">altura</small></span><Icon name="lucide:arrow-up-right" size="20" class="muted" /></div><LabMiniTree :type="card.type" :tree="card.tree" :height="145" :label="`${card.label}: ${card.count} nós e altura ${card.height}`" /><div class="comparison-metrics"><span><strong class="mono">{{ card.count }}</strong> nós</span><span><strong class="mono">{{ card.cost.comparisons }}</strong> comparações</span><span><strong class="mono">{{ card.cost.rotations }}</strong> rotações</span><span><strong class="mono">{{ card.cost.recolorings }}</strong> recolorações</span></div><span class="comparison-open">Explorar no laboratório<Icon name="lucide:arrow-up-right" /></span></NuxtLink></div>
@@ -73,7 +93,7 @@ useSeoMeta({ title: 'Comparar — TreeLab', description: 'Uma sequência, três 
   </div>
 </template>
 <style scoped>
-.seed-hint { font-size:12px; margin:8px 0; }.count-control { display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:12px; margin-top:12px; }.count-control input { width:82px; min-height:44px; border:1px solid var(--border); border-radius:10px; padding:8px; color:var(--text); background:var(--surface-1); }
+.seed-hint { font-size:12px; margin:8px 0; overflow-wrap:anywhere; }.seed-hint.invalid { color:var(--danger, #d6586c); }.seed-control input:disabled { opacity:.7; }.count-control { display:flex; justify-content:space-between; align-items:center; gap:16px; font-size:12px; margin-top:12px; }.count-control input { width:82px; min-height:44px; border:1px solid var(--border); border-radius:10px; padding:8px; color:var(--text); background:var(--surface-1); }
 .compare-page { max-width:800px; }
 .compare-notice { font-size:.82rem; line-height:1.6; padding:16px; background:var(--surface-2); border-left:3px solid var(--compare); margin-bottom:20px; }
 .experiment-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }

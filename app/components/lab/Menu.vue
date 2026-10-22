@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { SwitchRoot, SwitchThumb, TabsRoot, TabsList, TabsTrigger, TabsContent } from 'reka-ui'
-import { presets, seededSequence } from '../../engine/presets'
+import { presets } from '../../engine/presets'
+import { countTreeShapes, isShapeSeed, normalizeShapeSeed, shapeSequence } from '../../engine/shapes'
 import type { Op, TreeType } from '../../engine/types'
 import { useSettingsStore } from '../../stores/settings'
 const emit = defineEmits<{
@@ -11,14 +12,23 @@ const emit = defineEmits<{
 const props = defineProps<{ value: string; type?: TreeType }>()
 const settings = useSettingsStore().settings
 const count = ref(String(settings.randomCount))
-const seed = ref(String(settings.randomSeed))
+const activeType = computed(() => props.type ?? 'avl')
+const seed = ref(normalizeShapeSeed(activeType.value, settings.randomCount, settings.randomSeed))
+settings.randomSeed = seed.value
 const presetType = ref<TreeType>(props.type ?? 'avl')
 const generated = ref(false)
 const key = computed(() => Number(props.value.split(/[,\s]/).find(Boolean)))
 const validKey = computed(() => !!props.value.trim() && Number.isInteger(key.value) && Math.abs(key.value) <= 999)
 const validCount = computed(() => /^\d+$/.test(count.value) && Number(count.value) >= 1 && Number(count.value) <= 63)
-const validSeed = computed(() => /^\d+$/.test(seed.value) && Number(seed.value) <= 4294967295)
-const sequence = computed(() => validCount.value && validSeed.value ? seededSequence(Number(count.value), Number(seed.value)) : [])
+const shapeCount = computed(() => validCount.value ? countTreeShapes(activeType.value, Number(count.value)) : 0n)
+const maxSeed = computed(() => (shapeCount.value > 0n ? shapeCount.value - 1n : 0n).toString())
+const typeLabel = computed(() => ({ bst: 'ABB', avl: 'AVL', rb: 'Rubro-Negra' })[activeType.value])
+const validSeed = computed(() => validCount.value && isShapeSeed(activeType.value, Number(count.value), seed.value))
+const sequence = computed(() => validCount.value && validSeed.value ? shapeSequence(activeType.value, Number(count.value), seed.value) : [])
+const generatorNote = computed(() => !validCount.value ? 'Escolha entre 1 e 63 nós.'
+  : !validSeed.value ? `Use uma semente inteira de 0 a ${maxSeed.value}.`
+    : shapeCount.value === 1n ? `${typeLabel.value}: apenas 1 formato possível, com a semente 0.`
+      : `${typeLabel.value}: ${shapeCount.value.toLocaleString('pt-BR')} formatos possíveis. Sementes de 0 a ${maxSeed.value}.`)
 const filteredPresets = computed(() => presets.filter(item => item.type === presetType.value && item.id !== 'random'))
 const views = [['showHeights', 'Alturas dos nós'], ['showNils', 'Folhas vazias (NIL)'], ['showColors', 'Letras R/N nas cores'], ['showLevels', 'Guias de nível']] as const
 const playback = [
@@ -34,11 +44,18 @@ const keyboard = [
 function generate() {
   if (!validCount.value || !validSeed.value) return
   settings.randomCount = Number(count.value)
-  settings.randomSeed = Number(seed.value)
+  settings.randomSeed = seed.value
   generated.value = true
   emit('generate', sequence.value)
 }
-watch([count, seed], generate)
+watch([count, seed, activeType], ([currentCount, , currentType], [previousCount, , previousType]) => {
+  if (!validCount.value) return
+  if ((currentCount !== previousCount || currentType !== previousType) && (/^\d+$/.test(seed.value) || shapeCount.value === 1n)) {
+    const normalized = normalizeShapeSeed(activeType.value, Number(count.value), seed.value)
+    if (normalized !== seed.value) { seed.value = normalized; return }
+  }
+  generate()
+})
 </script>
 <template>
   <div class="lab-menu" :class="{ 'reduce-motion': settings.reducedMotion }">
@@ -54,14 +71,14 @@ watch([count, seed], generate)
       </TabsList>
       <TabsContent value="examples" class="menu-section">
         <section class="generator" aria-labelledby="generator-title">
-          <h3 id="generator-title">Árvore aleatória</h3>
-          <p>Mude a semente ou a quantidade para atualizar a árvore na hora. A mesma semente repete a mesma ordem.</p>
+          <h3 id="generator-title">Formatos da árvore</h3>
+          <p>Cada semente escolhe um formato diferente da árvore ativa, com valores de 1 até a quantidade de nós.</p>
           <div class="seed-inputs">
             <label for="lab-random-count">Quantidade de nós<input id="lab-random-count" v-model="count" type="number" inputmode="numeric" min="1" max="63" :aria-invalid="!validCount" aria-describedby="lab-generator-note"></label>
-            <label for="lab-random-seed">Semente<input id="lab-random-seed" v-model="seed" type="number" inputmode="numeric" min="0" max="4294967295" :aria-invalid="!validSeed" aria-describedby="lab-generator-note"></label>
+            <label for="lab-random-seed">Semente<input id="lab-random-seed" v-model="seed" type="text" inputmode="numeric" pattern="[0-9]*" :disabled="shapeCount === 1n" :aria-invalid="!validSeed" aria-describedby="lab-generator-note"></label>
           </div>
-          <p id="lab-generator-note" class="generator-note" :class="{ invalid: !validCount || !validSeed }">{{ !validCount ? 'Escolha entre 1 e 63 nós.' : !validSeed ? 'Use uma semente inteira de 0 a 4294967295.' : 'Esta geração substitui a sequência atual.' }}</p>
-          <div v-if="sequence.length" class="seed-preview" aria-label="Ordem de inserção da árvore aleatória"><span v-for="(op, index) in sequence.slice(0, 8)" :key="index">{{ 'k' in op ? op.k : '' }}</span><span v-if="sequence.length > 8" class="preview-rest">+{{ sequence.length - 8 }}</span></div>
+          <p id="lab-generator-note" class="generator-note" :class="{ invalid: !validCount || !validSeed }">{{ generatorNote }}</p>
+          <div v-if="sequence.length" class="seed-preview" aria-label="Ordem de inserção do formato escolhido"><span v-for="(op, index) in sequence.slice(0, 8)" :key="index">{{ 'k' in op ? op.k : '' }}</span><span v-if="sequence.length > 8" class="preview-rest">+{{ sequence.length - 8 }}</span></div>
           <button type="button" class="generate-button" :disabled="!validCount || !validSeed" @click="generate"><Icon name="lucide:shuffle" />Gerar árvore</button>
           <span v-if="generated" class="generator-status" role="status">Sequência atualizada · semente {{ settings.randomSeed }}</span>
         </section>
@@ -128,6 +145,8 @@ watch([count, seed], generate)
 .seed-inputs label { flex: 1; min-width: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .seed-inputs input { display: block; width: 100%; min-height: 48px; margin-top: 7px; padding: 10px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-1); color: var(--text); font: 14px 'JetBrains Mono', monospace; }
 .generator .generator-note { margin: 8px 0; font-size: 11px; }
+.generator-note { overflow-wrap: anywhere; }
+.seed-inputs input:disabled { color: var(--muted); opacity: .7; }
 .generator-note.invalid { color: var(--danger, #d6586c); }
 .seed-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 12px 0; }
 .seed-preview > span { padding: 5px 7px; color: var(--text); background: var(--surface-3); border-radius: 6px; font: 12px 'JetBrains Mono', monospace; }

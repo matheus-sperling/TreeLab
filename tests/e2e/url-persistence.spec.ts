@@ -35,8 +35,8 @@ test('alterar a semente persiste a geração ao voltar pelo navegador e recarreg
   await page.getByRole('button', { name: 'Abrir menu do laboratório', exact: true }).click()
   await page.getByRole('tab', { name: 'Exemplos', exact: true }).click()
   await page.locator('#lab-random-count').fill('5')
-  await page.locator('#lab-random-seed').fill('314')
-  await expect(page.getByRole('status').filter({ hasText: 'Sequência atualizada · semente 314' })).toBeVisible()
+  await page.locator('#lab-random-seed').fill('1')
+  await expect(page.getByRole('status').filter({ hasText: 'Sequência atualizada · semente 1' })).toBeVisible()
   await expect.poll(async () => {
     const session = await page.evaluate(() => JSON.parse(localStorage.getItem('treelab-lab') ?? '{}'))
     return session.ops?.length
@@ -55,7 +55,7 @@ test('alterar a semente persiste a geração ao voltar pelo navegador e recarreg
   await expect(page.locator('.sequence-row')).toHaveCount(5)
   await page.getByRole('button', { name: 'Voltar ao laboratório', exact: true }).click()
   await page.getByRole('button', { name: 'Abrir menu do laboratório', exact: true }).click()
-  await expect(page.locator('#lab-random-seed')).toHaveValue('314')
+  await expect(page.locator('#lab-random-seed')).toHaveValue('1')
   await expect(page.locator('#lab-random-count')).toHaveValue('5')
   expect(errors).toEqual([])
 })

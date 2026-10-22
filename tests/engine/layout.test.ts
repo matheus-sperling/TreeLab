@@ -50,6 +50,22 @@ function check(tree: Snapshot, options: Options = {}): void {
   const edges = Object.entries(tree.nodes).flatMap(([id, node]) => [node.l, node.r].filter(child => child !== null).map(child => ({ from: id, to: String(child) })))
   edges.push(...layout.nils.map(nil => ({ from: String(nil.parent), to: nil.id })))
   const byId = new Map(points.map(point => [point.id, point]))
+  const depths = new Map<number, number>(), rows = new Map<number, number>()
+  function checkLevel(id: number, depth: number): void {
+    depths.set(id, depth)
+    const y = layout.positions[id]!.y
+    if (rows.has(depth)) expect(y).toBe(rows.get(depth))
+    else rows.set(depth, y)
+    const node = tree.nodes[id]!
+    if (node.l !== null) checkLevel(node.l, depth + 1)
+    if (node.r !== null) checkLevel(node.r, depth + 1)
+  }
+  if (tree.rootId !== null) checkLevel(tree.rootId, 0)
+  for (const nil of layout.nils) {
+    const depth = depths.get(nil.parent)! + 1
+    if (rows.has(depth)) expect(nil.y).toBe(rows.get(depth))
+    else rows.set(depth, nil.y)
+  }
   const labels = labelBoxes(tree, layout.positions, options)
   const collisions: string[] = []
   for (const [index, label] of labels.entries()) {
@@ -131,6 +147,18 @@ function balancedKeys(start: number, end: number): number[] {
 }
 
 describe('layout diagonal por contornos', () => {
+  it('alinha nós do mesmo nível entre subárvores com formas diferentes', () => {
+    const tree = runSequence('bst', decodeOps('i6.i3.i9.i1.i5.i8.i10.i2.i4.i7')).final
+    for (const options of [{}, { showNils: true }, { showHeights: true }, { showLevels: true }, { showNils: true, showHeights: true, showLevels: true }]) {
+      const { positions } = layoutTree(tree, options)
+      const byKey = new Map(Object.entries(tree.nodes).map(([id, node]) => [node.key, positions[Number(id)]!]))
+      const y = (key: number) => byKey.get(key)!.y
+      expect(new Set([1, 5, 8, 10].map(y)).size).toBe(1)
+      expect(new Set([2, 4, 7].map(y)).size).toBe(1)
+      expect(y(2)).toBeGreaterThan(y(1))
+      check(tree, options)
+    }
+  })
   it('usa 45° em todas as arestas, reserva anotações e evita nós e NILs', () => {
     for (const type of ['bst', 'avl', 'rb'] as const) {
       for (const size of [1, 3, 7, 15, 31, 63]) {

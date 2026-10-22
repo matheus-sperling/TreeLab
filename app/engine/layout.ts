@@ -9,16 +9,26 @@ interface Subtree { positions: Record<number, Position>; nils: LayoutResult['nil
 /**
  * Every branch is at 45°. Pack the occupied slices of siblings, including their
  * edges and annotations, rather than their entire horizontal bounding boxes.
- * Long branches therefore open space only where the two subtrees need it.
+ * All parents at the same depth share an offset, so levels stay aligned across
+ * subtrees while long branches open space only where the contours need it.
  */
 export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutResult {
+  const levels: NodeId[][] = [], subtrees = new Map<NodeId, Subtree>()
+  function collect(id: NodeId, depth: number): void {
+    const level = levels[depth] ??= []
+    level.push(id)
+    const node = tree.nodes[id]!
+    if (node.l !== null) collect(node.l, depth + 1)
+    if (node.r !== null) collect(node.r, depth + 1)
+  }
+  if (tree.rootId !== null) collect(tree.rootId, 0)
   const rectangle = (x: number, y: number, halfWidth: number, halfHeight: number): Contour => ({ top: y - halfHeight, bottom: y + halfHeight, left: x - halfWidth, right: x + halfWidth, slope: 0 })
   const at = (shape: Contour, y: number, side: 'left' | 'right') => shape[side] + (y - shape.top) * shape.slope
   function hasNil(parent: NodeId, side: 'L' | 'R'): boolean {
     return Boolean(options.showNils || (options.extraBlack?.id === null && options.extraBlack.parent === parent && options.extraBlack.side === side))
   }
   function branch(child: NodeId | null, parent: NodeId, side: 'L' | 'R'): Subtree | null {
-    if (child !== null) return solve(child)
+    if (child !== null) return subtrees.get(child)!
     if (!hasNil(parent, side)) return null
     const extra = options.extraBlack?.id === null && options.extraBlack.parent === parent && options.extraBlack.side === side
     return { positions: {}, nils: [{ id: `nil:${parent}:${side}`, parent, side, x: 0, y: 0 }], contour: [rectangle(0, 0, extra ? 27 : 10, 10)], nil: true }
@@ -33,14 +43,7 @@ export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutR
     }
     return (distance + SIBLING_CLEARANCE) / 2
   }
-  function solve(id: NodeId): Subtree {
-    const node = tree.nodes[id]!, a = branch(node.l, id, 'L'), b = branch(node.r, id, 'R')
-    const onlyVirtualChildren = (!a || a.nil) && (!b || b.nil)
-    // The centered labels below a parent need horizontal clearance from the
-    // first child as well as clearance between siblings. This also applies to
-    // a parent with a single child, which does not enter separation().
-    let offset = onlyVirtualChildren ? NIL_GAP : options.showHeights || options.showLevels ? EDGE_GAP + 12 : EDGE_GAP
-    if (a && b) offset = Math.max(offset, separation(a, b))
+  function solve(id: NodeId, a: Subtree | null, b: Subtree | null, offset: number): Subtree {
     const result: Subtree = { positions: { [id]: { x: 0, y: 0 } }, nils: [], contour: [rectangle(0, 0, NODE_R + 10, NODE_R + 10), rectangle(0, 35, 15, 9)], nil: false }
     if (id === tree.rootId) result.contour.push(rectangle(0, -36, 24, 7))
     // AnimatedNumber is centered. Reserve its clipped entering/leaving glyphs
@@ -57,7 +60,22 @@ export function layoutTree(tree: Snapshot, options: LayoutOptions = {}): LayoutR
     }
     return result
   }
-  const result = tree.rootId === null ? null : solve(tree.rootId)
+  // Build descendants first: their final contours determine the largest gap
+  // needed by any parent at this depth, including parents of virtual NILs.
+  for (const level of levels.reverse()) {
+    const branches = level.map(id => {
+      const node = tree.nodes[id]!
+      return { id, a: branch(node.l, id, 'L'), b: branch(node.r, id, 'R') }
+    })
+    let offset = NIL_GAP
+    for (const { a, b } of branches) {
+      // Centered labels also need clearance when there is only one real child.
+      if ((a && !a.nil) || (b && !b.nil)) offset = Math.max(offset, options.showHeights || options.showLevels ? EDGE_GAP + 12 : EDGE_GAP)
+      if (a && b) offset = Math.max(offset, separation(a, b))
+    }
+    for (const { id, a, b } of branches) subtrees.set(id, solve(id, a, b, offset))
+  }
+  const result = tree.rootId === null ? null : subtrees.get(tree.rootId)!
   const positions = result?.positions ?? {}, nils = result?.nils ?? []
   const all: Position[] = [...Object.values(positions), ...nils]
   const bottomMargin = options.showLevels ? options.showHeights ? 82 : 64 : options.showHeights ? 68 : LABEL_MARGIN

@@ -8,7 +8,7 @@ Estude ABB, AVL e Rubro-Negra com controle de cada comparação, transplante, ro
 - Conceitos acessíveis no laboratório: ordem, altura, rotações e cores, com experimentos abertos desde o início. Lições antigas permanecem disponíveis por seus links.
 - Comparar: mesma sequência nas três estruturas, linha do tempo por operação e experimentos de altura.
 - Sequência editável: alterar números e tipos, reordenar, excluir e limpar tudo com Desfazer. O treino foi retirado da navegação; a rota antiga abre o laboratório.
-- Menu persistente de exemplos, exploração e opções; sementes atualizam imediatamente. Ajustes de tema, movimento, texto, teclado e visualização.
+- Menu persistente de exemplos, exploração e opções; sementes escolhem formatos finais distintos e atualizam imediatamente. O limite depende da quantidade de nós e do tipo de árvore. Ajustes de tema, movimento, texto, teclado e visualização.
 - PWA com fontes, ícones, conteúdo e chunks locais; nenhum login ou variável de ambiente.
 
 ## Rodar
@@ -61,6 +61,8 @@ docs/                Decisões e evidências de verificação
 Arquitetura: `{ type, operations, cursor }` → `runSequence(type, operations)` → snapshots congelados e passos → layout → reprodução. A UI deriva a árvore do cursor, preserva o id dos nós e usa MotionValues compartilhadas por nós e arestas. O motor não importa Vue, Nuxt, DOM ou motion-v; ESLint aplica essa fronteira.
 
 Convenções: chaves inteiras distintas de −999 a 999; no máximo 63 nós. Altura conta arestas, folha = 0 e NIL = −1. FB = altura esquerda − altura direita. Remoção com dois filhos move o sucessor por transplante. Uma rotação dupla conta duas primitivas no custo.
+
+O gerador de formatos usa os valores de 1 a N. Cada semente de 0 até a quantidade de formatos menos 1 identifica uma topologia diferente, considerando esquerda e direita; cores, ids e outras ordens que terminam na mesma árvore não criam opções extras. A contagem usa `BigInt`, e a preferência salva a semente como texto decimal para preservar sua precisão até 63 nós. Em Comparar, a ABB é a referência do formato e a mesma sequência é executada nas três estruturas; AVL e RN podem coincidir entre sementes. Os formatos RN são contados por conjuntos de alturas pretas possíveis, sem duplicar colorações, e reproduzidos por inserções reais verificadas pelo motor.
 
 ## Adicionar conteúdo
 
